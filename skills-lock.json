@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "skills": {
+    "api-design-patterns": {
+      "source": "AsyrafHussin/agent-skills",
+      "sourceType": "github",
+      "computedHash": "3f15c74774287c26486439158e2f7454907b6751fbd2e7842f034555e47df796"
+    },
+    "clean-code-principles": {
+      "source": "AsyrafHussin/agent-skills",
+      "sourceType": "github",
+      "computedHash": "4c22dca6110d58f1454523dc3f192ef20d91f538233da9132b407edd041a4762"
+    },
+    "git-workflow": {
+      "source": "AsyrafHussin/agent-skills",
+      "sourceType": "github",
+      "computedHash": "e6a28779208771a57940a14e1f9e463ab65c1f8e660fcc52d05b9ec05de3fab1"
+    },
+    "laravel-best-practices": {
+      "source": "AsyrafHussin/agent-skills",
+      "sourceType": "github",
+      "computedHash": "79bbf8e6a563b34a68e2e01d606ef8753f0e60468df2943eb4680e96f35807c7"
+    },
+    "laravel-database-optimization": {
+      "source": "AsyrafHussin/agent-skills",
+      "sourceType": "github",
+      "computedHash": "fe905e38e22305c599d93ebe4c78083eef2b96b8e5ba3a79ccfb80e11d52de40"
+    },
+    "laravel-testing": {
+      "source": "AsyrafHussin/agent-skills",
+      "sourceType": "github",
+      "computedHash": "51e001cf990a90eab4f121cfe949f9ca8d6f3c5ee35c3d6892b87c5b427288d4"
+    },
+    "php-best-practices": {
+      "source": "AsyrafHussin/agent-skills",
+      "sourceType": "github",
+      "computedHash": "1b25a60572ddd8b206eaf68b067cde70a9d002df572de8fefda703532cecfdad"
+    },
+    "seo-best-practices": {
+      "source": "AsyrafHussin/agent-skills",
+      "sourceType": "github",
+      "computedHash": "4d178add3e08ee9c5baf19dff7e2705ff09448e761e551c372bcfc8cd9134293"
+    },
+    "tailwind-best-practices": {
+      "source": "AsyrafHussin/agent-skills",
+      "sourceType": "github",
+      "computedHash": "39145b4b9d12b154d9ff9261805d225557a1dcb5c881b1da8dcc027004aefd44"
+    },
+    "testing-best-practices": {
+      "source": "AsyrafHussin/agent-skills",
+      "sourceType": "github",
+      "computedHash": "590eb4064d9fa41854f7871991a3c1ef566553593338632c6cf88d9984194d61"
+    },
+    "web-design-guidelines": {
+      "source": "AsyrafHussin/agent-skills",
+      "sourceType": "github",
+      "computedHash": "428318d02d8cc8c83c91efd80c05038850e6025b9e409b337aaadc996e2a3ba6"
+    }
+  }
+}
