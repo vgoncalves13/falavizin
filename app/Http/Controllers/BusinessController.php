@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\CreateBusinessAction;
+use App\Actions\UpdateBusinessAction;
+use App\Http\Requests\StoreBusinessRequest;
+use App\Http\Requests\UpdateBusinessRequest;
 use App\Models\Business;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class BusinessController extends Controller
@@ -15,6 +20,10 @@ class BusinessController extends Controller
 
     public function show(Business $business): View
     {
+        $business->load(['user', 'category', 'coverPhoto', 'promotions' => function ($q) {
+            $q->active()->latest();
+        }]);
+
         return view('businesses.show', compact('business'));
     }
 
@@ -23,18 +32,36 @@ class BusinessController extends Controller
         return view('businesses.create');
     }
 
-    public function store(): RedirectResponse
+    public function store(StoreBusinessRequest $request): RedirectResponse
     {
-        return redirect()->route('businesses.index');
+        $business = (new CreateBusinessAction)->execute(
+            user: auth()->user(),
+            data: $request->validated(),
+            coverPhoto: $request->file('cover_photo'),
+        );
+
+        return redirect()->route('businesses.show', $business)
+            ->with('success', 'Negócio cadastrado com sucesso!');
     }
 
     public function edit(Business $business): View
     {
+        Gate::authorize('update', $business);
+
+        $business->load(['category', 'coverPhoto']);
+
         return view('businesses.edit', compact('business'));
     }
 
-    public function update(Business $business): RedirectResponse
+    public function update(UpdateBusinessRequest $request, Business $business): RedirectResponse
     {
-        return redirect()->route('businesses.show', $business);
+        (new UpdateBusinessAction)->execute(
+            business: $business,
+            data: $request->validated(),
+            coverPhoto: $request->file('cover_photo'),
+        );
+
+        return redirect()->route('businesses.show', $business)
+            ->with('success', 'Negócio atualizado com sucesso!');
     }
 }

@@ -11,10 +11,12 @@
             @endauth
         </div>
 
-        {{-- Lista de negócios virá na Semana 3 --}}
-        <div class="bg-white rounded-xl border border-stone-200 p-8 text-center">
-            <x-heroicon-o-building-storefront class="w-10 h-10 text-stone-300 mx-auto mb-3" />
-            <p class="text-stone-500">Nenhum negócio cadastrado ainda.</p>
-        </div>
+        @session('success')
+            <div class="mb-4 px-4 py-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg">
+                {{ $value }}
+            </div>
+        @endsession
+
+        <livewire:business.business-list />
     </div>
 </x-app-layout>
