@@ -7,6 +7,12 @@
 
         <title>{{ isset($title) ? $title . ' — ' : '' }}{{ config('app.name', 'Hub do Bairro') }}</title>
 
+        @php $metaDescription = $description ?? 'Serviços, eventos, avisos e muito mais — tudo do seu bairro, em um só lugar.'; @endphp
+        <meta name="description" content="{{ $metaDescription }}">
+        <meta property="og:title" content="{{ isset($title) ? $title . ' — ' : '' }}{{ config('app.name', 'Hub do Bairro') }}">
+        <meta property="og:description" content="{{ $metaDescription }}">
+        <meta property="og:type" content="website">
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

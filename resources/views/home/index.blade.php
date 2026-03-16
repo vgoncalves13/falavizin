@@ -1,5 +1,5 @@
 <x-app-layout>
-    <!-- Hero Section -->
+    <!-- Hero -->
     <section class="relative bg-gradient-to-br from-amber-50 to-stone-100 border-b border-stone-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
             <div class="max-w-2xl">
@@ -30,39 +30,43 @@
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h2 class="text-xl font-bold text-stone-900 mb-6" style="font-family: var(--font-display)">Categorias</h2>
         <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
-            {{-- Populadas na Semana 4 com Cache::remember() --}}
-            <div class="flex flex-col items-center gap-2 p-4 bg-white rounded-xl border border-stone-200 hover:border-amber-300 hover:bg-amber-50 transition-colors duration-150 cursor-pointer">
-                <x-heroicon-o-bolt class="w-6 h-6 text-amber-600" />
-                <span class="text-xs font-medium text-stone-700 text-center">Elétrica</span>
-            </div>
-            <div class="flex flex-col items-center gap-2 p-4 bg-white rounded-xl border border-stone-200 hover:border-amber-300 hover:bg-amber-50 transition-colors duration-150 cursor-pointer">
-                <x-heroicon-o-wrench class="w-6 h-6 text-amber-600" />
-                <span class="text-xs font-medium text-stone-700 text-center">Encanamento</span>
-            </div>
-            <div class="flex flex-col items-center gap-2 p-4 bg-white rounded-xl border border-stone-200 hover:border-amber-300 hover:bg-amber-50 transition-colors duration-150 cursor-pointer">
-                <x-heroicon-o-cake class="w-6 h-6 text-amber-600" />
-                <span class="text-xs font-medium text-stone-700 text-center">Alimentação</span>
-            </div>
-            <div class="flex flex-col items-center gap-2 p-4 bg-white rounded-xl border border-stone-200 hover:border-amber-300 hover:bg-amber-50 transition-colors duration-150 cursor-pointer">
-                <x-heroicon-o-heart class="w-6 h-6 text-amber-600" />
-                <span class="text-xs font-medium text-stone-700 text-center">Saúde</span>
-            </div>
-            <div class="flex flex-col items-center gap-2 p-4 bg-white rounded-xl border border-stone-200 hover:border-amber-300 hover:bg-amber-50 transition-colors duration-150 cursor-pointer">
-                <x-heroicon-o-academic-cap class="w-6 h-6 text-amber-600" />
-                <span class="text-xs font-medium text-stone-700 text-center">Educação</span>
-            </div>
-            <div class="flex flex-col items-center gap-2 p-4 bg-white rounded-xl border border-stone-200 hover:border-amber-300 hover:bg-amber-50 transition-colors duration-150 cursor-pointer">
-                <x-heroicon-o-sparkles class="w-6 h-6 text-amber-600" />
-                <span class="text-xs font-medium text-stone-700 text-center">Beleza</span>
-            </div>
-            <div class="flex flex-col items-center gap-2 p-4 bg-white rounded-xl border border-stone-200 hover:border-amber-300 hover:bg-amber-50 transition-colors duration-150 cursor-pointer">
-                <x-heroicon-o-megaphone class="w-6 h-6 text-amber-600" />
-                <span class="text-xs font-medium text-stone-700 text-center">Avisos</span>
-            </div>
+            @foreach($categories as $category)
+                <a href="{{ route('categories.show', $category) }}"
+                   class="flex flex-col items-center gap-2 p-4 bg-white rounded-xl border border-stone-200 hover:border-amber-300 hover:bg-amber-50 transition-colors duration-150">
+                    <x-dynamic-component :component="'heroicon-o-' . $category->icon" class="w-6 h-6 text-amber-600" />
+                    <span class="text-xs font-medium text-stone-700 text-center">{{ $category->name }}</span>
+                </a>
+            @endforeach
         </div>
     </section>
 
-    <!-- Feed Recente e Negócios em Destaque -->
+    <!-- Promoções ativas -->
+    @if($recentPromotions->isNotEmpty())
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-stone-900" style="font-family: var(--font-display)">Promoções</h2>
+                <a href="{{ route('promotions.index') }}" class="text-sm font-medium text-amber-600 hover:text-amber-700">
+                    Ver todas →
+                </a>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                @foreach($recentPromotions as $promotion)
+                    <a href="{{ route('businesses.show', $promotion->business) }}"
+                       class="group block bg-gradient-to-br from-amber-50 to-white rounded-xl border border-amber-200 p-4 hover:shadow-md transition-shadow duration-200">
+                        <p class="text-xs font-medium text-amber-700 mb-1 truncate">{{ $promotion->business->name }}</p>
+                        <p class="font-semibold text-stone-900 text-sm leading-snug group-hover:text-amber-700 transition-colors">
+                            {{ $promotion->title }}
+                        </p>
+                        @if($promotion->ends_at)
+                            <p class="text-xs text-stone-400 mt-2">Válido até {{ $promotion->ends_at->format('d/m') }}</p>
+                        @endif
+                    </a>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
+    <!-- Feed Recente + Negócios em Destaque -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16">
         <div class="grid lg:grid-cols-3 gap-8">
             <!-- Feed Recente -->
@@ -73,14 +77,22 @@
                         Ver tudo →
                     </a>
                 </div>
-                <div class="space-y-3">
-                    <div class="bg-white rounded-xl border border-stone-200 p-5">
-                        <p class="text-sm text-stone-500">O feed será exibido aqui com os últimos posts aprovados do bairro.</p>
+
+                @if($recentPosts->isEmpty())
+                    <div class="bg-white rounded-xl border border-stone-200 p-8 text-center">
+                        <x-heroicon-o-newspaper class="w-8 h-8 text-stone-300 mx-auto mb-2" />
+                        <p class="text-sm text-stone-500">Nenhum post ainda. Seja o primeiro!</p>
                     </div>
-                </div>
+                @else
+                    <div class="space-y-3">
+                        @foreach($recentPosts as $post)
+                            <x-post-card :post="$post" />
+                        @endforeach
+                    </div>
+                @endif
             </div>
 
-            <!-- Sidebar: Negócios em Destaque -->
+            <!-- Sidebar: Em Destaque -->
             <div>
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-xl font-bold text-stone-900" style="font-family: var(--font-display)">Em Destaque</h2>
@@ -88,11 +100,37 @@
                         Ver tudo →
                     </a>
                 </div>
-                <div class="space-y-3">
-                    <div class="bg-amber-50 rounded-xl border border-amber-200 p-4">
-                        <p class="text-sm text-stone-500">Negócios com plano destaque aparecerão aqui.</p>
+
+                @if($featuredBusinesses->isEmpty())
+                    <div class="bg-amber-50 rounded-xl border border-amber-200 p-6 text-center">
+                        <x-heroicon-s-star class="w-6 h-6 text-amber-400 mx-auto mb-2" />
+                        <p class="text-sm text-stone-500">Nenhum negócio em destaque.</p>
                     </div>
-                </div>
+                @else
+                    <div class="space-y-3">
+                        @foreach($featuredBusinesses as $business)
+                            <a href="{{ route('businesses.show', $business) }}"
+                               class="flex items-center gap-3 p-3 bg-white rounded-xl border border-amber-200 hover:shadow-sm transition-shadow duration-150 group">
+                                <div class="w-12 h-12 rounded-lg overflow-hidden bg-stone-100 shrink-0">
+                                    @if($business->coverPhoto)
+                                        <img src="{{ Storage::url($business->coverPhoto->path) }}" alt="{{ $business->name }}" class="w-full h-full object-cover" />
+                                    @else
+                                        <div class="w-full h-full flex items-center justify-center">
+                                            <x-dynamic-component :component="'heroicon-o-' . ($business->category->icon ?? 'building-storefront')" class="w-6 h-6 text-stone-300" />
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-sm font-semibold text-stone-900 truncate group-hover:text-amber-700 transition-colors">
+                                        {{ $business->name }}
+                                    </p>
+                                    <p class="text-xs text-stone-400 truncate">{{ $business->neighborhood }}</p>
+                                </div>
+                                <x-heroicon-s-star class="w-4 h-4 text-amber-400 shrink-0 ml-auto" />
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
     </section>

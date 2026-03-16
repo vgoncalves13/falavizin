@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app-layout :title="$business->name" :description="Str::limit($business->description ?? $business->name . ' — ' . $business->neighborhood, 160)">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <a href="{{ route('businesses.index') }}" class="inline-flex items-center gap-1 text-sm text-stone-500 hover:text-stone-700 mb-6">
             <x-heroicon-o-arrow-left class="w-4 h-4" />
