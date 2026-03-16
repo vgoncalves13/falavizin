@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\CreatePostAction;
+use App\Http\Requests\StorePostRequest;
 use App\Models\Post;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class PostController extends Controller
@@ -15,6 +18,8 @@ class PostController extends Controller
 
     public function show(Post $post): View
     {
+        $post->load(['user', 'category', 'votes']);
+
         return view('feed.show', compact('post'));
     }
 
@@ -23,13 +28,24 @@ class PostController extends Controller
         return view('feed.create');
     }
 
-    public function store(): RedirectResponse
+    public function store(StorePostRequest $request): RedirectResponse
     {
-        return redirect()->route('feed.index');
+        $post = (new CreatePostAction)->execute(
+            user: auth()->user(),
+            data: $request->validated(),
+        );
+
+        return redirect()->route('feed.show', $post)
+            ->with('success', 'Post publicado com sucesso!');
     }
 
     public function destroy(Post $post): RedirectResponse
     {
-        return redirect()->route('feed.index');
+        Gate::authorize('delete', $post);
+
+        $post->delete();
+
+        return redirect()->route('feed.index')
+            ->with('success', 'Post removido.');
     }
 }
