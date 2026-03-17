@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Business;
 use App\Models\Post;
 use App\Models\Promotion;
+use App\Notifications\ContentModerationNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
@@ -67,23 +68,24 @@ class ModerationController extends Controller
 
     public function approve(string $type, int $id): RedirectResponse
     {
-        match ($type) {
-            'post' => Post::findOrFail($id)->update([
+        $model = match ($type) {
+            'post' => tap(Post::with('user')->findOrFail($id))->update([
                 'status' => PostStatus::Approved,
                 'approved_at' => now(),
                 'reported_at' => null,
             ]),
-            'business' => Business::findOrFail($id)->update([
+            'business' => tap(Business::with('user')->findOrFail($id))->update([
                 'status' => BusinessStatus::Approved,
                 'reported_at' => null,
             ]),
-            'promotion' => Promotion::findOrFail($id)->update([
+            'promotion' => tap(Promotion::with('business.user')->findOrFail($id))->update([
                 'status' => 'approved',
                 'reported_at' => null,
             ]),
             default => abort(404),
         };
 
+        $this->notifyAuthor($model, $type, 'approved');
         $this->clearHomeCache();
 
         return redirect()->route('admin.moderation.index')
@@ -92,26 +94,60 @@ class ModerationController extends Controller
 
     public function reject(string $type, int $id): RedirectResponse
     {
-        match ($type) {
-            'post' => Post::findOrFail($id)->update([
+        $model = match ($type) {
+            'post' => tap(Post::with('user')->findOrFail($id))->update([
                 'status' => PostStatus::Rejected,
                 'reported_at' => null,
             ]),
-            'business' => Business::findOrFail($id)->update([
+            'business' => tap(Business::with('user')->findOrFail($id))->update([
                 'status' => BusinessStatus::Rejected,
                 'reported_at' => null,
             ]),
-            'promotion' => Promotion::findOrFail($id)->update([
+            'promotion' => tap(Promotion::with('business.user')->findOrFail($id))->update([
                 'status' => 'rejected',
                 'reported_at' => null,
             ]),
             default => abort(404),
         };
 
+        $this->notifyAuthor($model, $type, 'rejected');
         $this->clearHomeCache();
 
         return redirect()->route('admin.moderation.index')
             ->with('success', 'Conteúdo rejeitado.');
+    }
+
+    private function notifyAuthor(Post|Business|Promotion $model, string $type, string $decision): void
+    {
+        $author = match ($type) {
+            'post' => $model->user,
+            'business' => $model->user,
+            'promotion' => $model->business?->user,
+        };
+
+        if (! $author) {
+            return;
+        }
+
+        $title = match ($type) {
+            'post' => $model->title,
+            'business' => $model->name,
+            'promotion' => $model->title,
+        };
+
+        $url = $decision === 'approved' ? match ($type) {
+            'post' => route('feed.show', $model),
+            'business' => route('businesses.show', $model),
+            'promotion' => route('businesses.show', $model->business),
+            default => null,
+        } : null;
+
+        $author->notify(new ContentModerationNotification(
+            type: $type,
+            title: $title,
+            decision: $decision,
+            url: $url,
+        ));
     }
 
     private function clearHomeCache(): void

@@ -8,6 +8,7 @@ use App\Models\Business;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\User;
+use App\Notifications\ContentModerationNotification;
 use App\Notifications\NewContentNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -114,6 +115,54 @@ class ModerationTest extends TestCase
             'id' => $business->id,
             'status' => BusinessStatus::Approved->value,
         ]);
+    }
+
+    public function test_author_is_notified_when_post_is_approved(): void
+    {
+        Notification::fake();
+
+        $admin = User::factory()->create(['is_admin' => true]);
+        $author = User::factory()->create();
+        $post = Post::factory()->create(['user_id' => $author->id, 'status' => PostStatus::Pending]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.moderation.approve', ['type' => 'post', 'id' => $post->id]));
+
+        Notification::assertSentTo($author, ContentModerationNotification::class, function ($n) {
+            return $n->decision === 'approved' && $n->type === 'post';
+        });
+    }
+
+    public function test_author_is_notified_when_post_is_rejected(): void
+    {
+        Notification::fake();
+
+        $admin = User::factory()->create(['is_admin' => true]);
+        $author = User::factory()->create();
+        $post = Post::factory()->create(['user_id' => $author->id, 'status' => PostStatus::Pending]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.moderation.reject', ['type' => 'post', 'id' => $post->id]));
+
+        Notification::assertSentTo($author, ContentModerationNotification::class, function ($n) {
+            return $n->decision === 'rejected' && $n->type === 'post';
+        });
+    }
+
+    public function test_author_is_notified_when_business_is_approved(): void
+    {
+        Notification::fake();
+
+        $admin = User::factory()->create(['is_admin' => true]);
+        $owner = User::factory()->create();
+        $business = Business::factory()->create(['user_id' => $owner->id, 'status' => BusinessStatus::Pending]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.moderation.approve', ['type' => 'business', 'id' => $business->id]));
+
+        Notification::assertSentTo($owner, ContentModerationNotification::class, function ($n) {
+            return $n->decision === 'approved' && $n->type === 'business';
+        });
     }
 
     // --- Reportar conteúdo ---
