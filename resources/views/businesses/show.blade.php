@@ -113,6 +113,9 @@
             </div>
         </div>
 
+        {{-- Galeria de fotos --}}
+        <livewire:business.photo-gallery :business="$business" :key="'gallery-'.$business->id" />
+
         {{-- Promoções --}}
         @if($business->promotions->isNotEmpty() || auth()->user()?->can('update', $business))
             <div class="bg-white rounded-xl border border-stone-200 p-6 mb-5">
