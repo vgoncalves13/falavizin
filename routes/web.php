@@ -8,6 +8,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PromotionController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 // Públicas
@@ -43,6 +44,10 @@ Route::middleware('auth')->group(function () {
         ->name('promotions.store');
     Route::delete('/promocoes/{promotion}', [PromotionController::class, 'destroy'])
         ->name('promotions.destroy');
+
+    Route::post('/feed/{post}/reportar', [ReportController::class, 'post'])->name('report.post');
+    Route::post('/servicos/{business}/reportar', [ReportController::class, 'business'])->name('report.business');
+    Route::post('/promocoes/{promotion}/reportar', [ReportController::class, 'promotion'])->name('report.promotion');
 });
 
 // Admin

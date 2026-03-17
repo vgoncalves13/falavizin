@@ -51,7 +51,8 @@ class CreatePost extends Component
             ],
         );
 
-        $this->redirect(route('feed.show', $post));
+        $this->redirect(route('feed.index'), navigate: false);
+        session()->flash('success', 'Post enviado! Aguarda aprovação do admin.');
     }
 
     public function render()

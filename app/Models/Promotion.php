@@ -22,6 +22,8 @@ class Promotion extends Model
         'ends_at',
         'is_active',
         'status',
+        'reported_at',
+        'reported_reason',
     ];
 
     protected function casts(): array
@@ -30,6 +32,7 @@ class Promotion extends Model
             'starts_at' => 'date',
             'ends_at' => 'date',
             'is_active' => 'boolean',
+            'reported_at' => 'datetime',
         ];
     }
 

@@ -9,6 +9,7 @@ use App\Models\Business;
 use App\Models\Post;
 use App\Models\Promotion;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class ModerationController extends Controller
@@ -33,10 +34,34 @@ class ModerationController extends Controller
             ->latest()
             ->get();
 
+        $reportedPosts = Post::query()
+            ->whereNotNull('reported_at')
+            ->where('status', PostStatus::Approved)
+            ->with(['user', 'category'])
+            ->latest('reported_at')
+            ->get();
+
+        $reportedBusinesses = Business::query()
+            ->whereNotNull('reported_at')
+            ->where('status', BusinessStatus::Approved)
+            ->with(['user', 'category'])
+            ->latest('reported_at')
+            ->get();
+
+        $reportedPromotions = Promotion::query()
+            ->whereNotNull('reported_at')
+            ->where('status', 'approved')
+            ->with('business')
+            ->latest('reported_at')
+            ->get();
+
         return view('admin.moderation.index', compact(
             'pendingPosts',
             'pendingBusinesses',
             'pendingPromotions',
+            'reportedPosts',
+            'reportedBusinesses',
+            'reportedPromotions',
         ));
     }
 
@@ -46,15 +71,20 @@ class ModerationController extends Controller
             'post' => Post::findOrFail($id)->update([
                 'status' => PostStatus::Approved,
                 'approved_at' => now(),
+                'reported_at' => null,
             ]),
             'business' => Business::findOrFail($id)->update([
                 'status' => BusinessStatus::Approved,
+                'reported_at' => null,
             ]),
             'promotion' => Promotion::findOrFail($id)->update([
                 'status' => 'approved',
+                'reported_at' => null,
             ]),
             default => abort(404),
         };
+
+        $this->clearHomeCache();
 
         return redirect()->route('admin.moderation.index')
             ->with('success', 'Conteúdo aprovado.');
@@ -65,17 +95,30 @@ class ModerationController extends Controller
         match ($type) {
             'post' => Post::findOrFail($id)->update([
                 'status' => PostStatus::Rejected,
+                'reported_at' => null,
             ]),
             'business' => Business::findOrFail($id)->update([
                 'status' => BusinessStatus::Rejected,
+                'reported_at' => null,
             ]),
             'promotion' => Promotion::findOrFail($id)->update([
                 'status' => 'rejected',
+                'reported_at' => null,
             ]),
             default => abort(404),
         };
 
+        $this->clearHomeCache();
+
         return redirect()->route('admin.moderation.index')
             ->with('success', 'Conteúdo rejeitado.');
+    }
+
+    private function clearHomeCache(): void
+    {
+        Cache::forget('home:posts');
+        Cache::forget('home:featured_businesses');
+        Cache::forget('home:promotions');
+        Cache::forget('home:categories');
     }
 }

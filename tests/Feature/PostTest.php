@@ -60,7 +60,7 @@ class PostTest extends TestCase
         $this->assertDatabaseHas('posts', [
             'title' => 'Buraco na rua principal',
             'user_id' => $user->id,
-            'status' => PostStatus::Approved->value,
+            'status' => PostStatus::Pending->value,
         ]);
     }
 

@@ -35,8 +35,8 @@ class PostController extends Controller
             data: $request->validated(),
         );
 
-        return redirect()->route('feed.show', $post)
-            ->with('success', 'Post publicado com sucesso!');
+        return redirect()->route('feed.index')
+            ->with('success', 'Post enviado! Aguarda aprovação do admin.');
     }
 
     public function destroy(Post $post): RedirectResponse

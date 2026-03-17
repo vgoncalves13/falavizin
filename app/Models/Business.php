@@ -41,6 +41,8 @@ class Business extends Model
         'claimed',
         'claim_token',
         'claimed_at',
+        'reported_at',
+        'reported_reason',
     ];
 
     protected function casts(): array
@@ -51,6 +53,7 @@ class Business extends Model
             'opening_hours' => 'array',
             'claimed' => 'boolean',
             'claimed_at' => 'datetime',
+            'reported_at' => 'datetime',
         ];
     }
 

@@ -62,7 +62,7 @@ class BusinessTest extends TestCase
         $this->assertDatabaseHas('businesses', [
             'name' => 'Padaria do João',
             'user_id' => $user->id,
-            'status' => BusinessStatus::Approved->value,
+            'status' => BusinessStatus::Pending->value,
             'claimed' => true,
         ]);
     }

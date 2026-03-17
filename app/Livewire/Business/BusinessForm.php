@@ -110,16 +110,16 @@ class BusinessForm extends Component
 
         if ($this->business?->exists) {
             (new UpdateBusinessAction)->execute($this->business, $data, $uploadedPhoto);
-            $business = $this->business;
+            $this->redirect(route('businesses.show', $this->business));
         } else {
-            $business = (new CreateBusinessAction)->execute(
+            (new CreateBusinessAction)->execute(
                 user: auth()->user(),
                 data: $data,
                 coverPhoto: $uploadedPhoto,
             );
+            session()->flash('success', 'Negócio enviado! Aguarda aprovação do admin.');
+            $this->redirect(route('businesses.index'));
         }
-
-        $this->redirect(route('businesses.show', $business));
     }
 
     public function render()

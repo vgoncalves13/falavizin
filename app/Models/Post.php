@@ -28,6 +28,8 @@ class Post extends Model
         'location',
         'status',
         'approved_at',
+        'reported_at',
+        'reported_reason',
     ];
 
     protected function casts(): array
@@ -35,6 +37,7 @@ class Post extends Model
         return [
             'status' => PostStatus::class,
             'approved_at' => 'datetime',
+            'reported_at' => 'datetime',
         ];
     }
 

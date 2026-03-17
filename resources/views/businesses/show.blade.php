@@ -64,6 +64,13 @@
                                     </button>
                                 </form>
                             @endif
+                            @cannot('update', $business)
+                                <x-report-modal
+                                    :action="route('report.business', $business)"
+                                    trigger-class="inline-flex items-center gap-1 text-xs text-stone-400 hover:text-amber-600 transition-colors"
+                                    trigger-label="Reportar"
+                                />
+                            @endcannot
                         @endauth
                     </div>
                 </div>

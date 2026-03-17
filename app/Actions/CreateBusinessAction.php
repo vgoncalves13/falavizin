@@ -5,7 +5,9 @@ namespace App\Actions;
 use App\Enums\BusinessStatus;
 use App\Models\Business;
 use App\Models\User;
+use App\Notifications\NewContentNotification;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
@@ -24,7 +26,7 @@ class CreateBusinessAction
             'neighborhood' => $data['neighborhood'],
             'city' => $data['city'] ?? '',
             'website' => $data['website'] ?? null,
-            'status' => BusinessStatus::Approved,
+            'status' => BusinessStatus::Pending,
             'claimed' => true,
             'claimed_at' => now(),
         ]);
@@ -33,7 +35,20 @@ class CreateBusinessAction
             $this->saveCoverPhoto($business, $coverPhoto);
         }
 
+        $this->notifyAdmins($business->name);
+
         return $business;
+    }
+
+    private function notifyAdmins(string $name): void
+    {
+        $admins = User::where('is_admin', true)->get();
+
+        if ($admins->isEmpty()) {
+            return;
+        }
+
+        Notification::send($admins, new NewContentNotification('business', $name));
     }
 
     private function saveCoverPhoto(Business $business, UploadedFile $file): void

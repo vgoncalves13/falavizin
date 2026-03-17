@@ -40,8 +40,8 @@ class BusinessController extends Controller
             coverPhoto: $request->file('cover_photo'),
         );
 
-        return redirect()->route('businesses.show', $business)
-            ->with('success', 'Negócio cadastrado com sucesso!');
+        return redirect()->route('businesses.index')
+            ->with('success', 'Negócio enviado! Aguarda aprovação do admin.');
     }
 
     public function edit(Business $business): View

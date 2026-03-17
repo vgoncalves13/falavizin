@@ -40,18 +40,30 @@
             <div class="mt-6 pt-4 border-t border-stone-100 flex items-center justify-between">
                 <livewire:feed.vote-buttons :post="$post" :key="'votes-'.$post->id" />
 
-                @can('delete', $post)
-                    <form action="{{ route('feed.destroy', $post) }}" method="POST"
-                          onsubmit="return confirm('Remover este post?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit"
-                                class="inline-flex items-center gap-1.5 text-xs text-stone-400 hover:text-red-500 transition-colors">
-                            <x-heroicon-o-trash class="w-4 h-4" />
-                            Remover
-                        </button>
-                    </form>
-                @endcan
+                <div class="flex items-center gap-3">
+                    @auth
+                        @unless(auth()->id() === $post->user_id)
+                            <x-report-modal
+                                :action="route('report.post', $post)"
+                                trigger-class="inline-flex items-center gap-1 text-xs text-stone-400 hover:text-amber-600 transition-colors"
+                                trigger-label="Reportar"
+                            />
+                        @endunless
+                    @endauth
+
+                    @can('delete', $post)
+                        <form action="{{ route('feed.destroy', $post) }}" method="POST"
+                              onsubmit="return confirm('Remover este post?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                    class="inline-flex items-center gap-1.5 text-xs text-stone-400 hover:text-red-500 transition-colors">
+                                <x-heroicon-o-trash class="w-4 h-4" />
+                                Remover
+                            </button>
+                        </form>
+                    @endcan
+                </div>
             </div>
         </article>
 

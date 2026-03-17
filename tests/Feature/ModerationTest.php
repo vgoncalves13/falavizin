@@ -1,0 +1,205 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Enums\BusinessStatus;
+use App\Enums\PostStatus;
+use App\Models\Business;
+use App\Models\Category;
+use App\Models\Post;
+use App\Models\User;
+use App\Notifications\NewContentNotification;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
+use Tests\TestCase;
+
+class ModerationTest extends TestCase
+{
+    use RefreshDatabase;
+
+    // --- Fase 2: conteúdo criado fica pending ---
+
+    public function test_new_post_is_created_as_pending(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create(['type' => 'post']);
+
+        $this->actingAs($user)->post(route('feed.store'), [
+            'title' => 'Buraco na rua principal',
+            'body' => 'Tem um buraco enorme na rua principal.',
+            'category_id' => $category->id,
+        ]);
+
+        $this->assertDatabaseHas('posts', [
+            'title' => 'Buraco na rua principal',
+            'status' => PostStatus::Pending->value,
+        ]);
+    }
+
+    public function test_new_post_notifies_admins(): void
+    {
+        Notification::fake();
+
+        $admin = User::factory()->create(['is_admin' => true]);
+        $user = User::factory()->create();
+        $category = Category::factory()->create(['type' => 'post']);
+
+        $this->actingAs($user)->post(route('feed.store'), [
+            'title' => 'Evento no bairro',
+            'body' => 'Grande evento comunitário no parque.',
+            'category_id' => $category->id,
+        ]);
+
+        Notification::assertSentTo($admin, NewContentNotification::class);
+    }
+
+    public function test_new_business_is_created_as_pending(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create(['type' => 'business']);
+
+        $this->actingAs($user)->post(route('businesses.store'), [
+            'name' => 'Padaria do João',
+            'category_id' => $category->id,
+            'neighborhood' => 'Centro',
+        ]);
+
+        $this->assertDatabaseHas('businesses', [
+            'name' => 'Padaria do João',
+            'status' => BusinessStatus::Pending->value,
+        ]);
+    }
+
+    // --- Admin aprova/rejeita ---
+
+    public function test_admin_can_approve_pending_post(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $post = Post::factory()->create(['status' => PostStatus::Pending]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.moderation.approve', ['type' => 'post', 'id' => $post->id]))
+            ->assertRedirect(route('admin.moderation.index'));
+
+        $this->assertDatabaseHas('posts', [
+            'id' => $post->id,
+            'status' => PostStatus::Approved->value,
+        ]);
+        $this->assertNotNull($post->fresh()->approved_at);
+    }
+
+    public function test_admin_can_reject_pending_post(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $post = Post::factory()->create(['status' => PostStatus::Pending]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.moderation.reject', ['type' => 'post', 'id' => $post->id]));
+
+        $this->assertDatabaseHas('posts', [
+            'id' => $post->id,
+            'status' => PostStatus::Rejected->value,
+        ]);
+    }
+
+    public function test_admin_can_approve_pending_business(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $business = Business::factory()->create(['status' => BusinessStatus::Pending]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.moderation.approve', ['type' => 'business', 'id' => $business->id]));
+
+        $this->assertDatabaseHas('businesses', [
+            'id' => $business->id,
+            'status' => BusinessStatus::Approved->value,
+        ]);
+    }
+
+    // --- Reportar conteúdo ---
+
+    public function test_authenticated_user_can_report_a_post(): void
+    {
+        $user = User::factory()->create();
+        $post = Post::factory()->create();
+
+        $this->actingAs($user)
+            ->post(route('report.post', $post), ['reason' => 'Conteúdo inapropriado ou ofensivo'])
+            ->assertRedirect();
+
+        $this->assertNotNull($post->fresh()->reported_at);
+    }
+
+    public function test_report_saves_the_reason(): void
+    {
+        $user = User::factory()->create();
+        $post = Post::factory()->create();
+
+        $this->actingAs($user)
+            ->post(route('report.post', $post), ['reason' => 'Spam ou publicidade indevida']);
+
+        $this->assertDatabaseHas('posts', [
+            'id' => $post->id,
+            'reported_reason' => 'Spam ou publicidade indevida',
+        ]);
+    }
+
+    public function test_report_requires_a_reason(): void
+    {
+        $user = User::factory()->create();
+        $post = Post::factory()->create();
+
+        $this->actingAs($user)
+            ->post(route('report.post', $post), ['reason' => ''])
+            ->assertSessionHasErrors('reason');
+
+        $this->assertNull($post->fresh()->reported_at);
+    }
+
+    public function test_guest_cannot_report_a_post(): void
+    {
+        $post = Post::factory()->create();
+
+        $this->post(route('report.post', $post), ['reason' => 'Spam ou publicidade indevida'])
+            ->assertRedirect(route('login'));
+
+        $this->assertNull($post->fresh()->reported_at);
+    }
+
+    public function test_authenticated_user_can_report_a_business(): void
+    {
+        $user = User::factory()->create();
+        $business = Business::factory()->create();
+
+        $this->actingAs($user)
+            ->post(route('report.business', $business), ['reason' => 'Informação falsa ou enganosa'])
+            ->assertRedirect();
+
+        $this->assertNotNull($business->fresh()->reported_at);
+    }
+
+    public function test_reported_post_cleared_after_admin_action(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $post = Post::factory()->create([
+            'status' => PostStatus::Approved,
+            'reported_at' => now(),
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.moderation.reject', ['type' => 'post', 'id' => $post->id]));
+
+        $this->assertNull($post->fresh()->reported_at);
+    }
+
+    public function test_reporting_same_post_twice_shows_info(): void
+    {
+        $user = User::factory()->create();
+        $post = Post::factory()->create(['reported_at' => now()]);
+
+        $this->actingAs($user)
+            ->post(route('report.post', $post), ['reason' => 'Spam ou publicidade indevida'])
+            ->assertRedirect()
+            ->assertSessionHas('info');
+    }
+}
