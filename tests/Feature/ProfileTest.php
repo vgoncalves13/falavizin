@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Business;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -95,5 +96,60 @@ class ProfileTest extends TestCase
             ->assertRedirect('/profile');
 
         $this->assertNotNull($user->fresh());
+    }
+
+    public function test_account_page_is_displayed_for_authenticated_user(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get(route('profile.account'))
+            ->assertOk();
+    }
+
+    public function test_guest_cannot_access_account_page(): void
+    {
+        $this->get(route('profile.account'))
+            ->assertRedirect(route('login'));
+    }
+
+    public function test_deleting_account_unclaims_owned_businesses(): void
+    {
+        $user = User::factory()->create();
+        $business = Business::factory()->create([
+            'user_id' => $user->id,
+            'claimed' => true,
+            'claimed_at' => now(),
+        ]);
+
+        $this->actingAs($user)
+            ->delete('/profile', ['password' => 'password'])
+            ->assertRedirect('/');
+
+        $business->refresh();
+        $this->assertNull($business->user_id);
+        $this->assertFalse($business->claimed);
+        $this->assertNull($business->claimed_at);
+    }
+
+    public function test_profile_update_saves_phone_and_neighborhood(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->patch('/profile', [
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => '(11) 99999-0000',
+                'neighborhood' => 'Jardim Europa',
+            ])
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/profile');
+
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'phone' => '(11) 99999-0000',
+            'neighborhood' => 'Jardim Europa',
+        ]);
     }
 }

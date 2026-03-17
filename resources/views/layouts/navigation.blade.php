@@ -44,8 +44,11 @@
                             </button>
                         </x-slot>
                         <x-slot name="content">
+                            <x-dropdown-link :href="route('profile.account')">
+                                Minha conta
+                            </x-dropdown-link>
                             <x-dropdown-link :href="route('profile.edit')">
-                                {{ __('Perfil') }}
+                                Editar perfil
                             </x-dropdown-link>
                             @if(Auth::user()->is_admin)
                                 <x-dropdown-link :href="route('admin.moderation.index')">
@@ -114,9 +117,13 @@
                     <x-heroicon-o-plus class="w-4 h-4" />
                     Publicar
                 </a>
+                <a href="{{ route('profile.account') }}"
+                   class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">
+                    Minha conta
+                </a>
                 <a href="{{ route('profile.edit') }}"
                    class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">
-                    Perfil
+                    Editar perfil
                 </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
