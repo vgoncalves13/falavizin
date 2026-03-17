@@ -4,6 +4,8 @@ namespace App\Livewire\Feed;
 
 use App\Models\Comment;
 use App\Models\Post;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
 use Livewire\Component;
 
 class CommentSection extends Component
@@ -11,6 +13,10 @@ class CommentSection extends Component
     public Post $post;
 
     public string $body = '';
+
+    public ?int $editingId = null;
+
+    public string $editBody = '';
 
     protected function rules(): array
     {
@@ -46,20 +52,48 @@ class CommentSection extends Component
         $this->body = '';
     }
 
+    public function startEdit(int $commentId): void
+    {
+        $comment = Comment::findOrFail($commentId);
+
+        Gate::authorize('update', $comment);
+
+        $this->editingId = $comment->id;
+        $this->editBody = $comment->body;
+    }
+
+    public function saveEdit(): void
+    {
+        $comment = Comment::findOrFail($this->editingId);
+
+        Gate::authorize('update', $comment);
+
+        $this->validateOnly('editBody', [
+            'editBody' => ['required', 'string', 'min:3', 'max:1000'],
+        ]);
+
+        $comment->update(['body' => $this->editBody]);
+
+        $this->editingId = null;
+        $this->editBody = '';
+    }
+
+    public function cancelEdit(): void
+    {
+        $this->editingId = null;
+        $this->editBody = '';
+    }
+
     public function deleteComment(int $commentId): void
     {
         $comment = Comment::findOrFail($commentId);
 
-        if (auth()->id() !== $comment->user_id && ! auth()->user()?->is_admin) {
-            $this->addError('body', 'Sem permissão para deletar este comentário.');
-
-            return;
-        }
+        Gate::authorize('delete', $comment);
 
         $comment->delete();
     }
 
-    public function render()
+    public function render(): View
     {
         $comments = $this->post->comments()
             ->with('user')

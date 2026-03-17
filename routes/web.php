@@ -9,9 +9,13 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
 // Públicas
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/busca', [SearchController::class, 'index'])->name('search.index');
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/feed', [PostController::class, 'index'])->name('feed.index');
 Route::get('/feed/{post:slug}', [PostController::class, 'show'])->name('feed.show');

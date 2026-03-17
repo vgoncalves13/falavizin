@@ -9,8 +9,8 @@
         @endsession
 
         @php
-            $totalPending = $pendingPosts->count() + $pendingBusinesses->count() + $pendingPromotions->count();
-            $totalReported = $reportedPosts->count() + $reportedBusinesses->count() + $reportedPromotions->count();
+            $totalPending = $pendingPosts->total() + $pendingBusinesses->total() + $pendingPromotions->total();
+            $totalReported = $reportedPosts->total() + $reportedBusinesses->total() + $reportedPromotions->total();
         @endphp
 
         @if($totalPending === 0 && $totalReported === 0)
@@ -31,33 +31,48 @@
                     <h3 class="text-sm font-semibold text-stone-700 mb-2 flex items-center gap-1.5">
                         <x-heroicon-o-newspaper class="w-4 h-4 text-stone-400" /> Posts
                     </h3>
-                    <div class="space-y-2 mb-5">
+                    <div class="space-y-2 mb-3">
                         @foreach($pendingPosts as $post)
                             @include('admin.moderation._item', ['type' => 'post', 'model' => $post, 'title' => $post->title, 'meta' => $post->user->name . ' · ' . $post->created_at->diffForHumans(), 'excerpt' => $post->body])
                         @endforeach
                     </div>
+                    @if($pendingPosts->hasPages())
+                        <div class="mb-5">{{ $pendingPosts->links() }}</div>
+                    @else
+                        <div class="mb-5"></div>
+                    @endif
                 @endif
 
                 @if($pendingBusinesses->isNotEmpty())
                     <h3 class="text-sm font-semibold text-stone-700 mb-2 flex items-center gap-1.5">
                         <x-heroicon-o-building-storefront class="w-4 h-4 text-stone-400" /> Negócios
                     </h3>
-                    <div class="space-y-2 mb-5">
+                    <div class="space-y-2 mb-3">
                         @foreach($pendingBusinesses as $business)
                             @include('admin.moderation._item', ['type' => 'business', 'model' => $business, 'title' => $business->name, 'meta' => $business->neighborhood . ($business->user ? ' · ' . $business->user->name : '') . ' · ' . $business->created_at->diffForHumans(), 'excerpt' => $business->description])
                         @endforeach
                     </div>
+                    @if($pendingBusinesses->hasPages())
+                        <div class="mb-5">{{ $pendingBusinesses->links() }}</div>
+                    @else
+                        <div class="mb-5"></div>
+                    @endif
                 @endif
 
                 @if($pendingPromotions->isNotEmpty())
                     <h3 class="text-sm font-semibold text-stone-700 mb-2 flex items-center gap-1.5">
                         <x-heroicon-o-tag class="w-4 h-4 text-stone-400" /> Promoções
                     </h3>
-                    <div class="space-y-2 mb-5">
+                    <div class="space-y-2 mb-3">
                         @foreach($pendingPromotions as $promotion)
                             @include('admin.moderation._item', ['type' => 'promotion', 'model' => $promotion, 'title' => $promotion->title, 'meta' => $promotion->business->name . ' · ' . $promotion->created_at->diffForHumans(), 'excerpt' => $promotion->description])
                         @endforeach
                     </div>
+                    @if($pendingPromotions->hasPages())
+                        <div class="mb-5">{{ $pendingPromotions->links() }}</div>
+                    @else
+                        <div class="mb-5"></div>
+                    @endif
                 @endif
             </div>
         @endif
@@ -73,33 +88,48 @@
                     <h3 class="text-sm font-semibold text-stone-700 mb-2 flex items-center gap-1.5">
                         <x-heroicon-o-newspaper class="w-4 h-4 text-stone-400" /> Posts
                     </h3>
-                    <div class="space-y-2 mb-5">
+                    <div class="space-y-2 mb-3">
                         @foreach($reportedPosts as $post)
                             @include('admin.moderation._item', ['type' => 'post', 'model' => $post, 'title' => $post->title, 'meta' => 'Reportado ' . $post->reported_at->diffForHumans() . ' · ' . $post->user->name, 'excerpt' => $post->body, 'reported' => true])
                         @endforeach
                     </div>
+                    @if($reportedPosts->hasPages())
+                        <div class="mb-5">{{ $reportedPosts->links() }}</div>
+                    @else
+                        <div class="mb-5"></div>
+                    @endif
                 @endif
 
                 @if($reportedBusinesses->isNotEmpty())
                     <h3 class="text-sm font-semibold text-stone-700 mb-2 flex items-center gap-1.5">
                         <x-heroicon-o-building-storefront class="w-4 h-4 text-stone-400" /> Negócios
                     </h3>
-                    <div class="space-y-2 mb-5">
+                    <div class="space-y-2 mb-3">
                         @foreach($reportedBusinesses as $business)
                             @include('admin.moderation._item', ['type' => 'business', 'model' => $business, 'title' => $business->name, 'meta' => 'Reportado ' . $business->reported_at->diffForHumans() . ' · ' . $business->neighborhood, 'excerpt' => $business->description, 'reported' => true])
                         @endforeach
                     </div>
+                    @if($reportedBusinesses->hasPages())
+                        <div class="mb-5">{{ $reportedBusinesses->links() }}</div>
+                    @else
+                        <div class="mb-5"></div>
+                    @endif
                 @endif
 
                 @if($reportedPromotions->isNotEmpty())
                     <h3 class="text-sm font-semibold text-stone-700 mb-2 flex items-center gap-1.5">
                         <x-heroicon-o-tag class="w-4 h-4 text-stone-400" /> Promoções
                     </h3>
-                    <div class="space-y-2 mb-5">
+                    <div class="space-y-2 mb-3">
                         @foreach($reportedPromotions as $promotion)
                             @include('admin.moderation._item', ['type' => 'promotion', 'model' => $promotion, 'title' => $promotion->title, 'meta' => 'Reportado ' . $promotion->reported_at->diffForHumans() . ' · ' . $promotion->business->name, 'excerpt' => $promotion->description, 'reported' => true])
                         @endforeach
                     </div>
+                    @if($reportedPromotions->hasPages())
+                        <div class="mb-5">{{ $reportedPromotions->links() }}</div>
+                    @else
+                        <div class="mb-5"></div>
+                    @endif
                 @endif
             </div>
         @endif

@@ -53,18 +53,58 @@
                             <span class="text-sm font-medium text-stone-900">{{ $comment->user->name }}</span>
                             <div class="flex items-center gap-2">
                                 <span class="text-xs text-stone-400">{{ $comment->created_at->diffForHumans() }}</span>
-                                @if(auth()->id() === $comment->user_id || auth()->user()?->is_admin)
+                                @can('update', $comment)
+                                    <button
+                                        wire:click="startEdit({{ $comment->id }})"
+                                        class="text-stone-400 hover:text-amber-600 transition-colors"
+                                        title="Editar comentário"
+                                    >
+                                        <x-heroicon-o-pencil-square class="w-3.5 h-3.5" />
+                                    </button>
+                                @endcan
+                                @can('delete', $comment)
                                     <button
                                         wire:click="deleteComment({{ $comment->id }})"
                                         wire:confirm="Remover este comentário?"
                                         class="text-stone-400 hover:text-red-500 transition-colors"
+                                        title="Excluir comentário"
                                     >
                                         <x-heroicon-o-trash class="w-3.5 h-3.5" />
                                     </button>
-                                @endif
+                                @endcan
                             </div>
                         </div>
-                        <p class="text-sm text-stone-700">{{ $comment->body }}</p>
+
+                        @if($editingId === $comment->id)
+                            <div>
+                                <textarea
+                                    wire:model="editBody"
+                                    rows="2"
+                                    class="w-full rounded-lg border-stone-300 text-stone-900 text-sm focus:ring-amber-500 focus:border-amber-500 resize-none mt-1"
+                                ></textarea>
+                                @error('editBody') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                <div class="mt-2 flex gap-2 justify-end">
+                                    <button
+                                        wire:click="cancelEdit"
+                                        type="button"
+                                        class="px-3 py-1 text-xs font-medium text-stone-600 hover:text-stone-800 bg-white border border-stone-300 rounded-lg transition-colors duration-150"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        wire:click="saveEdit"
+                                        wire:loading.attr="disabled"
+                                        type="button"
+                                        class="px-3 py-1 bg-amber-600 hover:bg-amber-700 disabled:opacity-75 text-white text-xs font-medium rounded-lg transition-colors duration-150"
+                                    >
+                                        <span wire:loading.remove wire:target="saveEdit">Salvar</span>
+                                        <span wire:loading wire:target="saveEdit">Salvando...</span>
+                                    </button>
+                                </div>
+                            </div>
+                        @else
+                            <p class="text-sm text-stone-700">{{ $comment->body }}</p>
+                        @endif
                     </div>
                 </div>
             </div>

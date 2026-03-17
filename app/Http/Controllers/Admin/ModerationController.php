@@ -21,40 +21,40 @@ class ModerationController extends Controller
             ->where('status', PostStatus::Pending)
             ->with(['user', 'category'])
             ->latest()
-            ->get();
+            ->paginate(15, ['*'], 'pending_posts');
 
         $pendingBusinesses = Business::query()
             ->where('status', BusinessStatus::Pending)
             ->with(['user', 'category'])
             ->latest()
-            ->get();
+            ->paginate(15, ['*'], 'pending_businesses');
 
         $pendingPromotions = Promotion::query()
             ->where('status', 'pending')
             ->with('business')
             ->latest()
-            ->get();
+            ->paginate(15, ['*'], 'pending_promotions');
 
         $reportedPosts = Post::query()
             ->whereNotNull('reported_at')
             ->where('status', PostStatus::Approved)
             ->with(['user', 'category'])
             ->latest('reported_at')
-            ->get();
+            ->paginate(15, ['*'], 'reported_posts');
 
         $reportedBusinesses = Business::query()
             ->whereNotNull('reported_at')
             ->where('status', BusinessStatus::Approved)
             ->with(['user', 'category'])
             ->latest('reported_at')
-            ->get();
+            ->paginate(15, ['*'], 'reported_businesses');
 
         $reportedPromotions = Promotion::query()
             ->whereNotNull('reported_at')
             ->where('status', 'approved')
             ->with('business')
             ->latest('reported_at')
-            ->get();
+            ->paginate(15, ['*'], 'reported_promotions');
 
         return view('admin.moderation.index', compact(
             'pendingPosts',

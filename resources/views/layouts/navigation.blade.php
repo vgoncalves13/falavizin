@@ -27,6 +27,20 @@
                 </div>
             </div>
 
+            <!-- Search -->
+            <form action="{{ route('search.index') }}" method="GET" class="hidden sm:flex items-center">
+                <div class="relative">
+                    <x-heroicon-o-magnifying-glass class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" />
+                    <input
+                        type="search"
+                        name="q"
+                        value="{{ request('q') }}"
+                        placeholder="Buscar..."
+                        class="pl-8 pr-3 py-1.5 text-sm bg-stone-100 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 w-48 transition-colors duration-150"
+                    />
+                </div>
+            </form>
+
             <!-- User Menu -->
             <div class="hidden sm:flex sm:items-center gap-3">
                 @auth
@@ -88,6 +102,20 @@
 
     <!-- Mobile Menu -->
     <div x-show="open" x-transition class="sm:hidden border-t border-stone-200">
+        <div class="px-4 pt-3 pb-2">
+            <form action="{{ route('search.index') }}" method="GET">
+                <div class="relative">
+                    <x-heroicon-o-magnifying-glass class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" />
+                    <input
+                        type="search"
+                        name="q"
+                        value="{{ request('q') }}"
+                        placeholder="Buscar..."
+                        class="w-full pl-8 pr-3 py-2 text-sm bg-stone-100 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-colors duration-150"
+                    />
+                </div>
+            </form>
+        </div>
         <div class="px-4 py-3 space-y-1">
             <a href="{{ route('feed.index') }}"
                class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('feed.*') ? 'bg-amber-50 text-amber-700' : 'text-stone-700 hover:bg-stone-100' }}">
