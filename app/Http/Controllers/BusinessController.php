@@ -20,8 +20,12 @@ class BusinessController extends Controller
 
     public function show(Business $business): View
     {
-        $business->load(['user', 'category', 'coverPhoto', 'promotions' => function ($q) {
-            $q->active()->latest();
+        $canManage = auth()->user()?->can('update', $business);
+
+        $business->load(['user', 'category', 'coverPhoto', 'promotions' => function ($q) use ($canManage) {
+            $canManage
+                ? $q->whereIn('status', ['approved', 'pending'])->latest()
+                : $q->active()->latest();
         }]);
 
         return view('businesses.show', compact('business'));

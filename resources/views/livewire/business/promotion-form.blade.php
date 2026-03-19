@@ -1,6 +1,11 @@
-<div x-data="{ open: false }">
+<div
+    x-data="{ open: {{ $editingId ? 'true' : 'false' }} }"
+    @edit-promotion.window="open = true"
+    @promotion-saved.window="open = false"
+>
     <button
-        @click="open = !open"
+        x-show="!open"
+        @click="open = true"
         class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors duration-150"
     >
         <x-heroicon-o-plus class="w-4 h-4" />
@@ -9,7 +14,9 @@
 
     <div x-show="open" x-collapse class="mt-4">
         <div class="bg-stone-50 rounded-xl border border-stone-200 p-5">
-            <h3 class="font-semibold text-stone-900 mb-4">Adicionar promoção</h3>
+            <h3 class="font-semibold text-stone-900 mb-4">
+                {{ $editingId ? 'Editar promoção' : 'Adicionar promoção' }}
+            </h3>
 
             <form wire:submit="save" class="space-y-4">
                 <div>
@@ -70,6 +77,7 @@
                     <button
                         type="button"
                         @click="open = false"
+                        wire:click="cancelEdit"
                         class="text-sm text-stone-500 hover:text-stone-700"
                     >
                         Cancelar
@@ -79,8 +87,8 @@
                         wire:loading.attr="disabled"
                         class="inline-flex items-center gap-2 px-5 py-2 bg-amber-600 hover:bg-amber-700 disabled:opacity-75 text-white text-sm font-medium rounded-lg transition-colors duration-150"
                     >
-                        <span wire:loading.remove>Publicar promoção</span>
-                        <span wire:loading>Publicando...</span>
+                        <span wire:loading.remove>{{ $editingId ? 'Salvar alterações' : 'Publicar promoção' }}</span>
+                        <span wire:loading>Salvando...</span>
                     </button>
                 </div>
             </form>

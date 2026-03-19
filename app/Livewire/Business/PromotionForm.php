@@ -4,11 +4,16 @@ namespace App\Livewire\Business;
 
 use App\Actions\CreatePromotionAction;
 use App\Models\Business;
+use App\Models\Promotion;
+use Illuminate\Support\Facades\Gate;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class PromotionForm extends Component
 {
     public Business $business;
+
+    public ?int $editingId = null;
 
     public string $title = '';
 
@@ -24,7 +29,7 @@ class PromotionForm extends Component
             'title' => ['required', 'string', 'min:5', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
             'startsAt' => ['nullable', 'date', 'before_or_equal:endsAt'],
-            'endsAt' => ['nullable', 'date', 'after_or_equal:today'],
+            'endsAt' => ['nullable', 'date', $this->editingId ? 'nullable' : 'after_or_equal:today'],
         ];
     }
 
@@ -37,6 +42,25 @@ class PromotionForm extends Component
         ];
     }
 
+    #[On('edit-promotion')]
+    public function startEdit(int $id): void
+    {
+        $promotion = Promotion::findOrFail($id);
+
+        Gate::authorize('update', $promotion->business);
+
+        $this->editingId = $promotion->id;
+        $this->title = $promotion->title;
+        $this->description = $promotion->description ?? '';
+        $this->startsAt = $promotion->starts_at?->format('Y-m-d') ?? '';
+        $this->endsAt = $promotion->ends_at?->format('Y-m-d') ?? '';
+    }
+
+    public function cancelEdit(): void
+    {
+        $this->reset('editingId', 'title', 'description', 'startsAt', 'endsAt');
+    }
+
     public function save(): void
     {
         if (! auth()->check()) {
@@ -47,19 +71,37 @@ class PromotionForm extends Component
 
         $this->validate();
 
-        (new CreatePromotionAction)->execute($this->business, [
-            'title' => $this->title,
-            'description' => $this->description ?: null,
-            'starts_at' => $this->startsAt ?: null,
-            'ends_at' => $this->endsAt ?: null,
-        ]);
+        if ($this->editingId) {
+            $promotion = Promotion::findOrFail($this->editingId);
+            Gate::authorize('update', $promotion->business);
 
-        $this->title = '';
-        $this->description = '';
-        $this->startsAt = '';
-        $this->endsAt = '';
+            $promotion->update([
+                'title' => $this->title,
+                'description' => $this->description ?: null,
+                'starts_at' => $this->startsAt ?: null,
+                'ends_at' => $this->endsAt ?: null,
+            ]);
+        } else {
+            (new CreatePromotionAction)->execute($this->business, [
+                'title' => $this->title,
+                'description' => $this->description ?: null,
+                'starts_at' => $this->startsAt ?: null,
+                'ends_at' => $this->endsAt ?: null,
+            ]);
+        }
 
-        $this->dispatch('promotion-created');
+        $isNew = ! $this->editingId;
+
+        $this->reset('editingId', 'title', 'description', 'startsAt', 'endsAt');
+
+        session()->flash(
+            'success',
+            $isNew
+                ? 'Promoção enviada! Ela aparecerá aqui após aprovação.'
+                : 'Promoção atualizada com sucesso!'
+        );
+
+        $this->redirect(route('businesses.show', $this->business));
     }
 
     public function render()

@@ -205,9 +205,16 @@
                 @if($business->promotions->isNotEmpty())
                     <div class="space-y-3 mb-4">
                         @foreach($business->promotions as $promotion)
-                            <div class="flex items-start justify-between gap-3 p-4 bg-amber-50 rounded-lg border border-amber-200">
+                            <div class="flex items-start justify-between gap-3 p-4 {{ $promotion->status === 'pending' ? 'bg-stone-50 border-stone-200' : 'bg-amber-50 border-amber-200' }} rounded-lg border">
                                 <div>
-                                    <p class="font-medium text-stone-900">{{ $promotion->title }}</p>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <p class="font-medium text-stone-900">{{ $promotion->title }}</p>
+                                        @if($promotion->status === 'pending')
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 border border-yellow-200">
+                                                Aguardando aprovação
+                                            </span>
+                                        @endif
+                                    </div>
                                     @if($promotion->description)
                                         <p class="text-sm text-stone-600 mt-0.5">{{ $promotion->description }}</p>
                                     @endif
@@ -218,13 +225,24 @@
                                     @endif
                                 </div>
                                 @can('update', $business)
-                                    <form action="{{ route('promotions.destroy', $promotion) }}" method="POST" class="shrink-0">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-stone-400 hover:text-red-500 transition-colors">
-                                            <x-heroicon-o-trash class="w-4 h-4" />
+                                    <div class="shrink-0 flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onclick="Livewire.dispatch('edit-promotion', { id: {{ $promotion->id }} })"
+                                            class="text-stone-400 hover:text-amber-600 transition-colors"
+                                            title="Editar promoção"
+                                        >
+                                            <x-heroicon-o-pencil-square class="w-4 h-4" />
                                         </button>
-                                    </form>
+                                        <form action="{{ route('promotions.destroy', $promotion) }}" method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-stone-400 hover:text-red-500 transition-colors"
+                                                    onclick="return confirm('Remover esta promoção?')" title="Remover promoção">
+                                                <x-heroicon-o-trash class="w-4 h-4" />
+                                            </button>
+                                        </form>
+                                    </div>
                                 @endcan
                             </div>
                         @endforeach
