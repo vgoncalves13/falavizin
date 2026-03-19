@@ -86,6 +86,9 @@
                                         @endif
                                     </span>
                                 </x-dropdown-link>
+                                <x-dropdown-link :href="route('admin.stats')">
+                                    Estatísticas
+                                </x-dropdown-link>
                                 <x-dropdown-link :href="route('admin.google-places-import')">
                                     Importar Google Places
                                 </x-dropdown-link>
@@ -194,6 +197,11 @@
                                 {{ $pendingCount > 99 ? '99+' : $pendingCount }}
                             </span>
                         @endif
+                    </a>
+                    <a href="{{ route('admin.stats') }}"
+                       class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">
+                        <x-heroicon-o-chart-bar class="w-4 h-4" />
+                        Estatísticas
                     </a>
                     <a href="{{ route('admin.google-places-import') }}"
                        class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\ModerationController;
+use App\Http\Controllers\Admin\StatsController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ClaimBusinessController;
@@ -68,6 +69,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/moderacao/{type}/{id}/rejeitar', [ModerationController::class, 'reject'])->name('moderation.reject');
     Route::get('/importar-google-places', GooglePlacesImport::class)->name('google-places-import');
     Route::get('/configuracoes', AppSettings::class)->name('settings');
+    Route::get('/estatisticas', [StatsController::class, 'index'])->name('stats');
 });
 
 require __DIR__.'/auth.php';
