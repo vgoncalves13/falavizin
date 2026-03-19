@@ -4,6 +4,8 @@ namespace App\Actions;
 
 use App\Models\Business;
 use App\Models\User;
+use App\Notifications\BusinessClaimedNotification;
+use Illuminate\Support\Facades\Notification;
 
 class ClaimBusinessAction
 {
@@ -15,5 +17,11 @@ class ClaimBusinessAction
             'claimed_at' => now(),
             'claim_token' => null,
         ]);
+
+        $admins = User::where('is_admin', true)->get();
+
+        if ($admins->isNotEmpty()) {
+            Notification::send($admins, new BusinessClaimedNotification($business, $user));
+        }
     }
 }
