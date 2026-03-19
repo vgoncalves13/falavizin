@@ -46,6 +46,8 @@
                     </div>
 
                     <div class="flex items-center gap-2">
+                        <x-share-button :url="route('businesses.show', $business)" :title="$business->name" />
+
                         @can('update', $business)
                             <a href="{{ route('businesses.edit', $business) }}"
                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-stone-600 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors">

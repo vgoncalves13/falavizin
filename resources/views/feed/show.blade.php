@@ -42,6 +42,8 @@
                 <livewire:feed.vote-buttons :post="$post" :key="'votes-'.$post->id" />
 
                 <div class="flex items-center gap-3">
+                    <x-share-button :url="route('feed.show', $post)" :title="$post->title" />
+
                     @auth
                         @unless(auth()->id() === $post->user_id)
                             <x-report-modal
