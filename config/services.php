@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'rapidapi' => [
+        'key' => env('RAPIDAPI_KEY'),
+        'google_places_host' => 'google-map-places-new-v2.p.rapidapi.com',
+    ],
+
 ];

@@ -22,7 +22,8 @@ class BusinessForm extends Component
 
     public string $description = '';
 
-    public string $phone = '';
+    /** @var array<int, string> */
+    public array $phones = [''];
 
     public string $whatsapp = '';
 
@@ -34,7 +35,15 @@ class BusinessForm extends Component
 
     public string $website = '';
 
+    /** @var array<int, array{day: string, open: string, close: string, closed: bool}> */
+    public array $openingHours = [];
+
     public $coverPhoto = null;
+
+    private const WEEK_DAYS = [
+        'Segunda-feira', 'Terça-feira', 'Quarta-feira',
+        'Quinta-feira', 'Sexta-feira', 'Sábado', 'Domingo',
+    ];
 
     public function mount(?Business $business = null): void
     {
@@ -43,13 +52,34 @@ class BusinessForm extends Component
             $this->name = $business->name;
             $this->categoryId = $business->category_id;
             $this->description = $business->description ?? '';
-            $this->phone = $business->phone ?? '';
+            $this->phones = $business->phone ?: [''];
             $this->whatsapp = $business->whatsapp ?? '';
             $this->address = $business->address ?? '';
             $this->neighborhood = $business->neighborhood;
             $this->city = $business->city ?? '';
             $this->website = $business->website ?? '';
+            $this->openingHours = $this->initOpeningHours($business->opening_hours);
+        } else {
+            $this->openingHours = $this->initOpeningHours(null);
         }
+    }
+
+    /** @param  array<int, array{day: string, open: string, close: string, closed: bool}>|null  $stored */
+    private function initOpeningHours(?array $stored): array
+    {
+        $byDay = [];
+        foreach ($stored ?? [] as $row) {
+            if (isset($row['day'])) {
+                $byDay[$row['day']] = $row;
+            }
+        }
+
+        return array_map(fn (string $day) => [
+            'day' => $day,
+            'open' => $byDay[$day]['open'] ?? '08:00',
+            'close' => $byDay[$day]['close'] ?? '18:00',
+            'closed' => (bool) ($byDay[$day]['closed'] ?? true),
+        ], self::WEEK_DAYS);
     }
 
     protected function rules(): array
@@ -58,12 +88,17 @@ class BusinessForm extends Component
             'name' => ['required', 'string', 'min:3', 'max:255'],
             'categoryId' => ['required', 'integer', 'exists:categories,id'],
             'description' => ['nullable', 'string', 'max:2000'],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'phones' => ['nullable', 'array', 'max:5'],
+            'phones.*' => ['nullable', 'string', 'max:20'],
             'whatsapp' => ['nullable', 'string', 'max:20'],
             'address' => ['nullable', 'string', 'max:255'],
             'neighborhood' => ['required', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
             'website' => ['nullable', 'url', 'max:255'],
+            'openingHours' => ['nullable', 'array'],
+            'openingHours.*.open' => ['nullable', 'string', 'max:10'],
+            'openingHours.*.close' => ['nullable', 'string', 'max:10'],
+            'openingHours.*.closed' => ['nullable', 'boolean'],
             'coverPhoto' => ['nullable', 'image', 'max:5120'],
         ];
     }
@@ -80,6 +115,40 @@ class BusinessForm extends Component
         ];
     }
 
+    /** @return array<int, array{day: string, open: string, close: string, closed: bool}>|null */
+    private function buildOpeningHours(): ?array
+    {
+        $hasAnyOpen = collect($this->openingHours)->contains(fn ($h) => ! ($h['closed'] ?? true));
+
+        if (! $hasAnyOpen) {
+            return null;
+        }
+
+        return array_map(fn (array $h) => [
+            'day' => $h['day'],
+            'open' => $h['closed'] ? '' : ($h['open'] ?? ''),
+            'close' => $h['closed'] ? '' : ($h['close'] ?? ''),
+            'closed' => (bool) ($h['closed'] ?? true),
+        ], $this->openingHours);
+    }
+
+    public function addPhone(): void
+    {
+        if (count($this->phones) < 5) {
+            $this->phones[] = '';
+        }
+    }
+
+    public function removePhone(int $index): void
+    {
+        unset($this->phones[$index]);
+        $this->phones = array_values($this->phones);
+
+        if (empty($this->phones)) {
+            $this->phones = [''];
+        }
+    }
+
     public function save(): void
     {
         $this->validate();
@@ -88,12 +157,13 @@ class BusinessForm extends Component
             'name' => $this->name,
             'category_id' => $this->categoryId,
             'description' => $this->description ?: null,
-            'phone' => $this->phone ?: null,
+            'phone' => array_values(array_filter(array_map('trim', $this->phones))) ?: null,
             'whatsapp' => $this->whatsapp ?: null,
             'address' => $this->address ?: null,
             'neighborhood' => $this->neighborhood,
             'city' => $this->city ?: '',
             'website' => $this->website ?: null,
+            'opening_hours' => $this->buildOpeningHours(),
         ];
 
         $uploadedPhoto = null;

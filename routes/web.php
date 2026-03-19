@@ -11,6 +11,8 @@ use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SitemapController;
+use App\Livewire\Admin\AppSettings;
+use App\Livewire\Admin\GooglePlacesImport;
 use Illuminate\Support\Facades\Route;
 
 // Públicas
@@ -60,6 +62,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/moderacao', [ModerationController::class, 'index'])->name('moderation.index');
     Route::post('/moderacao/{type}/{id}/aprovar', [ModerationController::class, 'approve'])->name('moderation.approve');
     Route::post('/moderacao/{type}/{id}/rejeitar', [ModerationController::class, 'reject'])->name('moderation.reject');
+    Route::get('/importar-google-places', GooglePlacesImport::class)->name('google-places-import');
+    Route::get('/configuracoes', AppSettings::class)->name('settings');
 });
 
 require __DIR__.'/auth.php';

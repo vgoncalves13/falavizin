@@ -68,6 +68,12 @@
                                 <x-dropdown-link :href="route('admin.moderation.index')">
                                     Moderação
                                 </x-dropdown-link>
+                                <x-dropdown-link :href="route('admin.google-places-import')">
+                                    Importar Google Places
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('admin.settings')">
+                                    Configurações
+                                </x-dropdown-link>
                             @endif
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
@@ -153,6 +159,20 @@
                    class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">
                     Editar perfil
                 </a>
+                @if(Auth::user()->is_admin)
+                    <a href="{{ route('admin.moderation.index') }}"
+                       class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">
+                        Moderação
+                    </a>
+                    <a href="{{ route('admin.google-places-import') }}"
+                       class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">
+                        Importar Google Places
+                    </a>
+                    <a href="{{ route('admin.settings') }}"
+                       class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">
+                        Configurações
+                    </a>
+                @endif
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">

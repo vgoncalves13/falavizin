@@ -2,25 +2,28 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\BusinessStatus;
-use App\Models\Business;
+use App\Actions\ImportBusinessFromGoogleAction;
 use App\Models\Category;
+use App\Services\GooglePlacesService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
 
 class ImportBusinessesFromGoogle extends Command
 {
     protected $signature = 'businesses:import-google
-                            {--neighborhood= : Nome do bairro para buscar}
-                            {--type= : Tipo de negócio (ex: restaurant, pharmacy)}
+                            {--neighborhood= : Nome do bairro para label dos negócios importados}
+                            {--lat= : Latitude do centro da busca}
+                            {--lng= : Longitude do centro da busca}
+                            {--radius=1000 : Raio em metros}
                             {--limit=20 : Máximo de resultados}';
 
-    protected $description = 'Importa negócios da Google Places API para o banco de dados';
+    protected $description = 'Importa negócios da Google Places API (Nearby Search) para o banco de dados';
 
-    public function handle(): int
+    public function handle(GooglePlacesService $service, ImportBusinessFromGoogleAction $action): int
     {
         $neighborhood = $this->option('neighborhood');
-        $type = $this->option('type');
+        $lat = $this->option('lat');
+        $lng = $this->option('lng');
+        $radius = (int) $this->option('radius');
         $limit = (int) $this->option('limit');
 
         if (! $neighborhood) {
@@ -29,31 +32,43 @@ class ImportBusinessesFromGoogle extends Command
             return Command::FAILURE;
         }
 
-        $apiKey = config('services.google.places_key');
-
-        if (! $apiKey) {
-            $this->error('GOOGLE_PLACES_API_KEY não configurada no .env');
+        if (! $lat || ! $lng) {
+            $this->error('Informe as coordenadas com --lat e --lng');
 
             return Command::FAILURE;
         }
 
-        $query = trim(($type ? $type.' em ' : '').$neighborhood);
-
-        $this->info("Buscando: \"{$query}\" na Google Places API...");
-
-        $response = Http::get('https://maps.googleapis.com/maps/api/place/textsearch/json', [
-            'query' => $query,
-            'language' => 'pt-BR',
-            'key' => $apiKey,
-        ]);
-
-        if (! $response->successful()) {
-            $this->error('Falha na requisição à API.');
+        if (! config('services.rapidapi.key')) {
+            $this->error('RAPIDAPI_KEY não configurada no .env');
 
             return Command::FAILURE;
         }
 
-        $results = collect($response->json('results', []))->take($limit);
+        $defaultCategory = Category::query()
+            ->whereIn('type', ['business', 'both'])
+            ->orderBy('sort_order')
+            ->first();
+
+        if (! $defaultCategory) {
+            $this->error('Nenhuma categoria de negócio encontrada. Execute o seeder primeiro.');
+
+            return Command::FAILURE;
+        }
+
+        $this->info("Buscando negócios próximos a ({$lat}, {$lng}) com raio de {$radius}m...");
+
+        try {
+            $results = $service->searchNearby(
+                lat: (float) $lat,
+                lng: (float) $lng,
+                radius: $radius,
+                maxResults: $limit,
+            );
+        } catch (\RuntimeException $e) {
+            $this->error('Falha na requisição: '.$e->getMessage());
+
+            return Command::FAILURE;
+        }
 
         if ($results->isEmpty()) {
             $this->warn('Nenhum resultado encontrado.');
@@ -61,37 +76,19 @@ class ImportBusinessesFromGoogle extends Command
             return Command::SUCCESS;
         }
 
-        $defaultCategory = Category::query()->where('type', 'business')->orderBy('sort_order')->first();
-
         $imported = 0;
         $skipped = 0;
 
         foreach ($results as $place) {
-            $placeId = $place['place_id'] ?? null;
+            $business = $action->execute($place, $neighborhood, $defaultCategory->id);
 
-            if (! $placeId) {
-                continue;
-            }
-
-            if (Business::where('google_place_id', $placeId)->exists()) {
+            if ($business !== null) {
+                $imported++;
+                $this->line("  ✓ {$place['name']}");
+            } else {
                 $skipped++;
-
-                continue;
+                $this->line("  — {$place['name']} (já importado)");
             }
-
-            Business::create([
-                'category_id' => $defaultCategory?->id ?? 1,
-                'name' => $place['name'],
-                'neighborhood' => $neighborhood,
-                'address' => $place['formatted_address'] ?? null,
-                'lat' => $place['geometry']['location']['lat'] ?? null,
-                'lng' => $place['geometry']['location']['lng'] ?? null,
-                'google_place_id' => $placeId,
-                'status' => BusinessStatus::Approved,
-                'claimed' => false,
-            ]);
-
-            $imported++;
         }
 
         $this->info("Importados: {$imported} | Ignorados (duplicatas): {$skipped}");

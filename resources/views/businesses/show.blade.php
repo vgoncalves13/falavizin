@@ -89,13 +89,15 @@
                 {{-- Contato --}}
                 @if($business->phone || $business->whatsapp || $business->website)
                     <div class="mt-5 flex flex-wrap items-center gap-3">
-                        @if($business->phone)
-                            <a href="tel:{{ $business->phone }}"
-                               class="inline-flex items-center gap-1.5 text-sm text-stone-600 hover:text-stone-800">
-                                <x-heroicon-o-phone class="w-4 h-4" />
-                                {{ $business->phone }}
-                            </a>
-                        @endif
+                        @foreach($business->phone ?? [] as $phoneNumber)
+                            @if($phoneNumber)
+                                <a href="tel:{{ $phoneNumber }}"
+                                   class="inline-flex items-center gap-1.5 text-sm text-stone-600 hover:text-stone-800">
+                                    <x-heroicon-o-phone class="w-4 h-4" />
+                                    {{ $phoneNumber }}
+                                </a>
+                            @endif
+                        @endforeach
 
                         @if($business->whatsapp)
                             <x-whatsapp-button :phone="$business->whatsapp" message="Olá! Vi seu perfil no Hub do Bairro." />
@@ -108,6 +110,35 @@
                                 Site
                             </a>
                         @endif
+                    </div>
+                @endif
+
+                {{-- Horários de funcionamento --}}
+                @php
+                    $openDays = collect($business->opening_hours ?? [])->filter(fn($h) => ! ($h['closed'] ?? true));
+                @endphp
+                @if($business->opening_hours && $openDays->isNotEmpty())
+                    <div class="mt-5" x-data="{ open: false }">
+                        <button type="button" @click="open = !open"
+                                class="flex items-center gap-2 text-sm font-medium text-stone-700 hover:text-stone-900 transition-colors">
+                            <x-heroicon-o-clock class="w-4 h-4 text-stone-400" />
+                            Horários de funcionamento
+                            <x-heroicon-o-chevron-down class="w-3.5 h-3.5 text-stone-400 transition-transform duration-200"
+                                                        ::class="open ? 'rotate-180' : ''" />
+                        </button>
+                        <div x-show="open" x-transition class="mt-3 rounded-lg border border-stone-100 overflow-hidden divide-y divide-stone-50">
+                            @foreach($business->opening_hours as $hours)
+                                <div class="flex items-center justify-between px-4 py-2 text-sm
+                                            {{ ($hours['closed'] ?? true) ? 'bg-stone-50 text-stone-400' : 'bg-white text-stone-700' }}">
+                                    <span class="font-medium">{{ $hours['day'] }}</span>
+                                    @if($hours['closed'] ?? true)
+                                        <span class="text-xs italic">Fechado</span>
+                                    @else
+                                        <span>{{ $hours['open'] }} – {{ $hours['close'] }}</span>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                 @endif
             </div>

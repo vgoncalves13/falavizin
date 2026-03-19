@@ -50,6 +50,7 @@ class Business extends Model
         return [
             'plan' => BusinessPlan::class,
             'status' => BusinessStatus::class,
+            'phone' => 'array',
             'opening_hours' => 'array',
             'claimed' => 'boolean',
             'claimed_at' => 'datetime',

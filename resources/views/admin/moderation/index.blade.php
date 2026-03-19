@@ -1,6 +1,13 @@
 <x-app-layout title="Moderação">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 class="text-2xl font-bold text-stone-900 mb-6" style="font-family: var(--font-display)">Moderação</h1>
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-bold text-stone-900" style="font-family: var(--font-display)">Moderação</h1>
+            <a href="{{ route('admin.google-places-import') }}"
+               class="inline-flex items-center gap-1.5 text-sm font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-3 py-1.5 rounded-lg transition-colors duration-150">
+                <x-heroicon-o-map-pin class="w-4 h-4" />
+                Importar Google Places
+            </a>
+        </div>
 
         @session('success')
             <div class="mb-4 px-4 py-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg">
