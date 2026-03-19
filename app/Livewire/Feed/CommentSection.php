@@ -2,9 +2,12 @@
 
 namespace App\Livewire\Feed;
 
+use App\Enums\VoteType;
 use App\Models\Comment;
 use App\Models\Post;
+use App\Models\Vote;
 use App\Notifications\CommentNotification;
+use App\Notifications\CommentVoteNotification;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -153,15 +156,60 @@ class CommentSection extends Component
         $comment->delete();
     }
 
+    public function voteComment(int $commentId): void
+    {
+        if (! auth()->check()) {
+            $this->redirect(route('login'));
+
+            return;
+        }
+
+        $existing = Vote::where('user_id', auth()->id())
+            ->where('votable_type', Comment::class)
+            ->where('votable_id', $commentId)
+            ->first();
+
+        if ($existing) {
+            $existing->delete();
+
+            return;
+        }
+
+        Vote::create([
+            'user_id' => auth()->id(),
+            'votable_type' => Comment::class,
+            'votable_id' => $commentId,
+            'type' => VoteType::Helpful,
+        ]);
+
+        $comment = Comment::with('post')->findOrFail($commentId);
+
+        if ($comment->user_id !== auth()->id()) {
+            $comment->user->notify(new CommentVoteNotification($comment, auth()->user()));
+        }
+    }
+
     public function render(): View
     {
         $comments = $this->post->comments()
             ->with(['user', 'replies.user'])
+            ->withCount('votes')
             ->whereNull('parent_id')
             ->where('status', 'approved')
             ->latest()
             ->get();
 
-        return view('livewire.feed.comment-section', compact('comments'));
+        // Collect all comment IDs (top-level + replies) to fetch user votes in one query
+        $allIds = $comments->flatMap(fn ($c) => $c->replies->pluck('id')->prepend($c->id));
+
+        $userVotedIds = auth()->check()
+            ? Vote::where('user_id', auth()->id())
+                ->where('votable_type', Comment::class)
+                ->whereIn('votable_id', $allIds)
+                ->pluck('votable_id')
+                ->toArray()
+            : [];
+
+        return view('livewire.feed.comment-section', compact('comments', 'userVotedIds'));
     }
 }

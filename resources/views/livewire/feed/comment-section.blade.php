@@ -48,6 +48,7 @@
                     <span class="text-xs font-bold text-stone-600">{{ substr($comment->user->name, 0, 1) }}</span>
                 </div>
                 <div class="flex-1">
+                    {{-- Balão do comentário --}}
                     <div class="bg-stone-50 rounded-lg px-4 py-3">
                         <div class="flex items-center justify-between mb-1">
                             <a href="{{ route('users.show', $comment->user) }}"
@@ -55,21 +56,15 @@
                             <div class="flex items-center gap-2">
                                 <span class="text-xs text-stone-400">{{ $comment->created_at->diffForHumans() }}</span>
                                 @can('update', $comment)
-                                    <button
-                                        wire:click="startEdit({{ $comment->id }})"
-                                        class="text-stone-400 hover:text-amber-600 transition-colors"
-                                        title="Editar comentário"
-                                    >
+                                    <button wire:click="startEdit({{ $comment->id }})"
+                                            class="text-stone-400 hover:text-amber-600 transition-colors" title="Editar comentário">
                                         <x-heroicon-o-pencil-square class="w-3.5 h-3.5" />
                                     </button>
                                 @endcan
                                 @can('delete', $comment)
-                                    <button
-                                        wire:click="deleteComment({{ $comment->id }})"
-                                        wire:confirm="Remover este comentário?"
-                                        class="text-stone-400 hover:text-red-500 transition-colors"
-                                        title="Excluir comentário"
-                                    >
+                                    <button wire:click="deleteComment({{ $comment->id }})"
+                                            wire:confirm="Remover este comentário?"
+                                            class="text-stone-400 hover:text-red-500 transition-colors" title="Excluir comentário">
                                         <x-heroicon-o-trash class="w-3.5 h-3.5" />
                                     </button>
                                 @endcan
@@ -77,49 +72,55 @@
                         </div>
 
                         @if($editingId === $comment->id)
-                            <div>
-                                <textarea
-                                    wire:model="editBody"
-                                    rows="2"
-                                    class="w-full rounded-lg border-stone-300 text-stone-900 text-sm focus:ring-amber-500 focus:border-amber-500 resize-none mt-1"
-                                ></textarea>
-                                @error('editBody') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                                <div class="mt-2 flex gap-2 justify-end">
-                                    <button
-                                        wire:click="cancelEdit"
-                                        type="button"
-                                        class="px-3 py-1 text-xs font-medium text-stone-600 hover:text-stone-800 bg-white border border-stone-300 rounded-lg transition-colors duration-150"
-                                    >
-                                        Cancelar
-                                    </button>
-                                    <button
-                                        wire:click="saveEdit"
-                                        wire:loading.attr="disabled"
-                                        type="button"
-                                        class="px-3 py-1 bg-amber-600 hover:bg-amber-700 disabled:opacity-75 text-white text-xs font-medium rounded-lg transition-colors duration-150"
-                                    >
-                                        <span wire:loading.remove wire:target="saveEdit">Salvar</span>
-                                        <span wire:loading wire:target="saveEdit">Salvando...</span>
-                                    </button>
-                                </div>
+                            <textarea wire:model="editBody" rows="2"
+                                      class="w-full rounded-lg border-stone-300 text-stone-900 text-sm focus:ring-amber-500 focus:border-amber-500 resize-none mt-1"></textarea>
+                            @error('editBody') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                            <div class="mt-2 flex gap-2 justify-end">
+                                <button wire:click="cancelEdit" type="button"
+                                        class="px-3 py-1 text-xs font-medium text-stone-600 hover:text-stone-800 bg-white border border-stone-300 rounded-lg transition-colors duration-150">
+                                    Cancelar
+                                </button>
+                                <button wire:click="saveEdit" wire:loading.attr="disabled" type="button"
+                                        class="px-3 py-1 bg-amber-600 hover:bg-amber-700 disabled:opacity-75 text-white text-xs font-medium rounded-lg transition-colors duration-150">
+                                    <span wire:loading.remove wire:target="saveEdit">Salvar</span>
+                                    <span wire:loading wire:target="saveEdit">Salvando...</span>
+                                </button>
                             </div>
                         @else
                             <p class="text-sm text-stone-700">{{ $comment->body }}</p>
                         @endif
                     </div>
 
-                    {{-- Botão Responder --}}
-                    @auth
-                        @if($replyingTo !== $comment->id)
-                            <button
-                                wire:click="startReply({{ $comment->id }})"
-                                class="mt-1.5 ml-1 text-xs text-stone-400 hover:text-amber-600 transition-colors flex items-center gap-1"
-                            >
-                                <x-heroicon-o-chat-bubble-left class="w-3.5 h-3.5" />
-                                Responder
-                            </button>
-                        @endif
-                    @endauth
+                    {{-- Ações: voto + responder --}}
+                    <div class="mt-1.5 ml-1 flex items-center gap-3">
+                        @php $commentVoted = in_array($comment->id, $userVotedIds); @endphp
+                        <button
+                            wire:click="voteComment({{ $comment->id }})"
+                            class="inline-flex items-center gap-1 text-xs transition-colors {{ $commentVoted ? 'text-amber-600' : 'text-stone-400 hover:text-amber-600' }}"
+                            title="{{ $commentVoted ? 'Remover voto' : 'Útil' }}"
+                        >
+                            @if($commentVoted)
+                                <x-heroicon-s-hand-thumb-up class="w-3.5 h-3.5" />
+                            @else
+                                <x-heroicon-o-hand-thumb-up class="w-3.5 h-3.5" />
+                            @endif
+                            @if($comment->votes_count > 0)
+                                <span>{{ $comment->votes_count }}</span>
+                            @endif
+                        </button>
+
+                        @auth
+                            @if($replyingTo !== $comment->id)
+                                <button
+                                    wire:click="startReply({{ $comment->id }})"
+                                    class="inline-flex items-center gap-1 text-xs text-stone-400 hover:text-amber-600 transition-colors"
+                                >
+                                    <x-heroicon-o-chat-bubble-left class="w-3.5 h-3.5" />
+                                    Responder
+                                </button>
+                            @endif
+                        @endauth
+                    </div>
 
                     {{-- Formulário de resposta inline --}}
                     @if($replyingTo === $comment->id)
@@ -128,28 +129,18 @@
                                 <span class="text-xs font-bold text-amber-700">{{ substr(auth()->user()->name, 0, 1) }}</span>
                             </div>
                             <div class="flex-1">
-                                <textarea
-                                    wire:model="replyBody"
-                                    rows="2"
-                                    placeholder="Respondendo a {{ $comment->user->name }}..."
-                                    class="w-full rounded-lg border-stone-300 text-stone-900 text-sm focus:ring-amber-500 focus:border-amber-500 resize-none"
-                                    autofocus
-                                ></textarea>
+                                <textarea wire:model="replyBody" rows="2"
+                                          placeholder="Respondendo a {{ $comment->user->name }}..."
+                                          class="w-full rounded-lg border-stone-300 text-stone-900 text-sm focus:ring-amber-500 focus:border-amber-500 resize-none"
+                                          autofocus></textarea>
                                 @error('replyBody') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 <div class="mt-2 flex gap-2 justify-end">
-                                    <button
-                                        wire:click="cancelReply"
-                                        type="button"
-                                        class="px-3 py-1 text-xs font-medium text-stone-600 hover:text-stone-800 bg-white border border-stone-300 rounded-lg transition-colors duration-150"
-                                    >
+                                    <button wire:click="cancelReply" type="button"
+                                            class="px-3 py-1 text-xs font-medium text-stone-600 hover:text-stone-800 bg-white border border-stone-300 rounded-lg transition-colors duration-150">
                                         Cancelar
                                     </button>
-                                    <button
-                                        wire:click="addReply"
-                                        wire:loading.attr="disabled"
-                                        type="button"
-                                        class="px-3 py-1 bg-amber-600 hover:bg-amber-700 disabled:opacity-75 text-white text-xs font-medium rounded-lg transition-colors duration-150"
-                                    >
+                                    <button wire:click="addReply" wire:loading.attr="disabled" type="button"
+                                            class="px-3 py-1 bg-amber-600 hover:bg-amber-700 disabled:opacity-75 text-white text-xs font-medium rounded-lg transition-colors duration-150">
                                         <span wire:loading.remove wire:target="addReply">Responder</span>
                                         <span wire:loading wire:target="addReply">Enviando...</span>
                                     </button>
@@ -174,21 +165,15 @@
                                                 <div class="flex items-center gap-2">
                                                     <span class="text-xs text-stone-400">{{ $reply->created_at->diffForHumans() }}</span>
                                                     @can('update', $reply)
-                                                        <button
-                                                            wire:click="startEdit({{ $reply->id }})"
-                                                            class="text-stone-400 hover:text-amber-600 transition-colors"
-                                                            title="Editar"
-                                                        >
+                                                        <button wire:click="startEdit({{ $reply->id }})"
+                                                                class="text-stone-400 hover:text-amber-600 transition-colors" title="Editar">
                                                             <x-heroicon-o-pencil-square class="w-3 h-3" />
                                                         </button>
                                                     @endcan
                                                     @can('delete', $reply)
-                                                        <button
-                                                            wire:click="deleteComment({{ $reply->id }})"
-                                                            wire:confirm="Remover esta resposta?"
-                                                            class="text-stone-400 hover:text-red-500 transition-colors"
-                                                            title="Excluir"
-                                                        >
+                                                        <button wire:click="deleteComment({{ $reply->id }})"
+                                                                wire:confirm="Remover esta resposta?"
+                                                                class="text-stone-400 hover:text-red-500 transition-colors" title="Excluir">
                                                             <x-heroicon-o-trash class="w-3 h-3" />
                                                         </button>
                                                     @endcan
@@ -196,35 +181,42 @@
                                             </div>
 
                                             @if($editingId === $reply->id)
-                                                <div>
-                                                    <textarea
-                                                        wire:model="editBody"
-                                                        rows="2"
-                                                        class="w-full rounded-lg border-stone-300 text-stone-900 text-sm focus:ring-amber-500 focus:border-amber-500 resize-none mt-1"
-                                                    ></textarea>
-                                                    @error('editBody') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                                                    <div class="mt-2 flex gap-2 justify-end">
-                                                        <button
-                                                            wire:click="cancelEdit"
-                                                            type="button"
-                                                            class="px-3 py-1 text-xs font-medium text-stone-600 hover:text-stone-800 bg-white border border-stone-300 rounded-lg transition-colors duration-150"
-                                                        >
-                                                            Cancelar
-                                                        </button>
-                                                        <button
-                                                            wire:click="saveEdit"
-                                                            wire:loading.attr="disabled"
-                                                            type="button"
-                                                            class="px-3 py-1 bg-amber-600 hover:bg-amber-700 disabled:opacity-75 text-white text-xs font-medium rounded-lg transition-colors duration-150"
-                                                        >
-                                                            <span wire:loading.remove wire:target="saveEdit">Salvar</span>
-                                                            <span wire:loading wire:target="saveEdit">Salvando...</span>
-                                                        </button>
-                                                    </div>
+                                                <textarea wire:model="editBody" rows="2"
+                                                          class="w-full rounded-lg border-stone-300 text-stone-900 text-sm focus:ring-amber-500 focus:border-amber-500 resize-none mt-1"></textarea>
+                                                @error('editBody') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                                <div class="mt-2 flex gap-2 justify-end">
+                                                    <button wire:click="cancelEdit" type="button"
+                                                            class="px-3 py-1 text-xs font-medium text-stone-600 hover:text-stone-800 bg-white border border-stone-300 rounded-lg transition-colors duration-150">
+                                                        Cancelar
+                                                    </button>
+                                                    <button wire:click="saveEdit" wire:loading.attr="disabled" type="button"
+                                                            class="px-3 py-1 bg-amber-600 hover:bg-amber-700 disabled:opacity-75 text-white text-xs font-medium rounded-lg transition-colors duration-150">
+                                                        <span wire:loading.remove wire:target="saveEdit">Salvar</span>
+                                                        <span wire:loading wire:target="saveEdit">Salvando...</span>
+                                                    </button>
                                                 </div>
                                             @else
                                                 <p class="text-sm text-stone-700">{{ $reply->body }}</p>
                                             @endif
+                                        </div>
+
+                                        {{-- Voto na reply --}}
+                                        @php $replyVoted = in_array($reply->id, $userVotedIds); @endphp
+                                        <div class="mt-1 ml-1">
+                                            <button
+                                                wire:click="voteComment({{ $reply->id }})"
+                                                class="inline-flex items-center gap-1 text-xs transition-colors {{ $replyVoted ? 'text-amber-600' : 'text-stone-400 hover:text-amber-600' }}"
+                                                title="{{ $replyVoted ? 'Remover voto' : 'Útil' }}"
+                                            >
+                                                @if($replyVoted)
+                                                    <x-heroicon-s-hand-thumb-up class="w-3 h-3" />
+                                                @else
+                                                    <x-heroicon-o-hand-thumb-up class="w-3 h-3" />
+                                                @endif
+                                                @if($reply->votes_count > 0)
+                                                    <span>{{ $reply->votes_count }}</span>
+                                                @endif
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
