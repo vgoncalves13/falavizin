@@ -169,6 +169,26 @@
         {{-- Galeria de fotos --}}
         <livewire:business.photo-gallery :business="$business" :key="'gallery-'.$business->id" />
 
+        {{-- Mapa --}}
+        @if($business->lat && $business->lng)
+            <div class="bg-white rounded-xl border border-stone-200 overflow-hidden mb-5">
+                <div class="flex items-center gap-2 px-5 py-3 border-b border-stone-100">
+                    <x-heroicon-o-map-pin class="w-4 h-4 text-stone-400" />
+                    <span class="text-sm font-medium text-stone-700">Localização</span>
+                    @if($business->address)
+                        <span class="text-sm text-stone-400">— {{ $business->address }}</span>
+                    @endif
+                </div>
+                <div
+                    id="business-map"
+                    class="h-64 w-full z-0"
+                    data-lat="{{ $business->lat }}"
+                    data-lng="{{ $business->lng }}"
+                    data-name="{{ $business->name }}"
+                ></div>
+            </div>
+        @endif
+
         {{-- Promoções --}}
         @if($business->promotions->isNotEmpty() || auth()->user()?->can('update', $business))
             <div class="bg-white rounded-xl border border-stone-200 p-6 mb-5">
@@ -213,4 +233,50 @@
             </div>
         @endif
     </div>
+
+    @if($business->lat && $business->lng)
+        @push('head')
+            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+        @endpush
+
+        @push('scripts')
+            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const el = document.getElementById('business-map');
+                    if (!el) return;
+
+                    const lat  = parseFloat(el.dataset.lat);
+                    const lng  = parseFloat(el.dataset.lng);
+                    const name = el.dataset.name;
+
+                    const map = L.map('business-map', { zoomControl: true, scrollWheelZoom: false })
+                        .setView([lat, lng], 16);
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                        maxZoom: 19,
+                    }).addTo(map);
+
+                    const icon = L.divIcon({
+                        html: `<div style="
+                            width:36px;height:36px;border-radius:50% 50% 50% 0;
+                            background:#d97706;border:3px solid #fff;
+                            transform:rotate(-45deg);
+                            box-shadow:0 2px 6px rgba(0,0,0,.3);
+                        "></div>`,
+                        iconSize: [36, 36],
+                        iconAnchor: [18, 36],
+                        popupAnchor: [0, -38],
+                        className: '',
+                    });
+
+                    L.marker([lat, lng], { icon })
+                        .addTo(map)
+                        .bindPopup(`<strong>${name}</strong>`)
+                        .openPopup();
+                });
+            </script>
+        @endpush
+    @endif
 </x-app-layout>
