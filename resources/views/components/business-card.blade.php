@@ -39,9 +39,22 @@
 
         <x-category-badge :category="$business->category" />
 
-        <div class="mt-2 flex items-center gap-1 text-xs text-stone-500">
-            <x-heroicon-o-map-pin class="w-3.5 h-3.5 shrink-0" />
-            <span class="truncate">{{ $business->neighborhood }}{{ $business->city ? ', ' . $business->city : '' }}</span>
+        <div class="mt-2 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-1 text-xs text-stone-500 min-w-0">
+                <x-heroicon-o-map-pin class="w-3.5 h-3.5 shrink-0" />
+                <span class="truncate">{{ $business->neighborhood }}{{ $business->city ? ', ' . $business->city : '' }}</span>
+            </div>
+            @php $openNow = $business->isOpenNow(); @endphp
+            @if($openNow === true)
+                <span class="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
+                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                    Aberto
+                </span>
+            @elseif($openNow === false)
+                <span class="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium bg-stone-50 text-stone-400 border border-stone-200">
+                    Fechado
+                </span>
+            @endif
         </div>
 
         @if($business->description)

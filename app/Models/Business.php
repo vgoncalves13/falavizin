@@ -95,6 +95,38 @@ class Business extends Model
         return $this->hasMany(Promotion::class);
     }
 
+    /**
+     * Returns true if the business is currently open, false if closed today,
+     * or null if no opening hours are configured.
+     */
+    public function isOpenNow(): ?bool
+    {
+        if (empty($this->opening_hours)) {
+            return null;
+        }
+
+        $dayNames = [
+            1 => 'Segunda-feira',
+            2 => 'Terça-feira',
+            3 => 'Quarta-feira',
+            4 => 'Quinta-feira',
+            5 => 'Sexta-feira',
+            6 => 'Sábado',
+            7 => 'Domingo',
+        ];
+
+        $todayName = $dayNames[(int) now()->format('N')];
+        $todayHours = collect($this->opening_hours)->firstWhere('day', $todayName);
+
+        if (! $todayHours || ($todayHours['closed'] ?? true)) {
+            return false;
+        }
+
+        $now = now()->format('H:i');
+
+        return $now >= $todayHours['open'] && $now <= $todayHours['close'];
+    }
+
     public function scopeFeatured(Builder $query): Builder
     {
         return $query->where('plan', BusinessPlan::Featured)->where('status', BusinessStatus::Approved);

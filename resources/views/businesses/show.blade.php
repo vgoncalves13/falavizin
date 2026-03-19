@@ -118,19 +118,41 @@
                     $openDays = collect($business->opening_hours ?? [])->filter(fn($h) => ! ($h['closed'] ?? true));
                 @endphp
                 @if($business->opening_hours && $openDays->isNotEmpty())
+                    @php $openNow = $business->isOpenNow(); @endphp
                     <div class="mt-5" x-data="{ open: false }">
                         <button type="button" @click="open = !open"
                                 class="flex items-center gap-2 text-sm font-medium text-stone-700 hover:text-stone-900 transition-colors">
                             <x-heroicon-o-clock class="w-4 h-4 text-stone-400" />
                             Horários de funcionamento
+                            @if($openNow === true)
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                                    Aberto agora
+                                </span>
+                            @elseif($openNow === false)
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-600 border border-red-200">
+                                    Fechado agora
+                                </span>
+                            @endif
                             <x-heroicon-o-chevron-down class="w-3.5 h-3.5 text-stone-400 transition-transform duration-200"
                                                         ::class="open ? 'rotate-180' : ''" />
                         </button>
+                        @php
+                            $todayDayNames = [1=>'Segunda-feira',2=>'Terça-feira',3=>'Quarta-feira',4=>'Quinta-feira',5=>'Sexta-feira',6=>'Sábado',7=>'Domingo'];
+                            $todayName = $todayDayNames[(int) now()->format('N')];
+                        @endphp
                         <div x-show="open" x-transition class="mt-3 rounded-lg border border-stone-100 overflow-hidden divide-y divide-stone-50">
                             @foreach($business->opening_hours as $hours)
+                                @php $isToday = ($hours['day'] === $todayName); @endphp
                                 <div class="flex items-center justify-between px-4 py-2 text-sm
-                                            {{ ($hours['closed'] ?? true) ? 'bg-stone-50 text-stone-400' : 'bg-white text-stone-700' }}">
-                                    <span class="font-medium">{{ $hours['day'] }}</span>
+                                            {{ ($hours['closed'] ?? true) ? 'bg-stone-50 text-stone-400' : 'bg-white text-stone-700' }}
+                                            {{ $isToday ? 'font-semibold' : '' }}">
+                                    <span class="flex items-center gap-1.5">
+                                        {{ $hours['day'] }}
+                                        @if($isToday)
+                                            <span class="text-xs font-normal text-stone-400">(hoje)</span>
+                                        @endif
+                                    </span>
                                     @if($hours['closed'] ?? true)
                                         <span class="text-xs italic">Fechado</span>
                                     @else
