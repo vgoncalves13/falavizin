@@ -15,7 +15,9 @@
         <div class="flex-1 min-w-0">
             {{-- Meta --}}
             <div class="flex items-center gap-2 flex-wrap mb-2">
-                <span class="text-sm font-medium text-stone-900">{{ $post->user->name }}</span>
+                <a href="{{ route('users.show', $post->user) }}"
+                   class="text-sm font-medium text-stone-900 hover:text-amber-700 transition-colors"
+                   @click.stop>{{ $post->user->name }}</a>
                 <span class="text-stone-300">·</span>
                 <span class="text-xs text-stone-400">{{ $post->created_at->diffForHumans() }}</span>
                 @if($post->location)

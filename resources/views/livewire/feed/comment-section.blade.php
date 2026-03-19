@@ -50,7 +50,8 @@
                 <div class="flex-1">
                     <div class="bg-stone-50 rounded-lg px-4 py-3">
                         <div class="flex items-center justify-between mb-1">
-                            <span class="text-sm font-medium text-stone-900">{{ $comment->user->name }}</span>
+                            <a href="{{ route('users.show', $comment->user) }}"
+                               class="text-sm font-medium text-stone-900 hover:text-amber-700 transition-colors">{{ $comment->user->name }}</a>
                             <div class="flex items-center gap-2">
                                 <span class="text-xs text-stone-400">{{ $comment->created_at->diffForHumans() }}</span>
                                 @can('update', $comment)
@@ -168,7 +169,8 @@
                                     <div class="flex-1">
                                         <div class="bg-stone-50 rounded-lg px-3 py-2">
                                             <div class="flex items-center justify-between mb-1">
-                                                <span class="text-xs font-medium text-stone-900">{{ $reply->user->name }}</span>
+                                                <a href="{{ route('users.show', $reply->user) }}"
+                                                   class="text-xs font-medium text-stone-900 hover:text-amber-700 transition-colors">{{ $reply->user->name }}</a>
                                                 <div class="flex items-center gap-2">
                                                     <span class="text-xs text-stone-400">{{ $reply->created_at->diffForHumans() }}</span>
                                                     @can('update', $reply)

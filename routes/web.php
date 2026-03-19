@@ -1,17 +1,18 @@
 <?php
 
 use App\Http\Controllers\Admin\ModerationController;
-use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ClaimBusinessController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\UserProfileController;
 use App\Livewire\Admin\AppSettings;
 use App\Livewire\Admin\GooglePlacesImport;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Route;
 // Públicas
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/busca', [SearchController::class, 'index'])->name('search.index');
+Route::get('/u/{user}', [UserProfileController::class, 'show'])->name('users.show');
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/feed', [PostController::class, 'index'])->name('feed.index');
 Route::get('/feed/{post:slug}', [PostController::class, 'show'])->name('feed.show');
