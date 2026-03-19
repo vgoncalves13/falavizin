@@ -10,7 +10,8 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Laravel\Facades\Image;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 
 class EnrichBusinessFromGoogle implements ShouldQueue
 {
@@ -56,7 +57,7 @@ class EnrichBusinessFromGoogle implements ShouldQueue
             $business->update($updates);
         }
 
-        $this->importCoverPhoto($business, $service, $details);
+        $this->importPhotos($business, $service, $details);
     }
 
     /**
@@ -98,9 +99,9 @@ class EnrichBusinessFromGoogle implements ShouldQueue
         return $result;
     }
 
-    private function importCoverPhoto(Business $business, GooglePlacesService $service, array $details): void
+    private function importPhotos(Business $business, GooglePlacesService $service, array $details): void
     {
-        if ($business->coverPhoto()->exists()) {
+        if ($business->photos()->exists()) {
             return;
         }
 
@@ -110,35 +111,42 @@ class EnrichBusinessFromGoogle implements ShouldQueue
             return;
         }
 
-        $photoName = $photos[0]['name'] ?? null;
+        $manager = new ImageManager(new Driver);
+        $sortOrder = 0;
 
-        if (! $photoName) {
-            return;
-        }
+        foreach ($photos as $photo) {
+            $photoName = $photo['name'] ?? null;
 
-        $photoUri = $service->getPhotoUri($photoName);
+            if (! $photoName) {
+                continue;
+            }
 
-        if (! $photoUri) {
-            return;
-        }
+            $photoUri = $service->getPhotoUri($photoName);
 
-        try {
-            $imageContent = Http::timeout(30)->get($photoUri)->body();
+            if (! $photoUri) {
+                continue;
+            }
 
-            $image = Image::read($imageContent);
-            $image->scaleDown(width: 1200);
+            try {
+                $imageContent = Http::timeout(30)->get($photoUri)->body();
 
-            $filename = 'businesses/'.uniqid('google_', true).'.jpg';
-            Storage::disk('public')->put($filename, $image->toJpeg(85));
+                $image = $manager->read($imageContent);
+                $image->scaleDown(width: 1200);
 
-            BusinessPhoto::create([
-                'business_id' => $business->id,
-                'path' => $filename,
-                'is_cover' => true,
-                'sort_order' => 0,
-            ]);
-        } catch (\Throwable $e) {
-            Log::warning("EnrichBusinessFromGoogle: falha ao importar foto do business {$business->id}: ".$e->getMessage());
+                $filename = 'businesses/'.uniqid('google_', true).'.jpg';
+                Storage::disk('public')->put($filename, $image->toJpeg(85));
+
+                BusinessPhoto::create([
+                    'business_id' => $business->id,
+                    'path' => $filename,
+                    'is_cover' => $sortOrder === 0,
+                    'sort_order' => $sortOrder,
+                ]);
+
+                $sortOrder++;
+            } catch (\Throwable $e) {
+                Log::warning("EnrichBusinessFromGoogle: falha ao importar foto do business {$business->id}: ".$e->getMessage());
+            }
         }
     }
 }

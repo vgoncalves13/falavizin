@@ -39,12 +39,20 @@ class EnrichBusinessesFromGoogle extends Command
         $sync = $this->option('sync');
         $this->info(($sync ? 'Processando' : 'Enfileirando')." {$businesses->count()} negócio(s)...");
 
-        foreach ($businesses as $business) {
+        foreach ($businesses as $i => $business) {
             if ($sync) {
-                EnrichBusinessFromGoogle::dispatchSync($business->id);
-                $this->line("  ✓ [{$business->id}] {$business->name}");
+                if ($i > 0) {
+                    sleep(2);
+                }
+
+                try {
+                    EnrichBusinessFromGoogle::dispatchSync($business->id);
+                    $this->line("  ✓ [{$business->id}] {$business->name}");
+                } catch (\Throwable $e) {
+                    $this->warn("  ✗ [{$business->id}] {$business->name}: ".$e->getMessage());
+                }
             } else {
-                EnrichBusinessFromGoogle::dispatch($business->id);
+                EnrichBusinessFromGoogle::dispatch($business->id)->delay(now()->addSeconds($i * 3));
                 $this->line("  → [{$business->id}] {$business->name} (enfileirado)");
             }
         }
