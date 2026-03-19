@@ -156,5 +156,6 @@ class ModerationController extends Controller
         Cache::forget('home:featured_businesses');
         Cache::forget('home:promotions');
         Cache::forget('home:categories');
+        Cache::forget('admin:moderation_count');
     }
 }

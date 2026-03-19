@@ -6,6 +6,7 @@ use App\Enums\PostStatus;
 use App\Models\Post;
 use App\Models\User;
 use App\Notifications\NewContentNotification;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Notification;
 
 class CreatePostAction
@@ -34,5 +35,6 @@ class CreatePostAction
         }
 
         Notification::send($admins, new NewContentNotification('post', $title));
+        Cache::forget('admin:moderation_count');
     }
 }

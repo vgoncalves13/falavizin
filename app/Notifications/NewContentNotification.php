@@ -17,7 +17,24 @@ class NewContentNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['database', 'mail'];
+    }
+
+    public function toDatabase(object $notifiable): array
+    {
+        $typeLabel = match ($this->type) {
+            'post' => 'post',
+            'business' => 'negócio',
+            'promotion' => 'promoção',
+            default => 'conteúdo',
+        };
+
+        return [
+            'icon' => 'clock',
+            'color' => 'text-amber-500',
+            'message' => "Nova requisição de {$typeLabel} aguardando aprovação: \"{$this->title}\"",
+            'url' => route('admin.moderation.index'),
+        ];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -30,9 +47,9 @@ class NewContentNotification extends Notification
         };
 
         return (new MailMessage)
-            ->subject('Novo '.$typeLabel.' aguardando aprovação — Hub do Bairro')
+            ->subject('Nova requisição '.$typeLabel.' aguardando aprovação — Hub do Bairro')
             ->greeting('Olá, admin!')
-            ->line("Um novo {$typeLabel} foi enviado e aguarda aprovação:")
+            ->line("Uma nova requisição de {$typeLabel} foi enviado e aguarda aprovação:")
             ->line("**{$this->title}**")
             ->action('Ver painel de moderação', route('admin.moderation.index'))
             ->line('Acesse o painel para aprovar ou rejeitar.');

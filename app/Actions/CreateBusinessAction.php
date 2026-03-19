@@ -7,6 +7,7 @@ use App\Models\Business;
 use App\Models\User;
 use App\Notifications\NewContentNotification;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -49,6 +50,7 @@ class CreateBusinessAction
         }
 
         Notification::send($admins, new NewContentNotification('business', $name));
+        Cache::forget('admin:moderation_count');
     }
 
     private function saveCoverPhoto(Business $business, UploadedFile $file): void

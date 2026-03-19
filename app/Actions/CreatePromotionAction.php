@@ -6,6 +6,7 @@ use App\Models\Business;
 use App\Models\Promotion;
 use App\Models\User;
 use App\Notifications\NewContentNotification;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Notification;
 
 class CreatePromotionAction
@@ -35,5 +36,6 @@ class CreatePromotionAction
         }
 
         Notification::send($admins, new NewContentNotification('promotion', $title));
+        Cache::forget('admin:moderation_count');
     }
 }

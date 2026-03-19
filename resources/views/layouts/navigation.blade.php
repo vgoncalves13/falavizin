@@ -66,8 +66,25 @@
                                 Editar perfil
                             </x-dropdown-link>
                             @if(Auth::user()->is_admin)
+                                @php
+                                    $pendingCount = \Illuminate\Support\Facades\Cache::remember('admin:moderation_count', 120, fn () =>
+                                        \App\Models\Post::where('status', 'pending')->count() +
+                                        \App\Models\Business::where('status', 'pending')->count() +
+                                        \App\Models\Promotion::where('status', 'pending')->count() +
+                                        \App\Models\Post::whereNotNull('reported_at')->where('status', 'approved')->count() +
+                                        \App\Models\Business::whereNotNull('reported_at')->where('status', 'approved')->count() +
+                                        \App\Models\Promotion::whereNotNull('reported_at')->where('status', 'approved')->count()
+                                    );
+                                @endphp
                                 <x-dropdown-link :href="route('admin.moderation.index')">
-                                    Moderação
+                                    <span class="flex items-center justify-between gap-2">
+                                        Moderação
+                                        @if($pendingCount > 0)
+                                            <span class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-red-500 rounded-full">
+                                                {{ $pendingCount > 99 ? '99+' : $pendingCount }}
+                                            </span>
+                                        @endif
+                                    </span>
                                 </x-dropdown-link>
                                 <x-dropdown-link :href="route('admin.google-places-import')">
                                     Importar Google Places
@@ -167,8 +184,16 @@
                 </a>
                 @if(Auth::user()->is_admin)
                     <a href="{{ route('admin.moderation.index') }}"
-                       class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">
-                        Moderação
+                       class="flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">
+                        <span class="flex items-center gap-2">
+                            <x-heroicon-o-shield-check class="w-4 h-4" />
+                            Moderação
+                        </span>
+                        @if(isset($pendingCount) && $pendingCount > 0)
+                            <span class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-red-500 rounded-full">
+                                {{ $pendingCount > 99 ? '99+' : $pendingCount }}
+                            </span>
+                        @endif
                     </a>
                     <a href="{{ route('admin.google-places-import') }}"
                        class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">

@@ -57,8 +57,8 @@ class ContentModerationNotification extends Notification
             ->subject(($approved ? '✓ ' : '✗ ').ucfirst($typeLabel).' '.($approved ? 'aprovado' : 'rejeitado').' — Hub do Bairro')
             ->greeting('Olá, '.$notifiable->name.'!')
             ->line($approved
-                ? "Seu {$typeLabel} foi **aprovado** e já está visível no Hub do Bairro:"
-                : "Infelizmente, seu {$typeLabel} foi **rejeitado** pela nossa equipe de moderação:")
+                ? "Sua requisição de {$typeLabel} foi **aprovada** e já está visível no Hub do Bairro:"
+                : "Infelizmente, sua requisição de {$typeLabel} foi **rejeitada** pela nossa equipe de moderação:")
             ->line("**{$this->title}**");
 
         if ($approved && $this->url) {
