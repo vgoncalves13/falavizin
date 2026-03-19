@@ -17,6 +17,8 @@ class ProfileController extends Controller
             'posts.category',
             'businesses.category',
             'comments.post',
+            'favorites.category',
+            'favorites.coverPhoto',
         ]);
 
         return view('profile.account', compact('user'));

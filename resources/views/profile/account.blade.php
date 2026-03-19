@@ -53,11 +53,11 @@
 
         {{-- Tabs --}}
         <div x-data="{ tab: 'posts' }">
-            <div class="flex gap-1 bg-white rounded-xl border border-stone-200 p-1 mb-5">
+            <div class="flex gap-1 bg-white rounded-xl border border-stone-200 p-1 mb-5 overflow-x-auto">
                 <button
                     @click="tab = 'posts'"
                     :class="tab === 'posts' ? 'bg-amber-600 text-white shadow-sm' : 'text-stone-600 hover:bg-stone-100'"
-                    class="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-150"
+                    class="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-150 whitespace-nowrap"
                 >
                     <x-heroicon-o-newspaper class="w-4 h-4" />
                     Meus Posts
@@ -66,16 +66,25 @@
                 <button
                     @click="tab = 'businesses'"
                     :class="tab === 'businesses' ? 'bg-amber-600 text-white shadow-sm' : 'text-stone-600 hover:bg-stone-100'"
-                    class="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-150"
+                    class="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-150 whitespace-nowrap"
                 >
                     <x-heroicon-o-building-storefront class="w-4 h-4" />
                     Negócios
                     <span class="text-xs opacity-75">({{ $user->businesses->count() }})</span>
                 </button>
                 <button
+                    @click="tab = 'favorites'"
+                    :class="tab === 'favorites' ? 'bg-amber-600 text-white shadow-sm' : 'text-stone-600 hover:bg-stone-100'"
+                    class="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-150 whitespace-nowrap"
+                >
+                    <x-heroicon-o-heart class="w-4 h-4" />
+                    Favoritos
+                    <span class="text-xs opacity-75">({{ $user->favorites->count() }})</span>
+                </button>
+                <button
                     @click="tab = 'comments'"
                     :class="tab === 'comments' ? 'bg-amber-600 text-white shadow-sm' : 'text-stone-600 hover:bg-stone-100'"
-                    class="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-150"
+                    class="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-150 whitespace-nowrap"
                 >
                     <x-heroicon-o-chat-bubble-left class="w-4 h-4" />
                     Comentários
@@ -174,6 +183,26 @@
                                     <x-heroicon-o-pencil-square class="w-4 h-4" />
                                 </a>
                             </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
+            {{-- Favoritos --}}
+            <div x-show="tab === 'favorites'" style="display: none;">
+                @if($user->favorites->isEmpty())
+                    <div class="bg-white rounded-xl border border-stone-200 p-12 text-center">
+                        <x-heroicon-o-heart class="w-10 h-10 text-stone-300 mx-auto mb-3" />
+                        <p class="text-stone-500 text-sm">Você ainda não favoritou nenhum negócio.</p>
+                        <a href="{{ route('businesses.index') }}"
+                           class="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors">
+                            Explorar serviços
+                        </a>
+                    </div>
+                @else
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        @foreach($user->favorites as $business)
+                            <x-business-card :business="$business" />
                         @endforeach
                     </div>
                 @endif
