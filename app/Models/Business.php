@@ -101,6 +101,18 @@ class Business extends Model
         return $this->belongsToMany(User::class, 'business_user_favorites')->withPivot('created_at');
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function averageRating(): ?float
+    {
+        $avg = $this->reviews()->avg('rating');
+
+        return $avg ? round($avg, 1) : null;
+    }
+
     /**
      * Returns true if the business is currently open, false if closed today,
      * or null if no opening hours are configured.

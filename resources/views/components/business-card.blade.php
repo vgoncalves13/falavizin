@@ -37,7 +37,16 @@
             </h3>
         </div>
 
-        <x-category-badge :category="$business->category" />
+        <div class="flex items-center justify-between gap-2 mt-1">
+            <x-category-badge :category="$business->category" />
+            @php $avg = $business->averageRating(); @endphp
+            @if($avg)
+                <div class="flex items-center gap-1 shrink-0">
+                    <x-heroicon-s-star class="w-3.5 h-3.5 text-amber-400" />
+                    <span class="text-xs font-medium text-stone-600">{{ number_format($avg, 1, ',') }}</span>
+                </div>
+            @endif
+        </div>
 
         <div class="mt-2 flex items-center justify-between gap-2">
             <div class="flex items-center gap-1 text-xs text-stone-500 min-w-0">

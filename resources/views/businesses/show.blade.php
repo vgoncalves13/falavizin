@@ -238,6 +238,11 @@
                 @endcan
             </div>
         @endif
+        {{-- Avaliações --}}
+        <div class="bg-white rounded-xl border border-stone-200 p-6 mb-5">
+            <livewire:business.review-section :business="$business" :key="'reviews-'.$business->id" />
+        </div>
+
     </div>
 
     @if($business->lat && $business->lng)
