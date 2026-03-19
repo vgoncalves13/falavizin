@@ -21,7 +21,7 @@ class BusinessFactory extends Factory
             'category_id' => Category::factory(),
             'name' => fake()->company(),
             'description' => fake()->paragraph(),
-            'phone' => fake()->phoneNumber(),
+            'phone' => [fake()->phoneNumber()],
             'whatsapp' => fake()->optional()->phoneNumber(),
             'address' => fake()->streetAddress(),
             'neighborhood' => fake()->citySuffix(),

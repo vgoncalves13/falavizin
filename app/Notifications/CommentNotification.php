@@ -20,10 +20,15 @@ class CommentNotification extends Notification
     /** @return array<string, mixed> */
     public function toDatabase(object $notifiable): array
     {
+        $isReply = $this->comment->parent_id !== null;
+        $message = $isReply
+            ? $this->comment->user->name.' respondeu ao seu comentário em: '.$this->comment->post->title
+            : $this->comment->user->name.' comentou no seu post: '.$this->comment->post->title;
+
         return [
             'icon' => 'chat-bubble-left',
             'color' => 'text-amber-600',
-            'message' => $this->comment->user->name.' comentou no seu post: '.$this->comment->post->title,
+            'message' => $message,
             'url' => route('feed.show', $this->comment->post),
         ];
     }

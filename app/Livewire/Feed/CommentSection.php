@@ -19,6 +19,10 @@ class CommentSection extends Component
 
     public string $editBody = '';
 
+    public ?int $replyingTo = null;
+
+    public string $replyBody = '';
+
     protected function rules(): array
     {
         return [
@@ -57,6 +61,55 @@ class CommentSection extends Component
         }
 
         $this->body = '';
+    }
+
+    public function startReply(int $commentId): void
+    {
+        if (! auth()->check()) {
+            $this->redirect(route('login'));
+
+            return;
+        }
+
+        $this->replyingTo = $commentId;
+        $this->replyBody = '';
+        $this->editingId = null;
+    }
+
+    public function cancelReply(): void
+    {
+        $this->replyingTo = null;
+        $this->replyBody = '';
+    }
+
+    public function addReply(): void
+    {
+        if (! auth()->check()) {
+            $this->redirect(route('login'));
+
+            return;
+        }
+
+        $this->validateOnly('replyBody', [
+            'replyBody' => ['required', 'string', 'min:3', 'max:1000'],
+        ]);
+
+        $parent = Comment::findOrFail($this->replyingTo);
+
+        $reply = $this->post->comments()->create([
+            'parent_id' => $parent->id,
+            'user_id' => auth()->id(),
+            'body' => $this->replyBody,
+            'status' => 'approved',
+        ]);
+
+        // Notify the parent comment author — but not if they're replying to themselves
+        if ($parent->user_id !== auth()->id()) {
+            $parent->user->notify(new CommentNotification($reply));
+        }
+
+        $this->replyingTo = null;
+        $this->replyBody = '';
     }
 
     public function startEdit(int $commentId): void
@@ -103,7 +156,8 @@ class CommentSection extends Component
     public function render(): View
     {
         $comments = $this->post->comments()
-            ->with('user')
+            ->with(['user', 'replies.user'])
+            ->whereNull('parent_id')
             ->where('status', 'approved')
             ->latest()
             ->get();
