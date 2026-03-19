@@ -4,6 +4,7 @@ namespace App\Livewire\Feed;
 
 use App\Models\Comment;
 use App\Models\Post;
+use App\Notifications\CommentNotification;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -43,11 +44,17 @@ class CommentSection extends Component
 
         $this->validate();
 
-        $this->post->comments()->create([
+        $comment = $this->post->comments()->create([
             'user_id' => auth()->id(),
             'body' => $this->body,
             'status' => 'approved',
         ]);
+
+        // Notify the post author — but not if they commented on their own post
+        $postAuthor = $this->post->user;
+        if ($postAuthor && $postAuthor->id !== auth()->id()) {
+            $postAuthor->notify(new CommentNotification($comment));
+        }
 
         $this->body = '';
     }

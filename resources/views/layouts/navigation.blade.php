@@ -44,6 +44,7 @@
             <!-- User Menu -->
             <div class="hidden sm:flex sm:items-center gap-3">
                 @auth
+                    <livewire:notifications.notification-bell />
                     <a href="{{ route('feed.create') }}"
                        class="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors duration-150">
                         <x-heroicon-o-plus class="w-4 h-4" />
@@ -150,6 +151,11 @@
                    class="flex items-center gap-2 px-3 py-2 mb-1 bg-amber-600 text-white rounded-lg text-sm font-medium">
                     <x-heroicon-o-plus class="w-4 h-4" />
                     Publicar
+                </a>
+                <a href="{{ route('notifications.index') }}"
+                   class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">
+                    <x-heroicon-o-bell class="w-4 h-4" />
+                    Notificações
                 </a>
                 <a href="{{ route('profile.account') }}"
                    class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">

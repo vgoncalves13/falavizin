@@ -19,7 +19,27 @@ class ContentModerationNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
+    }
+
+    /** @return array<string, mixed> */
+    public function toDatabase(object $notifiable): array
+    {
+        $approved = $this->decision === 'approved';
+
+        $typeLabel = match ($this->type) {
+            'post' => 'post',
+            'business' => 'negócio',
+            'promotion' => 'promoção',
+            default => 'conteúdo',
+        };
+
+        return [
+            'icon' => $approved ? 'check-circle' : 'x-circle',
+            'color' => $approved ? 'text-green-600' : 'text-red-500',
+            'message' => 'Seu '.$typeLabel.' foi '.($approved ? 'aprovado' : 'rejeitado').': '.$this->title,
+            'url' => $this->url,
+        ];
     }
 
     public function toMail(object $notifiable): MailMessage
