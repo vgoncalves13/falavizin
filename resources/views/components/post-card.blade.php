@@ -3,7 +3,11 @@
 <article
     x-data
     @click="window.location.href = '{{ route('feed.show', $post) }}'"
-    class="bg-white rounded-xl border {{ $post->is_sponsored ? 'border-amber-300' : 'border-stone-200' }} {{ $post->is_sponsored ? 'bg-amber-50/30' : '' }} hover:shadow-md transition-shadow duration-200 cursor-pointer overflow-hidden"
+    class="bg-white rounded-xl border
+        {{ $post->is_sponsored ? 'border-amber-300 bg-amber-50/30' : '' }}
+        {{ !$post->is_sponsored && $post->category?->slug === 'pedido' ? 'border-blue-200 bg-blue-50/20' : '' }}
+        {{ !$post->is_sponsored && $post->category?->slug !== 'pedido' ? 'border-stone-200' : '' }}
+        hover:shadow-md transition-shadow duration-200 cursor-pointer overflow-hidden"
 >
     {{-- Post image --}}
     @if($post->image)
@@ -67,7 +71,7 @@
                 <p class="text-sm text-stone-600 line-clamp-2 mb-3">{{ $post->body }}</p>
 
                 {{-- Footer: stats --}}
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-4 flex-wrap">
                     <a href="{{ route('feed.show', $post) }}"
                        class="inline-flex items-center gap-1.5 text-xs text-stone-400 hover:text-stone-600 transition-colors">
                         <x-heroicon-o-chat-bubble-left class="w-4 h-4" />
@@ -82,6 +86,19 @@
                             <x-heroicon-o-chart-bar-square class="w-4 h-4" />
                             Enquete
                         </span>
+                    @endif
+                    @if($post->category?->slug === 'problema' && $post->resolution_status !== null)
+                        @if($post->resolution_status->value === 'resolvido')
+                            <span class="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">
+                                <x-heroicon-s-check-circle class="w-3 h-3" />
+                                Resolvido
+                            </span>
+                        @elseif($post->resolution_status->value === 'em_andamento')
+                            <span class="inline-flex items-center gap-1 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
+                                <x-heroicon-o-arrow-path class="w-3 h-3" />
+                                Em andamento
+                            </span>
+                        @endif
                     @endif
                 </div>
             </div>

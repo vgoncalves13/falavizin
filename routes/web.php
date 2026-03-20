@@ -12,6 +12,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PromotionController;
+use App\Http\Controllers\PulsoController;
 use App\Http\Controllers\RankingController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SearchController;
@@ -33,6 +34,7 @@ Route::get('/servicos/{business:slug}', [BusinessController::class, 'show'])->na
 Route::get('/categoria/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
 Route::get('/promocoes', [PromotionController::class, 'index'])->name('promotions.index');
 Route::get('/ranking', [RankingController::class, 'index'])->name('ranking.index');
+Route::get('/pulso', [PulsoController::class, 'index'])->name('pulso.index');
 
 // Autenticadas
 Route::middleware('auth')->group(function () {

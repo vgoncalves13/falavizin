@@ -106,6 +106,50 @@
         </section>
     @endif
 
+    <!-- Pedidos Recentes -->
+    @if($recentRequests->isNotEmpty())
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-stone-900 flex items-center gap-2" style="font-family: var(--font-display)">
+                    <x-heroicon-o-hand-raised class="w-5 h-5 text-blue-500" />
+                    Pedidos ao Bairro
+                </h2>
+                <a href="{{ route('categories.show', 'pedido') }}" class="text-sm font-medium text-amber-600 hover:text-amber-700">
+                    Ver todos →
+                </a>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                @foreach($recentRequests as $post)
+                    <a href="{{ route('feed.show', $post) }}"
+                       class="group flex flex-col gap-2 bg-blue-50 border border-blue-200 rounded-xl p-4 hover:shadow-md hover:border-blue-300 transition-all duration-200">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                                <span class="text-xs font-bold text-blue-700">{{ substr($post->user->name, 0, 1) }}</span>
+                            </div>
+                            <span class="text-xs text-stone-500 truncate">{{ $post->user->name }}</span>
+                            <span class="text-xs text-stone-400 ml-auto shrink-0">{{ $post->created_at->diffForHumans() }}</span>
+                        </div>
+                        <p class="font-semibold text-stone-900 group-hover:text-blue-700 transition-colors leading-snug text-sm line-clamp-2">
+                            {{ $post->title }}
+                        </p>
+                        <div class="flex items-center gap-3 mt-auto text-xs text-stone-400">
+                            <span class="inline-flex items-center gap-1">
+                                <x-heroicon-o-chat-bubble-left class="w-3.5 h-3.5" />
+                                {{ $post->comments_count }}
+                            </span>
+                            @if($post->location)
+                                <span class="inline-flex items-center gap-1 truncate">
+                                    <x-heroicon-o-map-pin class="w-3.5 h-3.5 shrink-0" />
+                                    {{ $post->location }}
+                                </span>
+                            @endif
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
     <!-- Posts Patrocinados -->
     @if($sponsoredPosts->isNotEmpty())
         <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
@@ -190,46 +234,74 @@
                 @endif
             </div>
 
-            <!-- Sidebar: Em Destaque -->
-            <div>
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold text-stone-900" style="font-family: var(--font-display)">Em Destaque</h2>
-                    <a href="{{ route('businesses.index') }}" class="text-sm font-medium text-amber-600 hover:text-amber-700">
-                        Ver tudo →
-                    </a>
+            <!-- Sidebar -->
+            <div class="space-y-8">
+
+                {{-- Widget Pulso --}}
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-base font-bold text-stone-900 flex items-center gap-1.5" style="font-family: var(--font-display)">
+                            <x-heroicon-o-signal class="w-4 h-4 text-amber-600" />
+                            Pulso desta semana
+                        </h2>
+                        <a href="{{ route('pulso.index') }}" class="text-xs font-medium text-amber-600 hover:text-amber-700">
+                            Ver tudo →
+                        </a>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-white rounded-xl border border-stone-200 p-4 text-center">
+                            <p class="text-2xl font-bold text-amber-600" style="font-family: var(--font-display)">{{ $pulsoPostsThisWeek }}</p>
+                            <p class="text-xs text-stone-500 mt-0.5">Posts esta semana</p>
+                        </div>
+                        <div class="bg-white rounded-xl border border-stone-200 p-4 text-center">
+                            <p class="text-2xl font-bold text-green-600" style="font-family: var(--font-display)">{{ $pulsoResolvedThisWeek }}</p>
+                            <p class="text-xs text-stone-500 mt-0.5">Problemas resolvidos</p>
+                        </div>
+                    </div>
                 </div>
 
-                @if($featuredBusinesses->isEmpty())
-                    <div class="bg-amber-50 rounded-xl border border-amber-200 p-6 text-center">
-                        <x-heroicon-s-star class="w-6 h-6 text-amber-400 mx-auto mb-2" />
-                        <p class="text-sm text-stone-500">Nenhum negócio em destaque.</p>
+                {{-- Em Destaque --}}
+                <div>
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-bold text-stone-900" style="font-family: var(--font-display)">Em Destaque</h2>
+                        <a href="{{ route('businesses.index') }}" class="text-sm font-medium text-amber-600 hover:text-amber-700">
+                            Ver tudo →
+                        </a>
                     </div>
-                @else
-                    <div class="space-y-3">
-                        @foreach($featuredBusinesses as $business)
-                            <a href="{{ route('businesses.show', $business) }}"
-                               class="flex items-center gap-3 p-3 bg-white rounded-xl border border-amber-200 hover:shadow-sm transition-shadow duration-150 group">
-                                <div class="w-12 h-12 rounded-lg overflow-hidden bg-stone-100 shrink-0">
-                                    @if($business->coverPhoto)
-                                        <img src="{{ Storage::url($business->coverPhoto->path) }}" alt="{{ $business->name }}" class="w-full h-full object-cover" />
-                                    @else
-                                        <div class="w-full h-full flex items-center justify-center">
-                                            <x-dynamic-component :component="'heroicon-o-' . ($business->category->icon ?? 'building-storefront')" class="w-6 h-6 text-stone-300" />
-                                        </div>
-                                    @endif
-                                </div>
-                                <div class="min-w-0">
-                                    <p class="text-sm font-semibold text-stone-900 truncate group-hover:text-amber-700 transition-colors">
-                                        {{ $business->name }}
-                                    </p>
-                                    <p class="text-xs text-stone-400 truncate">{{ $business->neighborhood }}</p>
-                                </div>
-                                <x-heroicon-s-star class="w-4 h-4 text-amber-400 shrink-0 ml-auto" />
-                            </a>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
+
+                    @if($featuredBusinesses->isEmpty())
+                        <div class="bg-amber-50 rounded-xl border border-amber-200 p-6 text-center">
+                            <x-heroicon-s-star class="w-6 h-6 text-amber-400 mx-auto mb-2" />
+                            <p class="text-sm text-stone-500">Nenhum negócio em destaque.</p>
+                        </div>
+                    @else
+                        <div class="space-y-3">
+                            @foreach($featuredBusinesses as $business)
+                                <a href="{{ route('businesses.show', $business) }}"
+                                   class="flex items-center gap-3 p-3 bg-white rounded-xl border border-amber-200 hover:shadow-sm transition-shadow duration-150 group">
+                                    <div class="w-12 h-12 rounded-lg overflow-hidden bg-stone-100 shrink-0">
+                                        @if($business->coverPhoto)
+                                            <img src="{{ Storage::url($business->coverPhoto->path) }}" alt="{{ $business->name }}" class="w-full h-full object-cover" />
+                                        @else
+                                            <div class="w-full h-full flex items-center justify-center">
+                                                <x-dynamic-component :component="'heroicon-o-' . ($business->category->icon ?? 'building-storefront')" class="w-6 h-6 text-stone-300" />
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-sm font-semibold text-stone-900 truncate group-hover:text-amber-700 transition-colors">
+                                            {{ $business->name }}
+                                        </p>
+                                        <p class="text-xs text-stone-400 truncate">{{ $business->neighborhood }}</p>
+                                    </div>
+                                    <x-heroicon-s-star class="w-4 h-4 text-amber-400 shrink-0 ml-auto" />
+                                </a>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+
+            </div>{{-- /sidebar --}}
         </div>
     </section>
 </x-app-layout>

@@ -29,6 +29,11 @@
                         <x-heroicon-o-trophy class="w-4 h-4" />
                         Ranking
                     </a>
+                    <a href="{{ route('pulso.index') }}"
+                       class="flex items-center gap-1.5 text-sm font-medium transition-colors duration-150 {{ request()->routeIs('pulso.*') ? 'text-amber-600' : 'text-stone-600 hover:text-stone-900' }}">
+                        <x-heroicon-o-signal class="w-4 h-4" />
+                        Pulso
+                    </a>
                 </div>
             </div>
 
@@ -168,6 +173,11 @@
                class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('ranking.*') ? 'bg-amber-50 text-amber-700' : 'text-stone-700 hover:bg-stone-100' }}">
                 <x-heroicon-o-trophy class="w-5 h-5" />
                 Ranking
+            </a>
+            <a href="{{ route('pulso.index') }}"
+               class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('pulso.*') ? 'bg-amber-50 text-amber-700' : 'text-stone-700 hover:bg-stone-100' }}">
+                <x-heroicon-o-signal class="w-5 h-5" />
+                Pulso
             </a>
         </div>
 

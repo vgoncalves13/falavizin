@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PostResolutionStatus;
 use App\Enums\PostStatus;
 use Database\Factories\PostFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -36,6 +37,8 @@ class Post extends Model
         'approved_at',
         'reported_at',
         'reported_reason',
+        'resolution_status',
+        'resolved_at',
     ];
 
     protected function casts(): array
@@ -47,6 +50,8 @@ class Post extends Model
             'event_starts_at' => 'datetime',
             'event_ends_at' => 'datetime',
             'is_sponsored' => 'boolean',
+            'resolution_status' => PostResolutionStatus::class,
+            'resolved_at' => 'datetime',
         ];
     }
 

@@ -77,6 +77,34 @@
                     <livewire:feed.poll-vote :poll="$post->poll" :key="'poll-'.$post->poll->id" />
                 @endif
 
+                {{-- Status de resolução (apenas para categoria Problema) --}}
+                @if($post->category?->slug === 'problema')
+                    <div class="mt-4 pt-4 border-t border-stone-100">
+                        @can('update', $post)
+                            <livewire:feed.post-status-toggle :post="$post" :key="'status-'.$post->id" />
+                        @else
+                            @if($post->resolution_status !== null)
+                                <div class="flex items-center gap-2">
+                                    @if($post->resolution_status->value === 'resolvido')
+                                        <span class="inline-flex items-center gap-1.5 text-sm font-medium text-green-700 bg-green-50 border border-green-200 px-3 py-1.5 rounded-lg">
+                                            <x-heroicon-s-check-circle class="w-4 h-4" />
+                                            Problema resolvido
+                                            @if($post->resolved_at)
+                                                <span class="text-green-500 font-normal text-xs">· {{ $post->resolved_at->diffForHumans() }}</span>
+                                            @endif
+                                        </span>
+                                    @elseif($post->resolution_status->value === 'em_andamento')
+                                        <span class="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-lg">
+                                            <x-heroicon-o-arrow-path class="w-4 h-4" />
+                                            Em andamento
+                                        </span>
+                                    @endif
+                                </div>
+                            @endif
+                        @endcan
+                    </div>
+                @endif
+
                 {{-- Votos --}}
                 <div class="mt-6 pt-4 border-t border-stone-100 flex items-center justify-between">
                     <div class="flex items-center gap-3">

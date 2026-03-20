@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PostResolutionStatus;
 use App\Models\Business;
 use App\Models\Category;
 use App\Models\Post;
@@ -61,6 +62,32 @@ class HomeController extends Controller
             ->get()
         );
 
+        $recentRequests = Cache::remember('home:requests', 300, fn () => Post::query()
+            ->approved()
+            ->whereHas('category', fn ($q) => $q->where('slug', 'pedido'))
+            ->with(['user', 'category'])
+            ->withCount(['comments', 'votes'])
+            ->latest()
+            ->limit(3)
+            ->get()
+        );
+
+        $weekStart = now()->startOfWeek();
+
+        $pulsoPostsThisWeek = Cache::remember('home:pulso_posts', 300, fn () => Post::query()
+            ->approved()
+            ->where('created_at', '>=', $weekStart)
+            ->count()
+        );
+
+        $pulsoResolvedThisWeek = Cache::remember('home:pulso_resolved', 300, fn () => Post::query()
+            ->approved()
+            ->whereHas('category', fn ($q) => $q->where('slug', 'problema'))
+            ->where('resolution_status', PostResolutionStatus::Resolvido->value)
+            ->where('resolved_at', '>=', $weekStart)
+            ->count()
+        );
+
         return view('home.index', compact(
             'categories',
             'featuredBusinesses',
@@ -68,6 +95,9 @@ class HomeController extends Controller
             'upcomingEvents',
             'sponsoredPosts',
             'recentPosts',
+            'recentRequests',
+            'pulsoPostsThisWeek',
+            'pulsoResolvedThisWeek',
         ));
     }
 }
