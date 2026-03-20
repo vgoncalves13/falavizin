@@ -27,6 +27,7 @@ class User extends Authenticatable
         'phone',
         'neighborhood',
         'is_admin',
+        'points',
     ];
 
     /**
@@ -50,6 +51,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'points' => 'integer',
         ];
     }
 
@@ -71,5 +73,10 @@ class User extends Authenticatable
     public function favorites(): BelongsToMany
     {
         return $this->belongsToMany(Business::class, 'business_user_favorites')->withPivot('created_at');
+    }
+
+    public function pointEvents(): HasMany
+    {
+        return $this->hasMany(PointEvent::class);
     }
 }

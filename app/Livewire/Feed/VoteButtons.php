@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Feed;
 
+use App\Actions\AwardPointsAction;
+use App\Enums\PointEventReason;
 use App\Enums\VoteType;
 use App\Models\Post;
 use App\Models\Vote;
@@ -37,12 +39,19 @@ class VoteButtons extends Component
             return;
         }
 
-        Vote::create([
+        $vote = Vote::create([
             'user_id' => auth()->id(),
             'votable_type' => Post::class,
             'votable_id' => $this->post->id,
             'type' => $voteType,
         ]);
+
+        if ($voteType === VoteType::Helpful) {
+            $postAuthor = $this->post->user;
+            if ($postAuthor && $postAuthor->id !== auth()->id()) {
+                (new AwardPointsAction)->execute($postAuthor, PointEventReason::VoteReceived, $vote);
+            }
+        }
     }
 
     public function render()

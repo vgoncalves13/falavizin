@@ -13,6 +13,14 @@
         @endif
     </div>
     <div class="flex items-center gap-2 shrink-0">
+        @if($type === 'post' && isset($model->status) && $model->status->value === 'approved')
+            <form action="{{ route('admin.posts.sponsor', $model) }}" method="POST">
+                @csrf
+                <button type="submit" class="px-3 py-1.5 {{ $model->is_sponsored ? 'bg-amber-500 hover:bg-amber-600' : 'bg-stone-200 hover:bg-amber-100 text-stone-600' }} text-white text-xs font-medium rounded-lg transition-colors">
+                    {{ $model->is_sponsored ? 'Patrocinado' : 'Patrocinar' }}
+                </button>
+            </form>
+        @endif
         <form action="{{ route('admin.moderation.approve', ['type' => $type, 'id' => $model->id]) }}" method="POST">
             @csrf
             <button type="submit" class="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-xs font-medium rounded-lg transition-colors">

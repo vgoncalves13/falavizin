@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Feed;
 
+use App\Actions\AwardPointsAction;
+use App\Enums\PointEventReason;
 use App\Enums\VoteType;
 use App\Models\Comment;
 use App\Models\Post;
@@ -62,6 +64,8 @@ class CommentSection extends Component
         if ($postAuthor && $postAuthor->id !== auth()->id()) {
             $postAuthor->notify(new CommentNotification($comment));
         }
+
+        (new AwardPointsAction)->execute(auth()->user(), PointEventReason::CommentCreated, $comment);
 
         $this->body = '';
     }

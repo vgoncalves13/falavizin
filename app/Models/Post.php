@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
@@ -26,6 +27,10 @@ class Post extends Model
         'slug',
         'body',
         'location',
+        'image',
+        'event_starts_at',
+        'event_ends_at',
+        'is_sponsored',
         'status',
         'approved_at',
         'reported_at',
@@ -38,6 +43,9 @@ class Post extends Model
             'status' => PostStatus::class,
             'approved_at' => 'datetime',
             'reported_at' => 'datetime',
+            'event_starts_at' => 'datetime',
+            'event_ends_at' => 'datetime',
+            'is_sponsored' => 'boolean',
         ];
     }
 
@@ -73,8 +81,20 @@ class Post extends Model
         return $this->morphMany(Vote::class, 'votable');
     }
 
+    public function poll(): HasOne
+    {
+        return $this->hasOne(Poll::class);
+    }
+
     public function scopeApproved(Builder $query): Builder
     {
         return $query->where('status', PostStatus::Approved);
+    }
+
+    public function scopeUpcomingEvents(Builder $query): Builder
+    {
+        return $query->approved()
+            ->whereHas('category', fn ($q) => $q->where('slug', 'evento'))
+            ->where('event_starts_at', '>=', now());
     }
 }

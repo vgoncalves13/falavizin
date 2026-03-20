@@ -35,6 +35,12 @@
                             <p class="text-xs text-stone-400 mt-0.5">{{ Str::plural('negócio', $businesses->count()) }}</p>
                         </div>
                     @endif
+                    @if($user->points > 0)
+                        <div>
+                            <p class="text-xl font-bold text-amber-600">{{ number_format($user->points) }}</p>
+                            <p class="text-xs text-stone-400 mt-0.5">pontos</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

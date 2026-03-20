@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Enums\PointEventReason;
 use App\Models\Business;
 use App\Models\User;
 use App\Notifications\BusinessClaimedNotification;
@@ -17,6 +18,8 @@ class ClaimBusinessAction
             'claimed_at' => now(),
             'claim_token' => null,
         ]);
+
+        (new AwardPointsAction)->execute($user, PointEventReason::BusinessClaimed, $business);
 
         $admins = User::where('is_admin', true)->get();
 

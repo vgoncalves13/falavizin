@@ -24,10 +24,11 @@ class FeedList extends Component
         $posts = Post::query()
             ->approved()
             ->when($this->categoryId, fn ($q) => $q->where('category_id', $this->categoryId))
-            ->with(['user', 'category'])
+            ->with(['user', 'category', 'poll.options', 'poll.votes'])
             ->withCount(['comments', 'votes'])
+            ->orderByDesc('is_sponsored')
             ->latest()
-            ->cursorPaginate(10);
+            ->paginate(10);
 
         $categories = Category::query()
             ->whereIn('type', ['post', 'both'])

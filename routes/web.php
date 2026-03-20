@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\ModerationController;
+use App\Http\Controllers\Admin\PostSponsorController;
+use App\Http\Controllers\Admin\SponsoredPostsController;
 use App\Http\Controllers\Admin\StatsController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\CategoryController;
@@ -70,6 +72,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/importar-google-places', GooglePlacesImport::class)->name('google-places-import');
     Route::get('/configuracoes', AppSettings::class)->name('settings');
     Route::get('/estatisticas', [StatsController::class, 'index'])->name('stats');
+    Route::post('/posts/{post}/patrocinar', [PostSponsorController::class, 'toggle'])->name('posts.sponsor');
+    Route::get('/posts-patrocinados', [SponsoredPostsController::class, 'index'])->name('sponsored-posts.index');
+    Route::post('/posts-patrocinados/{post}/toggle', [SponsoredPostsController::class, 'toggle'])->name('sponsored-posts.toggle');
 });
 
 require __DIR__.'/auth.php';
