@@ -21,7 +21,25 @@ class BusinessController extends Controller
 {
     public function index(): View
     {
-        return view('businesses.index');
+        $mapBusinesses = Cache::remember('businesses:map', 300, fn () => Business::query()
+            ->where('status', 'approved')
+            ->whereNotNull('lat')
+            ->whereNotNull('lng')
+            ->with('category')
+            ->get()
+            ->map(fn (Business $b) => [
+                'id' => $b->id,
+                'name' => $b->name,
+                'category' => $b->category?->name,
+                'neighborhood' => $b->neighborhood,
+                'lat' => (float) $b->lat,
+                'lng' => (float) $b->lng,
+                'url' => route('businesses.show', $b),
+                'featured' => $b->plan->value === 'featured',
+            ])
+        );
+
+        return view('businesses.index', compact('mapBusinesses'));
     }
 
     public function show(Business $business): View
