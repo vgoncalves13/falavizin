@@ -12,6 +12,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PromotionController;
+use App\Http\Controllers\RankingController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SitemapController;
@@ -31,6 +32,7 @@ Route::get('/servicos', [BusinessController::class, 'index'])->name('businesses.
 Route::get('/servicos/{business:slug}', [BusinessController::class, 'show'])->name('businesses.show');
 Route::get('/categoria/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
 Route::get('/promocoes', [PromotionController::class, 'index'])->name('promotions.index');
+Route::get('/ranking', [RankingController::class, 'index'])->name('ranking.index');
 
 // Autenticadas
 Route::middleware('auth')->group(function () {
@@ -59,14 +61,15 @@ Route::middleware('auth')->group(function () {
     Route::delete('/promocoes/{promotion}', [PromotionController::class, 'destroy'])
         ->name('promotions.destroy');
 
-    Route::post('/feed/{post}/reportar', [ReportController::class, 'post'])->name('report.post');
-    Route::post('/servicos/{business}/reportar', [ReportController::class, 'business'])->name('report.business');
-    Route::post('/promocoes/{promotion}/reportar', [ReportController::class, 'promotion'])->name('report.promotion');
+    Route::post('/feed/{post}/reportar', [ReportController::class, 'post'])->name('report.post')->middleware('throttle:10,1');
+    Route::post('/servicos/{business}/reportar', [ReportController::class, 'business'])->name('report.business')->middleware('throttle:10,1');
+    Route::post('/promocoes/{promotion}/reportar', [ReportController::class, 'promotion'])->name('report.promotion')->middleware('throttle:10,1');
 });
 
 // Admin
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/moderacao', [ModerationController::class, 'index'])->name('moderation.index');
+    Route::post('/moderacao/em-massa', [ModerationController::class, 'bulk'])->name('moderation.bulk');
     Route::post('/moderacao/{type}/{id}/aprovar', [ModerationController::class, 'approve'])->name('moderation.approve');
     Route::post('/moderacao/{type}/{id}/rejeitar', [ModerationController::class, 'reject'])->name('moderation.reject');
     Route::get('/importar-google-places', GooglePlacesImport::class)->name('google-places-import');

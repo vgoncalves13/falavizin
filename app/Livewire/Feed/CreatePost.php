@@ -5,6 +5,7 @@ namespace App\Livewire\Feed;
 use App\Actions\CreatePostAction;
 use App\Models\Category;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -85,7 +86,17 @@ class CreatePost extends Component
 
     public function save(): void
     {
+        $key = 'create-post:'.auth()->id();
+
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            $this->addError('title', 'Você publicou muitos posts recentemente. Aguarde alguns minutos.');
+
+            return;
+        }
+
         $this->validate();
+
+        RateLimiter::hit($key, 3600);
 
         $pollData = null;
         if ($this->hasPoll && $this->pollQuestion) {

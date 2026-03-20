@@ -15,6 +15,8 @@ class FeedList extends Component
 
     public bool $neighborhoodOnly = false;
 
+    public string $sortBy = 'latest';
+
     public function setCategory(?int $categoryId): void
     {
         $this->categoryId = $categoryId;
@@ -24,6 +26,12 @@ class FeedList extends Component
     public function toggleNeighborhood(): void
     {
         $this->neighborhoodOnly = ! $this->neighborhoodOnly;
+        $this->resetPage();
+    }
+
+    public function setSortBy(string $sortBy): void
+    {
+        $this->sortBy = $sortBy;
         $this->resetPage();
     }
 
@@ -38,7 +46,10 @@ class FeedList extends Component
             ->with(['user', 'category', 'poll.options', 'poll.votes'])
             ->withCount(['comments', 'votes'])
             ->orderByDesc('is_sponsored')
-            ->latest()
+            ->when($this->sortBy === 'trending', fn ($q) => $q->orderByRaw(
+                '(votes_count + comments_count * 1.5) / POW(TIMESTAMPDIFF(HOUR, posts.created_at, NOW()) + 2, 1.5) DESC'
+            ))
+            ->when($this->sortBy === 'latest', fn ($q) => $q->latest())
             ->paginate(10);
 
         $categories = Category::query()

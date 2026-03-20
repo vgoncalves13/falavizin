@@ -1,5 +1,15 @@
-<div class="bg-white rounded-xl border {{ isset($reported) && $reported ? 'border-red-200' : 'border-stone-200' }} p-4 flex items-start justify-between gap-4">
-    <div class="min-w-0">
+<div class="bg-white rounded-xl border {{ isset($reported) && $reported ? 'border-red-200' : 'border-stone-200' }} p-4 flex items-start gap-3">
+    @if(isset($selectable) && $selectable)
+        <div class="pt-0.5">
+            <input
+                type="checkbox"
+                :value="{{ $model->id }}"
+                x-model="selected"
+                class="w-4 h-4 rounded border-stone-300 text-amber-600 focus:ring-amber-500 cursor-pointer"
+            />
+        </div>
+    @endif
+    <div class="min-w-0 flex-1">
         <p class="font-medium text-stone-900 truncate">{{ $title }}</p>
         <p class="text-xs text-stone-400 mt-0.5">{{ $meta }}</p>
         @if($excerpt)

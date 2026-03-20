@@ -7,6 +7,7 @@ use App\Enums\PointEventReason;
 use App\Enums\VoteType;
 use App\Models\Post;
 use App\Models\Vote;
+use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Component;
 
 class VoteButtons extends Component
@@ -20,6 +21,14 @@ class VoteButtons extends Component
 
             return;
         }
+
+        $key = 'vote:'.auth()->id();
+
+        if (RateLimiter::tooManyAttempts($key, 30)) {
+            return;
+        }
+
+        RateLimiter::hit($key, 60);
 
         $voteType = VoteType::from($type);
 

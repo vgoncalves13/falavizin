@@ -14,6 +14,27 @@
         @endif
     @endauth
 
+    {{-- Ordenação --}}
+    <div class="flex items-center justify-between mb-4">
+        <div class="flex gap-1 bg-stone-100 rounded-lg p-0.5">
+            <button
+                wire:click="setSortBy('latest')"
+                class="px-3 py-1 rounded-md text-xs font-medium transition-colors duration-150 {{ $sortBy === 'latest' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-700' }}"
+            >
+                Recentes
+            </button>
+            <button
+                wire:click="setSortBy('trending')"
+                class="px-3 py-1 rounded-md text-xs font-medium transition-colors duration-150 {{ $sortBy === 'trending' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-700' }}"
+            >
+                <span class="inline-flex items-center gap-1">
+                    <x-heroicon-o-fire class="w-3 h-3" />
+                    Relevantes
+                </span>
+            </button>
+        </div>
+    </div>
+
     {{-- Filtro por categoria --}}
     <div class="flex gap-2 flex-wrap mb-6">
         <button

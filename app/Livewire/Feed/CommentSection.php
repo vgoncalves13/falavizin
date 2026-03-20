@@ -11,6 +11,7 @@ use App\Models\Vote;
 use App\Notifications\CommentNotification;
 use App\Notifications\CommentVoteNotification;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -51,7 +52,17 @@ class CommentSection extends Component
             return;
         }
 
+        $key = 'add-comment:'.auth()->id();
+
+        if (RateLimiter::tooManyAttempts($key, 15)) {
+            $this->addError('body', 'Você está comentando rápido demais. Aguarde um momento.');
+
+            return;
+        }
+
         $this->validate();
+
+        RateLimiter::hit($key, 3600);
 
         $comment = $this->post->comments()->create([
             'user_id' => auth()->id(),

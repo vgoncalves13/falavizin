@@ -10,6 +10,7 @@ use App\Models\Post;
 use App\Models\Promotion;
 use App\Notifications\ContentModerationNotification;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
@@ -64,6 +65,43 @@ class ModerationController extends Controller
             'reportedBusinesses',
             'reportedPromotions',
         ));
+    }
+
+    public function bulk(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'action' => ['required', 'in:approve,reject'],
+            'type' => ['required', 'in:post,business,promotion'],
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer'],
+        ]);
+
+        $action = $validated['action'];
+        $type = $validated['type'];
+        $ids = $validated['ids'];
+
+        match ($type) {
+            'post' => match ($action) {
+                'approve' => Post::whereIn('id', $ids)->update(['status' => PostStatus::Approved, 'approved_at' => now(), 'reported_at' => null]),
+                'reject' => Post::whereIn('id', $ids)->update(['status' => PostStatus::Rejected, 'reported_at' => null]),
+            },
+            'business' => match ($action) {
+                'approve' => Business::whereIn('id', $ids)->update(['status' => BusinessStatus::Approved, 'reported_at' => null]),
+                'reject' => Business::whereIn('id', $ids)->update(['status' => BusinessStatus::Rejected, 'reported_at' => null]),
+            },
+            'promotion' => match ($action) {
+                'approve' => Promotion::whereIn('id', $ids)->update(['status' => 'approved', 'reported_at' => null]),
+                'reject' => Promotion::whereIn('id', $ids)->update(['status' => 'rejected', 'reported_at' => null]),
+            },
+        };
+
+        $this->clearHomeCache();
+
+        $count = count($ids);
+        $verb = $action === 'approve' ? 'aprovados' : 'rejeitados';
+
+        return redirect()->route('admin.moderation.index')
+            ->with('success', "{$count} item(s) {$verb} com sucesso.");
     }
 
     public function approve(string $type, int $id): RedirectResponse
