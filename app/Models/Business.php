@@ -115,6 +115,11 @@ class Business extends Model
         return $avg ? round($avg, 1) : null;
     }
 
+    public function positiveReviewsCount(): int
+    {
+        return $this->reviews()->where('rating', '>=', 4)->count();
+    }
+
     /**
      * Returns true if the business is currently open, false if closed today,
      * or null if no opening hours are configured.

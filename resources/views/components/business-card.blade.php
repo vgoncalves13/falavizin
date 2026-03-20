@@ -39,13 +39,24 @@
 
         <div class="flex items-center justify-between gap-2 mt-1">
             <x-category-badge :category="$business->category" />
-            @php $avg = $business->averageRating(); @endphp
-            @if($avg)
-                <div class="flex items-center gap-1 shrink-0">
-                    <x-heroicon-s-star class="w-3.5 h-3.5 text-amber-400" />
-                    <span class="text-xs font-medium text-stone-600">{{ number_format($avg, 1, ',') }}</span>
-                </div>
-            @endif
+            @php
+                $avg = $business->averageRating();
+                $positiveReviews = $business->positiveReviewsCount();
+            @endphp
+            <div class="flex items-center gap-1.5 shrink-0">
+                @if($positiveReviews >= 3)
+                    <span class="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded-full">
+                        <x-heroicon-s-hand-thumb-up class="w-3 h-3" />
+                        {{ $positiveReviews }}
+                    </span>
+                @endif
+                @if($avg)
+                    <div class="flex items-center gap-1">
+                        <x-heroicon-s-star class="w-3.5 h-3.5 text-amber-400" />
+                        <span class="text-xs font-medium text-stone-600">{{ number_format($avg, 1, ',') }}</span>
+                    </div>
+                @endif
+            </div>
         </div>
 
         <div class="mt-2 flex items-center justify-between gap-2">

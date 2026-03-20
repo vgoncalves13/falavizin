@@ -43,6 +43,15 @@
                             @endif
                         </div>
                         <x-category-badge :category="$business->category" />
+
+                        {{-- Confiança local --}}
+                        @php $positiveReviews = $business->positiveReviewsCount(); @endphp
+                        @if($positiveReviews >= 1)
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-200">
+                                <x-heroicon-s-hand-thumb-up class="w-3.5 h-3.5" />
+                                Recomendado por {{ $positiveReviews }} {{ $positiveReviews === 1 ? 'vizinho' : 'vizinhos' }}
+                            </span>
+                        @endif
                     </div>
 
                     <div class="flex items-center gap-2">
