@@ -252,7 +252,26 @@
                 @endif
 
                 @can('update', $business)
-                    <livewire:business.promotion-form :business="$business" />
+                    @php
+                        $lastPromotion = $business->promotions()->withTrashed()->latest()->first();
+                        $nextAllowedAt = $lastPromotion ? $lastPromotion->created_at->addDays(7) : null;
+                        $onCooldown = $nextAllowedAt && now()->lt($nextAllowedAt);
+                    @endphp
+
+                    @if($onCooldown)
+                        <div class="flex items-start gap-3 p-4 bg-stone-50 border border-stone-200 rounded-lg">
+                            <x-heroicon-o-clock class="w-5 h-5 text-stone-400 shrink-0 mt-0.5" />
+                            <div>
+                                <p class="text-sm font-medium text-stone-700">Limite semanal atingido</p>
+                                <p class="text-xs text-stone-500 mt-0.5">
+                                    Próxima promoção disponível em
+                                    <span class="font-semibold text-stone-700">{{ $nextAllowedAt->format('d/m/Y \à\s H:i') }}</span>.
+                                </p>
+                            </div>
+                        </div>
+                    @else
+                        <livewire:business.promotion-form :business="$business" />
+                    @endif
                 @endcan
             </div>
         @endif
