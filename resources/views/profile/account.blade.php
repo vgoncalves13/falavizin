@@ -90,6 +90,15 @@
                     Comentários
                     <span class="text-xs opacity-75">({{ $user->comments->count() }})</span>
                 </button>
+                <button
+                    @click="tab = 'saved'"
+                    :class="tab === 'saved' ? 'bg-amber-600 text-white shadow-sm' : 'text-stone-600 hover:bg-stone-100'"
+                    class="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-150 whitespace-nowrap"
+                >
+                    <x-heroicon-o-bookmark class="w-4 h-4" />
+                    Salvos
+                    <span class="text-xs opacity-75">({{ $user->savedPosts->count() }})</span>
+                </button>
             </div>
 
             {{-- Posts --}}
@@ -226,6 +235,42 @@
                                 </a>
                                 <p class="text-sm text-stone-700">{{ $comment->body }}</p>
                                 <p class="text-xs text-stone-400 mt-1.5">{{ $comment->created_at->diffForHumans() }}</p>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+            {{-- Salvos --}}
+            <div x-show="tab === 'saved'" style="display: none;">
+                @if($user->savedPosts->isEmpty())
+                    <div class="bg-white rounded-xl border border-stone-200 p-12 text-center">
+                        <x-heroicon-o-bookmark class="w-10 h-10 text-stone-300 mx-auto mb-3" />
+                        <p class="text-stone-500 text-sm">Você ainda não salvou nenhum post.</p>
+                        <a href="{{ route('feed.index') }}"
+                           class="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors">
+                            Explorar o feed
+                        </a>
+                    </div>
+                @else
+                    <div class="space-y-3">
+                        @foreach($user->savedPosts as $post)
+                            <div class="bg-white rounded-xl border border-stone-200 p-4 flex items-start justify-between gap-3">
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                        <x-category-badge :category="$post->category" />
+                                        <span class="text-xs text-stone-400">{{ $post->created_at->diffForHumans() }}</span>
+                                        <span class="text-xs text-stone-400">por {{ $post->user->name ?? '' }}</span>
+                                    </div>
+                                    <a href="{{ route('feed.show', $post) }}"
+                                       class="font-medium text-stone-900 hover:text-amber-600 transition-colors line-clamp-1">
+                                        {{ $post->title }}
+                                    </a>
+                                    <p class="text-sm text-stone-500 line-clamp-1 mt-0.5">{{ $post->body }}</p>
+                                </div>
+                                <a href="{{ route('feed.show', $post) }}"
+                                   class="shrink-0 text-stone-300 hover:text-amber-600 transition-colors">
+                                    <x-heroicon-o-arrow-top-right-on-square class="w-4 h-4" />
+                                </a>
                             </div>
                         @endforeach
                     </div>

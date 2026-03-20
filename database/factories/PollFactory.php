@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Poll;
+use App\Models\Post;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +19,9 @@ class PollFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'post_id' => Post::factory(),
+            'question' => fake()->sentence().'?',
+            'ends_at' => fake()->optional()->dateTimeBetween('now', '+1 month'),
         ];
     }
 }

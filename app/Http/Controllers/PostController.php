@@ -36,6 +36,11 @@ class PostController extends Controller
         return view('feed.create');
     }
 
+    public function edit(Post $post): View
+    {
+        return view('feed.edit', compact('post'));
+    }
+
     public function destroy(Post $post): RedirectResponse
     {
         Gate::authorize('delete', $post);

@@ -2,7 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Enums\PointEventReason;
 use App\Models\PointEvent;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,8 +19,12 @@ class PointEventFactory extends Factory
      */
     public function definition(): array
     {
+        $reason = fake()->randomElement(PointEventReason::cases());
+
         return [
-            //
+            'user_id' => User::factory(),
+            'points' => $reason->points(),
+            'reason' => $reason,
         ];
     }
 }

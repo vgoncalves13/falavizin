@@ -1,4 +1,19 @@
 <div>
+    {{-- Filtro por bairro --}}
+    @auth
+        @if(auth()->user()->neighborhood)
+            <div class="mb-4">
+                <button
+                    wire:click="toggleNeighborhood"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors duration-150 {{ $neighborhoodOnly ? 'bg-amber-600 text-white border-amber-600' : 'bg-white text-stone-600 border-stone-200 hover:bg-stone-50' }}"
+                >
+                    <x-heroicon-o-map-pin class="w-3.5 h-3.5" />
+                    {{ auth()->user()->neighborhood }}
+                </button>
+            </div>
+        @endif
+    @endauth
+
     {{-- Filtro por categoria --}}
     <div class="flex gap-2 flex-wrap mb-6">
         <button

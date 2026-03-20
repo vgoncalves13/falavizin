@@ -79,7 +79,10 @@
 
                 {{-- Votos --}}
                 <div class="mt-6 pt-4 border-t border-stone-100 flex items-center justify-between">
-                    <livewire:feed.vote-buttons :post="$post" :key="'votes-'.$post->id" />
+                    <div class="flex items-center gap-3">
+                        <livewire:feed.vote-buttons :post="$post" :key="'votes-'.$post->id" />
+                        <livewire:feed.save-button :post="$post" :key="'save-'.$post->id" />
+                    </div>
 
                     <div class="flex items-center gap-3">
                         <x-share-button :url="route('feed.show', $post)" :title="$post->title" />
@@ -93,6 +96,14 @@
                                 />
                             @endunless
                         @endauth
+
+                        @can('update', $post)
+                            <a href="{{ route('feed.edit', $post) }}"
+                               class="inline-flex items-center gap-1.5 text-xs text-stone-400 hover:text-amber-600 transition-colors">
+                                <x-heroicon-o-pencil-square class="w-4 h-4" />
+                                Editar
+                            </a>
+                        @endcan
 
                         @can('delete', $post)
                             <form action="{{ route('feed.destroy', $post) }}" method="POST"

@@ -75,6 +75,11 @@ class User extends Authenticatable
         return $this->belongsToMany(Business::class, 'business_user_favorites')->withPivot('created_at');
     }
 
+    public function savedPosts(): BelongsToMany
+    {
+        return $this->belongsToMany(Post::class, 'post_user_saves')->withPivot('created_at');
+    }
+
     public function pointEvents(): HasMany
     {
         return $this->hasMany(PointEvent::class);
