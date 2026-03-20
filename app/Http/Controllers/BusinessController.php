@@ -4,11 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Actions\CreateBusinessAction;
 use App\Actions\UpdateBusinessAction;
+use App\Enums\BusinessPlan;
 use App\Http\Requests\StoreBusinessRequest;
 use App\Http\Requests\UpdateBusinessRequest;
 use App\Models\Business;
+use App\Models\User;
+use App\Notifications\PlanUpgradeApprovedNotification;
+use App\Notifications\PlanUpgradeRequestNotification;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\View\View;
 
 class BusinessController extends Controller
@@ -67,5 +73,53 @@ class BusinessController extends Controller
 
         return redirect()->route('businesses.show', $business)
             ->with('success', 'Negócio atualizado com sucesso!');
+    }
+
+    public function requestUpgrade(Business $business): RedirectResponse
+    {
+        Gate::authorize('update', $business);
+
+        if ($business->plan === BusinessPlan::Featured) {
+            return redirect()->route('businesses.show', $business)
+                ->with('error', 'Este negócio já está no plano Destaque.');
+        }
+
+        if ($business->plan_upgrade_requested_at) {
+            return redirect()->route('businesses.show', $business)
+                ->with('error', 'Já existe uma solicitação de upgrade pendente.');
+        }
+
+        $business->update(['plan_upgrade_requested_at' => now()]);
+
+        $admins = User::where('is_admin', true)->get();
+        Notification::send($admins, new PlanUpgradeRequestNotification($business));
+
+        return redirect()->route('businesses.show', $business)
+            ->with('success', 'Solicitação enviada! Em breve um admin irá analisá-la.');
+    }
+
+    public function approveUpgrade(Business $business): RedirectResponse
+    {
+        $business->update([
+            'plan' => BusinessPlan::Featured,
+            'plan_upgrade_requested_at' => null,
+        ]);
+
+        Cache::forget('home:featured_businesses');
+
+        if ($business->user) {
+            $business->user->notify(new PlanUpgradeApprovedNotification($business));
+        }
+
+        return redirect()->route('admin.moderation.index')
+            ->with('success', "Upgrade de \"{$business->name}\" aprovado.");
+    }
+
+    public function dismissUpgrade(Business $business): RedirectResponse
+    {
+        $business->update(['plan_upgrade_requested_at' => null]);
+
+        return redirect()->route('admin.moderation.index')
+            ->with('success', "Solicitação de upgrade de \"{$business->name}\" dispensada.");
     }
 }

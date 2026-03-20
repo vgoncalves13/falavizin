@@ -58,6 +58,23 @@
                                 <x-heroicon-o-pencil-square class="w-4 h-4" />
                                 Editar
                             </a>
+                            @if($business->plan->value === 'free')
+                                @if($business->plan_upgrade_requested_at)
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-amber-600 bg-amber-50 border border-amber-200 rounded-lg cursor-default">
+                                        <x-heroicon-o-clock class="w-4 h-4" />
+                                        Upgrade solicitado
+                                    </span>
+                                @else
+                                    <form action="{{ route('businesses.upgrade.request', $business) }}" method="POST">
+                                        @csrf
+                                        <button type="submit"
+                                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg transition-colors">
+                                            <x-heroicon-s-star class="w-4 h-4" />
+                                            Solicitar plano Destaque
+                                        </button>
+                                    </form>
+                                @endif
+                            @endif
                         @endcan
                         @auth
                             @if(! $business->claimed)

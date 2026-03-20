@@ -57,6 +57,12 @@ class ModerationController extends Controller
             ->latest('reported_at')
             ->paginate(15, ['*'], 'reported_promotions');
 
+        $pendingUpgrades = Business::query()
+            ->whereNotNull('plan_upgrade_requested_at')
+            ->with(['user', 'category'])
+            ->oldest('plan_upgrade_requested_at')
+            ->get();
+
         return view('admin.moderation.index', compact(
             'pendingPosts',
             'pendingBusinesses',
@@ -64,6 +70,7 @@ class ModerationController extends Controller
             'reportedPosts',
             'reportedBusinesses',
             'reportedPromotions',
+            'pendingUpgrades',
         ));
     }
 

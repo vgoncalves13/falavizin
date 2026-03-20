@@ -42,6 +42,7 @@ class Business extends Model
         'claimed',
         'claim_token',
         'claimed_at',
+        'plan_upgrade_requested_at',
         'reported_at',
         'reported_reason',
     ];
@@ -55,6 +56,7 @@ class Business extends Model
             'opening_hours' => 'array',
             'claimed' => 'boolean',
             'claimed_at' => 'datetime',
+            'plan_upgrade_requested_at' => 'datetime',
             'reported_at' => 'datetime',
         ];
     }

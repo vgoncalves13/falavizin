@@ -27,10 +27,61 @@
             $totalReported = $reportedPosts->total() + $reportedBusinesses->total() + $reportedPromotions->total();
         @endphp
 
-        @if($totalPending === 0 && $totalReported === 0)
+        @if($totalPending === 0 && $totalReported === 0 && $pendingUpgrades->isEmpty())
             <div class="bg-white rounded-xl border border-stone-200 p-10 text-center">
                 <x-heroicon-o-shield-check class="w-10 h-10 text-green-400 mx-auto mb-3" />
                 <p class="text-stone-500">Nenhum conteúdo pendente ou reportado.</p>
+            </div>
+        @endif
+
+        {{-- Solicitações de upgrade de plano --}}
+        @if($pendingUpgrades->isNotEmpty())
+            <div class="mb-10">
+                <h2 class="text-base font-semibold text-amber-600 uppercase tracking-wide mb-4">
+                    Upgrades de plano solicitados ({{ $pendingUpgrades->count() }})
+                </h2>
+                <div class="space-y-2">
+                    @foreach($pendingUpgrades as $business)
+                        <div class="bg-white rounded-xl border border-amber-200 p-4 flex items-start justify-between gap-4">
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <p class="font-medium text-stone-900">{{ $business->name }}</p>
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-stone-100 text-stone-600">
+                                        Plano: Free → Destaque
+                                    </span>
+                                </div>
+                                <p class="text-xs text-stone-400 mt-0.5">
+                                    {{ $business->neighborhood }}
+                                    {{ $business->user ? ' · ' . $business->user->name : '' }}
+                                    · Solicitado {{ $business->plan_upgrade_requested_at->diffForHumans() }}
+                                </p>
+                                @if($business->description)
+                                    <p class="text-sm text-stone-600 mt-1 line-clamp-2">{{ $business->description }}</p>
+                                @endif
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <a href="{{ route('businesses.show', $business) }}"
+                                   target="_blank"
+                                   class="px-3 py-1.5 text-stone-600 bg-stone-100 hover:bg-stone-200 text-xs font-medium rounded-lg transition-colors inline-flex items-center gap-1">
+                                    <x-heroicon-o-arrow-top-right-on-square class="w-3.5 h-3.5" />
+                                    Ver
+                                </a>
+                                <form action="{{ route('admin.businesses.upgrade.approve', $business) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-medium rounded-lg transition-colors">
+                                        Aprovar upgrade
+                                    </button>
+                                </form>
+                                <form action="{{ route('admin.businesses.upgrade.dismiss', $business) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="px-3 py-1.5 bg-stone-200 hover:bg-stone-300 text-stone-700 text-xs font-medium rounded-lg transition-colors">
+                                        Dispensar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
             </div>
         @endif
 

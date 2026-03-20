@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\BusinessPlan;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Validator;
@@ -37,6 +38,10 @@ class StorePromotionRequest extends FormRequest
     {
         $validator->after(function (Validator $validator) {
             $business = $this->route('business');
+
+            if ($business->plan === BusinessPlan::Featured) {
+                return;
+            }
 
             $lastPromotion = $business->promotions()
                 ->withTrashed()

@@ -50,6 +50,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/cadastrar-negocio', [BusinessController::class, 'store'])->name('businesses.store');
     Route::get('/meu-negocio/{business}/editar', [BusinessController::class, 'edit'])->name('businesses.edit');
     Route::put('/meu-negocio/{business}', [BusinessController::class, 'update'])->name('businesses.update');
+    Route::post('/meu-negocio/{business}/solicitar-upgrade', [BusinessController::class, 'requestUpgrade'])->name('businesses.upgrade.request');
 
     Route::post('/servicos/{business}/reivindicar', [ClaimBusinessController::class, 'request'])
         ->name('businesses.claim.request');
@@ -75,6 +76,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/importar-google-places', GooglePlacesImport::class)->name('google-places-import');
     Route::get('/configuracoes', AppSettings::class)->name('settings');
     Route::get('/estatisticas', [StatsController::class, 'index'])->name('stats');
+    Route::post('/negocio/{business}/aprovar-upgrade', [BusinessController::class, 'approveUpgrade'])->name('businesses.upgrade.approve');
+    Route::post('/negocio/{business}/dispensar-upgrade', [BusinessController::class, 'dismissUpgrade'])->name('businesses.upgrade.dismiss');
+
     Route::post('/posts/{post}/patrocinar', [PostSponsorController::class, 'toggle'])->name('posts.sponsor');
     Route::get('/posts-patrocinados', [SponsoredPostsController::class, 'index'])->name('sponsored-posts.index');
     Route::post('/posts-patrocinados/{post}/toggle', [SponsoredPostsController::class, 'toggle'])->name('sponsored-posts.toggle');
