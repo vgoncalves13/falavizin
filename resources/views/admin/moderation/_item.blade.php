@@ -13,7 +13,25 @@
         <p class="font-medium text-stone-900 truncate">{{ $title }}</p>
         <p class="text-xs text-stone-400 mt-0.5">{{ $meta }}</p>
         @if($excerpt)
-            <p class="text-sm text-stone-600 mt-1 line-clamp-2">{{ $excerpt }}</p>
+            @if($type === 'post')
+                <div x-data="{ expanded: false }">
+                    <p class="text-sm text-stone-600 mt-1" :class="expanded ? '' : 'line-clamp-2'">{{ $excerpt }}</p>
+                    <button
+                        @click="expanded = !expanded"
+                        class="mt-1 text-xs text-amber-600 hover:text-amber-700 font-medium"
+                        x-text="expanded ? 'Ver menos' : 'Ver completo'"
+                    ></button>
+                </div>
+            @else
+                <p class="text-sm text-stone-600 mt-1 line-clamp-2">{{ $excerpt }}</p>
+            @endif
+        @endif
+        @if($type === 'post' && isset($model->status) && $model->status->value === 'approved')
+            <a href="{{ route('feed.show', $model) }}" target="_blank"
+               class="mt-1.5 inline-flex items-center gap-1 text-xs text-stone-400 hover:text-amber-600 transition-colors">
+                <x-heroicon-o-arrow-top-right-on-square class="w-3 h-3" />
+                Abrir post
+            </a>
         @endif
         @if(isset($model->reported_reason) && $model->reported_reason)
             <p class="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-red-600 bg-red-50 px-2 py-0.5 rounded-full">
