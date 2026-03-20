@@ -66,6 +66,64 @@
         </section>
     @endif
 
+    <!-- Posts Patrocinados -->
+    @if($sponsoredPosts->isNotEmpty())
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+            <div class="flex items-center gap-2 mb-4">
+                <x-heroicon-s-bolt class="w-4 h-4 text-amber-500" />
+                <h2 class="text-base font-semibold text-stone-600 uppercase tracking-wide">Conteúdo Patrocinado</h2>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                @foreach($sponsoredPosts as $post)
+                    <a href="{{ route('feed.show', $post) }}"
+                       class="group relative flex flex-col bg-white rounded-xl border border-amber-300 overflow-hidden hover:shadow-md transition-shadow duration-200">
+
+                        {{-- Badge --}}
+                        <div class="absolute top-3 right-3 z-10">
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-200">
+                                <x-heroicon-s-bolt class="w-3 h-3" />
+                                Patrocinado
+                            </span>
+                        </div>
+
+                        {{-- Imagem ou fundo âmbar --}}
+                        @if($post->image)
+                            <div class="h-36 overflow-hidden">
+                                <img src="{{ Storage::url($post->image) }}"
+                                     alt="{{ $post->title }}"
+                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                            </div>
+                        @else
+                            <div class="h-24 bg-gradient-to-br from-amber-100 to-amber-50 flex items-center justify-center">
+                                <x-dynamic-component
+                                    :component="'heroicon-o-' . ($post->category->icon ?? 'newspaper')"
+                                    class="w-10 h-10 text-amber-300" />
+                            </div>
+                        @endif
+
+                        {{-- Conteúdo --}}
+                        <div class="p-4 flex flex-col flex-1">
+                            <div class="mb-2">
+                                <x-category-badge :category="$post->category" />
+                            </div>
+                            <h3 class="font-semibold text-stone-900 leading-snug mb-1 group-hover:text-amber-700 transition-colors line-clamp-2">
+                                {{ $post->title }}
+                            </h3>
+                            <p class="text-xs text-stone-500 line-clamp-2 flex-1">{{ $post->body }}</p>
+                            <div class="mt-3 flex items-center justify-between text-xs text-stone-400">
+                                <span>{{ $post->user->name }}</span>
+                                <span class="inline-flex items-center gap-1">
+                                    <x-heroicon-o-hand-thumb-up class="w-3.5 h-3.5" />
+                                    {{ $post->votes_count }}
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
     <!-- Feed Recente + Negócios em Destaque -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16">
         <div class="grid lg:grid-cols-3 gap-8">

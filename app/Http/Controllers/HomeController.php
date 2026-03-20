@@ -33,8 +33,19 @@ class HomeController extends Controller
             ->get()
         );
 
+        $sponsoredPosts = Cache::remember('home:sponsored_posts', 300, fn () => Post::query()
+            ->approved()
+            ->where('is_sponsored', true)
+            ->with(['user', 'category'])
+            ->withCount(['comments', 'votes'])
+            ->latest()
+            ->limit(3)
+            ->get()
+        );
+
         $recentPosts = Cache::remember('home:posts', 300, fn () => Post::query()
             ->approved()
+            ->where('is_sponsored', false)
             ->with(['user', 'category'])
             ->withCount(['comments', 'votes'])
             ->latest()
@@ -46,6 +57,7 @@ class HomeController extends Controller
             'categories',
             'featuredBusinesses',
             'recentPromotions',
+            'sponsoredPosts',
             'recentPosts',
         ));
     }
