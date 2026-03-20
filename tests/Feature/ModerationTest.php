@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\BusinessStatus;
 use App\Enums\PostStatus;
+use App\Livewire\Feed\CreatePost;
 use App\Models\Business;
 use App\Models\Category;
 use App\Models\Post;
@@ -12,6 +13,7 @@ use App\Notifications\ContentModerationNotification;
 use App\Notifications\NewContentNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class ModerationTest extends TestCase
@@ -25,11 +27,13 @@ class ModerationTest extends TestCase
         $user = User::factory()->create();
         $category = Category::factory()->create(['type' => 'post']);
 
-        $this->actingAs($user)->post(route('feed.store'), [
-            'title' => 'Buraco na rua principal',
-            'body' => 'Tem um buraco enorme na rua principal.',
-            'category_id' => $category->id,
-        ]);
+        $this->actingAs($user);
+
+        Livewire::test(CreatePost::class)
+            ->set('title', 'Buraco na rua principal')
+            ->set('body', 'Tem um buraco enorme na rua principal.')
+            ->set('categoryId', $category->id)
+            ->call('save');
 
         $this->assertDatabaseHas('posts', [
             'title' => 'Buraco na rua principal',
@@ -45,11 +49,13 @@ class ModerationTest extends TestCase
         $user = User::factory()->create();
         $category = Category::factory()->create(['type' => 'post']);
 
-        $this->actingAs($user)->post(route('feed.store'), [
-            'title' => 'Evento no bairro',
-            'body' => 'Grande evento comunitário no parque.',
-            'category_id' => $category->id,
-        ]);
+        $this->actingAs($user);
+
+        Livewire::test(CreatePost::class)
+            ->set('title', 'Evento no bairro')
+            ->set('body', 'Grande evento comunitário no parque do bairro.')
+            ->set('categoryId', $category->id)
+            ->call('save');
 
         Notification::assertSentTo($admin, NewContentNotification::class);
     }

@@ -113,5 +113,20 @@
 
         {{-- Comentários --}}
         <livewire:feed.comment-section :post="$post" :key="'comments-'.$post->id" />
+
+        {{-- Posts relacionados --}}
+        @if($relatedPosts->isNotEmpty())
+            <div class="mt-8">
+                <h2 class="text-base font-semibold text-stone-700 mb-3 flex items-center gap-2">
+                    <x-heroicon-o-squares-2x2 class="w-4 h-4 text-stone-400" />
+                    Mais em <x-category-badge :category="$post->category" />
+                </h2>
+                <div class="space-y-3">
+                    @foreach($relatedPosts as $related)
+                        <x-post-card :post="$related" />
+                    @endforeach
+                </div>
+            </div>
+        @endif
     </div>
 </x-app-layout>

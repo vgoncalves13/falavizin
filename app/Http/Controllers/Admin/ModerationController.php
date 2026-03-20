@@ -153,6 +153,8 @@ class ModerationController extends Controller
     private function clearHomeCache(): void
     {
         Cache::forget('home:posts');
+        Cache::forget('home:sponsored_posts');
+        Cache::forget('home:upcoming_events');
         Cache::forget('home:featured_businesses');
         Cache::forget('home:promotions');
         Cache::forget('home:categories');

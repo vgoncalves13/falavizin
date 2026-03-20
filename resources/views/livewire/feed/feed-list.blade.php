@@ -36,14 +36,9 @@
     </div>
 
     {{-- Paginação --}}
-    @if($posts->hasMorePages())
-        <div class="mt-6 text-center">
-            <button
-                wire:click="setPage('{{ $posts->nextCursor()->encode() }}')"
-                class="px-6 py-2 bg-white border border-stone-200 text-stone-600 text-sm font-medium rounded-lg hover:bg-stone-50 transition-colors duration-150"
-            >
-                Carregar mais
-            </button>
+    @if($posts->hasPages())
+        <div class="mt-6">
+            {{ $posts->links() }}
         </div>
     @endif
 </div>

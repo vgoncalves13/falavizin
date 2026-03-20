@@ -3,12 +3,14 @@
 namespace Tests\Feature\Feed;
 
 use App\Actions\CreatePostAction;
+use App\Livewire\Feed\CreatePost;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class PostImageTest extends TestCase
@@ -73,13 +75,13 @@ class PostImageTest extends TestCase
         $user = User::factory()->create();
         $category = Category::factory()->create(['type' => 'post']);
 
-        $this->actingAs($user)
-            ->post(route('feed.store'), [
-                'title' => 'Post com arquivo inválido',
-                'body' => 'Conteúdo do post aqui',
-                'categoryId' => $category->id,
-                'image' => UploadedFile::fake()->create('document.pdf', 100, 'application/pdf'),
-            ])
-            ->assertSessionHasErrors();
+        Livewire::actingAs($user)
+            ->test(CreatePost::class)
+            ->set('title', 'Post com arquivo inválido')
+            ->set('body', 'Conteúdo do post aqui para teste.')
+            ->set('categoryId', $category->id)
+            ->set('image', UploadedFile::fake()->create('document.pdf', 100, 'application/pdf'))
+            ->call('save')
+            ->assertHasErrors(['image']);
     }
 }

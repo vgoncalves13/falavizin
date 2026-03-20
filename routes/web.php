@@ -41,7 +41,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/criar-post', [PostController::class, 'create'])->name('feed.create');
-    Route::post('/criar-post', [PostController::class, 'store'])->name('feed.store');
     Route::delete('/feed/{post}', [PostController::class, 'destroy'])->name('feed.destroy');
 
     Route::get('/cadastrar-negocio', [BusinessController::class, 'create'])->name('businesses.create');

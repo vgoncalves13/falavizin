@@ -3,10 +3,12 @@
 namespace Tests\Feature;
 
 use App\Enums\PostStatus;
+use App\Livewire\Feed\CreatePost;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class PostTest extends TestCase
@@ -50,13 +52,14 @@ class PostTest extends TestCase
         $user = User::factory()->create();
         $category = Category::factory()->create(['type' => 'post']);
 
-        $response = $this->actingAs($user)->post(route('feed.store'), [
-            'title' => 'Buraco na rua principal',
-            'body' => 'Tem um buraco enorme na rua principal, precisa de atenção urgente.',
-            'category_id' => $category->id,
-        ]);
+        $this->actingAs($user);
 
-        $response->assertRedirect();
+        Livewire::test(CreatePost::class)
+            ->set('title', 'Buraco na rua principal')
+            ->set('body', 'Tem um buraco enorme na rua principal, precisa de atenção urgente.')
+            ->set('categoryId', $category->id)
+            ->call('save');
+
         $this->assertDatabaseHas('posts', [
             'title' => 'Buraco na rua principal',
             'user_id' => $user->id,
@@ -66,11 +69,7 @@ class PostTest extends TestCase
 
     public function test_post_store_requires_authentication(): void
     {
-        $response = $this->post(route('feed.store'), [
-            'title' => 'Teste',
-            'body' => 'Conteúdo do post de teste aqui.',
-            'category_id' => 1,
-        ]);
+        $response = $this->get(route('feed.create'));
 
         $response->assertRedirect(route('login'));
     }
@@ -79,22 +78,25 @@ class PostTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->post(route('feed.store'), []);
+        $this->actingAs($user);
 
-        $response->assertSessionHasErrors(['title', 'body', 'category_id']);
+        Livewire::test(CreatePost::class)
+            ->call('save')
+            ->assertHasErrors(['title', 'body', 'categoryId']);
     }
 
     public function test_post_store_validates_category_exists(): void
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->post(route('feed.store'), [
-            'title' => 'Título válido aqui',
-            'body' => 'Conteúdo válido com mais de dez caracteres.',
-            'category_id' => 99999,
-        ]);
+        $this->actingAs($user);
 
-        $response->assertSessionHasErrors(['category_id']);
+        Livewire::test(CreatePost::class)
+            ->set('title', 'Título válido aqui')
+            ->set('body', 'Conteúdo válido com mais de dez caracteres.')
+            ->set('categoryId', 99999)
+            ->call('save')
+            ->assertHasErrors(['categoryId']);
     }
 
     public function test_author_can_delete_own_post(): void

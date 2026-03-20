@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreignId('business_id')->constrained()->cascadeOnDelete();
             $table->tinyInteger('rating');
             $table->text('body')->nullable();
+            $table->text('owner_reply')->nullable();
+            $table->timestamp('owner_replied_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

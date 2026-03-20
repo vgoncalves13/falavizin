@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\CreatePostAction;
-use App\Http\Requests\StorePostRequest;
 use App\Models\Post;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
@@ -18,25 +16,24 @@ class PostController extends Controller
 
     public function show(Post $post): View
     {
-        $post->load(['user', 'category', 'votes']);
+        $post->load(['user', 'category', 'votes', 'poll.options', 'poll.votes']);
 
-        return view('feed.show', compact('post'));
+        $relatedPosts = Post::query()
+            ->approved()
+            ->where('category_id', $post->category_id)
+            ->where('id', '!=', $post->id)
+            ->with(['user', 'category'])
+            ->withCount(['comments', 'votes'])
+            ->latest()
+            ->limit(3)
+            ->get();
+
+        return view('feed.show', compact('post', 'relatedPosts'));
     }
 
     public function create(): View
     {
         return view('feed.create');
-    }
-
-    public function store(StorePostRequest $request): RedirectResponse
-    {
-        $post = (new CreatePostAction)->execute(
-            user: auth()->user(),
-            data: $request->validated(),
-        );
-
-        return redirect()->route('feed.index')
-            ->with('success', 'Post enviado! Aguarda aprovação do admin.');
     }
 
     public function destroy(Post $post): RedirectResponse

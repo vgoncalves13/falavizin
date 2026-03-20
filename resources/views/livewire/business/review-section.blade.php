@@ -137,6 +137,76 @@
                     @if($review->body)
                         <p class="mt-2 text-sm text-stone-600">{{ $review->body }}</p>
                     @endif
+
+                    {{-- Owner reply form --}}
+                    @if($replyingToId === $review->id)
+                        <div class="mt-3 pl-3 border-l-2 border-amber-300">
+                            <textarea
+                                wire:model="replyText"
+                                rows="2"
+                                placeholder="Responda a esta avaliação..."
+                                class="w-full rounded-lg border-stone-300 text-stone-900 text-sm focus:ring-amber-500 focus:border-amber-500 resize-none"
+                            ></textarea>
+                            @error('replyText') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                            <div class="mt-2 flex items-center gap-2 justify-end">
+                                <button
+                                    wire:click="cancelReply"
+                                    type="button"
+                                    class="text-xs text-stone-400 hover:text-stone-600 transition-colors"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    wire:click="saveReply"
+                                    wire:loading.attr="disabled"
+                                    type="button"
+                                    class="px-3 py-1 bg-amber-600 hover:bg-amber-700 disabled:opacity-75 text-white text-xs font-medium rounded-lg transition-colors"
+                                >
+                                    <span wire:loading.remove wire:target="saveReply">Publicar resposta</span>
+                                    <span wire:loading wire:target="saveReply">Salvando...</span>
+                                </button>
+                            </div>
+                        </div>
+                    @else
+                        {{-- Existing owner reply --}}
+                        @if($review->owner_reply)
+                            <div class="mt-3 pl-3 border-l-2 border-amber-200 bg-amber-50 rounded-r-lg p-2">
+                                <p class="text-xs font-medium text-amber-700 mb-1">Resposta do estabelecimento</p>
+                                <p class="text-sm text-stone-700">{{ $review->owner_reply }}</p>
+                                @can('update', $business)
+                                    <div class="mt-1.5 flex items-center gap-2">
+                                        <button
+                                            wire:click="startReply({{ $review->id }})"
+                                            type="button"
+                                            class="text-xs text-stone-400 hover:text-amber-600 transition-colors"
+                                        >
+                                            Editar resposta
+                                        </button>
+                                        <button
+                                            wire:click="deleteReply({{ $review->id }})"
+                                            wire:confirm="Remover sua resposta?"
+                                            type="button"
+                                            class="text-xs text-stone-400 hover:text-red-500 transition-colors"
+                                        >
+                                            Remover
+                                        </button>
+                                    </div>
+                                @endcan
+                            </div>
+                        @else
+                            @can('update', $business)
+                                <div class="mt-2">
+                                    <button
+                                        wire:click="startReply({{ $review->id }})"
+                                        type="button"
+                                        class="text-xs text-stone-400 hover:text-amber-600 transition-colors"
+                                    >
+                                        Responder esta avaliação
+                                    </button>
+                                </div>
+                            @endcan
+                        @endif
+                    @endif
                 </div>
             @endforeach
         </div>

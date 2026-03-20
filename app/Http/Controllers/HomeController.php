@@ -33,6 +33,14 @@ class HomeController extends Controller
             ->get()
         );
 
+        $upcomingEvents = Cache::remember('home:upcoming_events', 300, fn () => Post::query()
+            ->upcomingEvents()
+            ->with(['user', 'category'])
+            ->orderBy('event_starts_at')
+            ->limit(3)
+            ->get()
+        );
+
         $sponsoredPosts = Cache::remember('home:sponsored_posts', 300, fn () => Post::query()
             ->approved()
             ->where('is_sponsored', true)
@@ -57,6 +65,7 @@ class HomeController extends Controller
             'categories',
             'featuredBusinesses',
             'recentPromotions',
+            'upcomingEvents',
             'sponsoredPosts',
             'recentPosts',
         ));

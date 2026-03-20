@@ -22,6 +22,10 @@ class ReviewSection extends Component
 
     public string $editBody = '';
 
+    public ?int $replyingToId = null;
+
+    public string $replyText = '';
+
     public function mount(): void
     {
         $existing = $this->userReview();
@@ -58,6 +62,48 @@ class ReviewSection extends Component
                 'body' => $this->body ?: null,
             ]);
         }
+    }
+
+    public function startReply(int $reviewId): void
+    {
+        Gate::authorize('update', $this->business);
+
+        $review = Review::findOrFail($reviewId);
+        $this->replyingToId = $reviewId;
+        $this->replyText = $review->owner_reply ?? '';
+    }
+
+    public function cancelReply(): void
+    {
+        $this->replyingToId = null;
+        $this->replyText = '';
+    }
+
+    public function saveReply(): void
+    {
+        Gate::authorize('update', $this->business);
+
+        $this->validateOnly('replyText', [
+            'replyText' => ['required', 'string', 'max:1000'],
+        ]);
+
+        Review::findOrFail($this->replyingToId)->update([
+            'owner_reply' => $this->replyText,
+            'owner_replied_at' => now(),
+        ]);
+
+        $this->replyingToId = null;
+        $this->replyText = '';
+    }
+
+    public function deleteReply(int $reviewId): void
+    {
+        Gate::authorize('update', $this->business);
+
+        Review::findOrFail($reviewId)->update([
+            'owner_reply' => null,
+            'owner_replied_at' => null,
+        ]);
     }
 
     public function deleteReview(int $reviewId): void

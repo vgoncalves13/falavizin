@@ -15,12 +15,15 @@ class Review extends Model
         'business_id',
         'rating',
         'body',
+        'owner_reply',
+        'owner_replied_at',
     ];
 
     protected function casts(): array
     {
         return [
             'rating' => 'integer',
+            'owner_replied_at' => 'datetime',
         ];
     }
 

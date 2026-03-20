@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Post;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class SponsoredPostsController extends Controller
@@ -36,6 +37,9 @@ class SponsoredPostsController extends Controller
     public function toggle(Post $post): RedirectResponse
     {
         $post->update(['is_sponsored' => ! $post->is_sponsored]);
+
+        Cache::forget('home:posts');
+        Cache::forget('home:sponsored_posts');
 
         $status = $post->is_sponsored ? 'patrocinado' : 'removido dos patrocinados';
 

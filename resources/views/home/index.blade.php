@@ -66,6 +66,46 @@
         </section>
     @endif
 
+    <!-- Eventos Próximos -->
+    @if($upcomingEvents->isNotEmpty())
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-stone-900" style="font-family: var(--font-display)">Eventos Próximos</h2>
+                <a href="{{ route('categories.show', 'evento') }}" class="text-sm font-medium text-amber-600 hover:text-amber-700">
+                    Ver todos →
+                </a>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                @foreach($upcomingEvents as $event)
+                    <a href="{{ route('feed.show', $event) }}"
+                       class="group flex gap-4 bg-white rounded-xl border border-stone-200 p-4 hover:shadow-md hover:border-amber-200 transition-all duration-200">
+                        {{-- Data --}}
+                        <div class="shrink-0 flex flex-col items-center justify-center w-12 h-12 rounded-xl bg-amber-50 border border-amber-200 text-center">
+                            <span class="text-xs font-bold text-amber-700 uppercase leading-none">
+                                {{ $event->event_starts_at->isoFormat('MMM') }}
+                            </span>
+                            <span class="text-xl font-bold text-amber-800 leading-none">
+                                {{ $event->event_starts_at->format('d') }}
+                            </span>
+                        </div>
+                        {{-- Info --}}
+                        <div class="min-w-0">
+                            <p class="font-semibold text-stone-900 group-hover:text-amber-700 transition-colors leading-snug line-clamp-2 text-sm">
+                                {{ $event->title }}
+                            </p>
+                            <p class="text-xs text-stone-400 mt-1">
+                                {{ $event->event_starts_at->isoFormat('HH:mm') }}
+                                @if($event->location)
+                                    · {{ $event->location }}
+                                @endif
+                            </p>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
     <!-- Posts Patrocinados -->
     @if($sponsoredPosts->isNotEmpty())
         <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
