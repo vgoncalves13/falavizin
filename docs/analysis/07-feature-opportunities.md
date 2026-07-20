@@ -10,7 +10,7 @@ As sugestões abaixo partem do código existente; não são apresentadas como im
 | Verificação assistida de negócio | Claim atual não prova propriedade | Comerciante envia evidência; admin valida; contatos conhecidos podem confirmar | E-mail verificado, auditoria, token seguro | L | Alto / P0 / privacidade e trabalho operacional |
 | Bairro canônico único | Texto livre fragmenta filtros | Admin configura bairro do piloto; endereço/post apontam para entidade/ID | Migração e saneamento | M | Alto / P1 / migração de dados |
 | Operação confiável | Jobs/e-mails falham sem visibilidade | Painel/runbook de fila, retry e alerta; usuário recebe estado recuperável | Fila estabilizada | M | Alto / P0 / alert fatigue |
-| Jornada comercial mínima | Cadastro atual é extenso e horário falha | Cadastro essencial → preview → completar fotos/horários → publicar | Correções de BusinessForm | M | Alto / P1 / dados inicialmente incompletos |
+| Jornada comercial mínima | Cadastro atual é extenso | Cadastro essencial → preview → completar fotos/horários → publicar | Horários corrigidos na B007 | M | Alto / P1 / dados inicialmente incompletos |
 
 ## Importantes após o MVP
 

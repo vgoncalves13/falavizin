@@ -51,7 +51,7 @@
 |---|---|---|---|---|---|
 | F19 | Catálogo e filtros | Busca, categoria, destaque, “aberto agora” e lista/mapa | `BusinessList`; `businesses/index.blade.php` | `/servicos` | **Parcial.** Funciona, mas “aberto agora” carrega tudo em memória (`BusinessList.php:52-66`) |
 | F20 | Perfil do negócio | Exibe capa, galeria, contato, endereço, horário, mapa e ofertas | `BusinessController::show`; `BusinessPolicy`; `businesses/show.blade.php` | `/servicos/{business:slug}` | **Funcional.** B003 corrigiu o popup e B004 restringiu status não aprovado |
-| F21 | Cadastro/edição manual | Proprietário cadastra e edita dados/fotos | `BusinessForm`, Actions e Requests; views create/edit | `/cadastrar-negocio`, `/meu-negocio/{business}/editar` | **Parcial.** Horários digitados não são persistidos (`BusinessForm.php:118-167`; Actions omitem o campo) |
+| F21 | Cadastro/edição manual | Proprietário cadastra e edita dados/fotos | `BusinessForm`, Actions e Requests; views create/edit | `/cadastrar-negocio`, `/meu-negocio/{business}/editar` | **Funcional.** B007 persiste horários, normaliza dados/seed e trata períodos noturnos |
 | F22 | Galeria de fotos | Upload, redimensionamento, capa e ordenação básica | `BusinessPhoto`, `PhotoGallery`, Actions | Perfil/formulário | **Funcional com ressalvas.** Não há constraint de capa única nem limpeza completa de arquivos |
 | F23 | Favoritar negócio | Usuário alterna favorito e consulta na conta | `FavoriteButton`; pivot `business_user_favorites` | Ação Livewire | **Funcional.** `app/Livewire/Business/FavoriteButton.php`; migration da pivot |
 | F24 | Avaliações e resposta | Uma avaliação por usuário/negócio; proprietário responde | `ReviewSection`; `Review`, Policy | Ação Livewire | **Funcional.** Reviews são resolvidos pela relação do negócio desde a B005 |
@@ -100,8 +100,8 @@
 
 ## Resumo por status
 
-- **Funcionais no caminho feliz:** F01, F02, F04, F06–F12, F14–F18, F20, F22–F24, F26, F30–F31, F34–F35 (24).
-- **Parciais ou com ressalvas relevantes:** F03, F05, F13, F19, F21, F25, F27–F29, F32–F33, F36 (12).
+- **Funcionais no caminho feliz:** F01, F02, F04, F06–F12, F14–F18, F20–F24, F26, F30–F31, F34–F35 (25).
+- **Parciais ou com ressalvas relevantes:** F03, F05, F13, F19, F25, F27–F29, F32–F33, F36 (11).
 - **Aparentemente abandonadas/não utilizadas:** não contam entre as 36 capacidades; views scaffold e placeholders estão listados em `03-incomplete-features.md`.
 
 Esses números são uma classificação de auditoria, não uma métrica de cobertura ou prontidão comercial.

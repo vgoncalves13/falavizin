@@ -7,10 +7,10 @@
 | Item | Objetivo e escopo | Dependências | Pri. / esforço | Riscos | Critério de aceite | Resultado esperado |
 |---|---|---|---|---|---|---|
 | ✅ Rotacionar credencial RapidAPI — concluído em 20/07/2026 | Revogar a credencial exposta na sessão, criar outra com menor privilégio/quota e verificar secrets | Acesso à conta RapidAPI | P0 / XS | Interromper importação temporariamente | Chave antiga inválida; nova não aparece em logs/config output; chamada controlada passa | Incidente contido |
-| ✅ Corrigir vulnerabilidades conhecidas — concluído em 20/07/2026 | Atualizar locks dentro de versões compatíveis; revisar Laravel/Symfony/Guzzle/Axios/Vite/transitivas | Backup/branch e suíte atual verde | P0 / M | Regressões de patch | Audits zerados; 193 testes e build passam | Base atualizável e segura |
+| ✅ Corrigir vulnerabilidades conhecidas — concluído em 20/07/2026 | Atualizar locks dentro de versões compatíveis; revisar Laravel/Symfony/Guzzle/Axios/Vite/transitivas | Backup/branch e suíte atual verde | P0 / M | Regressões de patch | Audits zerados; 195 testes e build passam | Base atualizável e segura |
 | ✅ Fechar exposição pública e XSS — concluído nas B003/B004 | Restringir status e construir popups sem HTML inseguro | Testes de status e payload malicioso | P0 / S | Bloquear autor/admin indevidamente | Popup é texto inerte; visitante é bloqueado em não aprovados | Conteúdo moderado protegido |
 | ✅ Corrigir escopo Livewire — concluído na B005 | Reautorizar BusinessForm/Promotion e buscar review/comment/poll option pela relação pai | Policies existentes | P0 / M | Quebrar interações legítimas | Seis regressões negativas e suíte completa passam | Integridade/autorização restauradas |
-| Estabilizar horários | Persistir formato único, corrigir seed/dados e períodos noturnos | Definir schema JSON | P0 / M | Saneamento incorreto | Criar/editar preserva horário; aberto/fechado passa matriz de testes | Catálogo confiável |
+| ✅ Estabilizar horários — concluído na B007 | Persistir formato único, corrigir seed/dados e períodos noturnos | Schema JSON atual | P0 / M | Saneamento incorreto | Migration aplicada; CRUD e horários noturnos testados | Catálogo confiável |
 | Diagnosticar fila de enriquecimento | Inspecionar nove falhas, corrigir causa, retry seguro e registrar runbook | Chave rotacionada e serviço disponível | P1 / M | Quota e duplicação | Zero falhas sem triagem; retry é idempotente; erro gera evidência acionável | Importação operável |
 
 ## Fase 1 — Limpeza e base técnica

@@ -94,7 +94,7 @@ class DatabaseSeeder extends Seeder
             'city' => 'São Paulo',
             'lat' => -23.5648,
             'lng' => -46.6601,
-            'opening_hours' => ['seg-sex' => '05:30-19:00', 'sab' => '06:00-14:00', 'dom' => '06:00-12:00'],
+            'opening_hours' => $this->normalizeOpeningHours(['seg-sex' => '05:30-19:00', 'sab' => '06:00-14:00', 'dom' => '06:00-12:00']),
             'plan' => BusinessPlan::Featured,
             'status' => BusinessStatus::Approved,
             'claimed' => true,
@@ -114,7 +114,7 @@ class DatabaseSeeder extends Seeder
             'city' => 'São Paulo',
             'lat' => -23.5671,
             'lng' => -46.6583,
-            'opening_hours' => ['seg-sex' => '08:00-22:00', 'sab' => '08:00-20:00', 'dom' => '09:00-18:00'],
+            'opening_hours' => $this->normalizeOpeningHours(['seg-sex' => '08:00-22:00', 'sab' => '08:00-20:00', 'dom' => '09:00-18:00']),
             'plan' => BusinessPlan::Free,
             'status' => BusinessStatus::Approved,
             'claimed' => true,
@@ -134,7 +134,7 @@ class DatabaseSeeder extends Seeder
             'city' => 'São Paulo',
             'lat' => -23.5635,
             'lng' => -46.6627,
-            'opening_hours' => ['seg-sex' => '09:00-18:00', 'sab' => '09:00-16:00'],
+            'opening_hours' => $this->normalizeOpeningHours(['seg-sex' => '09:00-18:00', 'sab' => '09:00-16:00']),
             'plan' => BusinessPlan::Free,
             'status' => BusinessStatus::Approved,
             'claimed' => true,
@@ -154,7 +154,7 @@ class DatabaseSeeder extends Seeder
             'city' => 'São Paulo',
             'lat' => -23.5660,
             'lng' => -46.6640,
-            'opening_hours' => ['seg-sex' => '07:00-18:00', 'sab' => '08:00-13:00'],
+            'opening_hours' => $this->normalizeOpeningHours(['seg-sex' => '07:00-18:00', 'sab' => '08:00-13:00']),
             'plan' => BusinessPlan::Free,
             'status' => BusinessStatus::Approved,
             'claimed' => true,
@@ -191,7 +191,7 @@ class DatabaseSeeder extends Seeder
             'city' => 'São Paulo',
             'lat' => -23.5682,
             'lng' => -46.6612,
-            'opening_hours' => ['ter-sab' => '09:00-19:00'],
+            'opening_hours' => $this->normalizeOpeningHours(['ter-sab' => '09:00-19:00']),
             'plan' => BusinessPlan::Free,
             'status' => BusinessStatus::Approved,
             'claimed' => true,
@@ -211,7 +211,7 @@ class DatabaseSeeder extends Seeder
             'city' => 'São Paulo',
             'lat' => -23.5655,
             'lng' => -46.6570,
-            'opening_hours' => ['seg-sex' => '06:00-22:00', 'sab' => '08:00-18:00', 'dom' => '09:00-13:00'],
+            'opening_hours' => $this->normalizeOpeningHours(['seg-sex' => '06:00-22:00', 'sab' => '08:00-18:00', 'dom' => '09:00-13:00']),
             'plan' => BusinessPlan::Featured,
             'status' => BusinessStatus::Approved,
             'claimed' => true,
@@ -643,5 +643,27 @@ class DatabaseSeeder extends Seeder
         foreach ($categories as $category) {
             Category::firstOrCreate(['slug' => $category['slug']], $category);
         }
+    }
+
+    /** @param array<string, string> $compactHours */
+    private function normalizeOpeningHours(array $compactHours): array
+    {
+        $days = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado', 'Domingo'];
+        $ranges = ['seg-sex' => range(0, 4), 'ter-sab' => range(1, 5), 'sab' => [5], 'dom' => [6]];
+        $hoursByDay = [];
+
+        foreach ($compactHours as $range => $hours) {
+            [$open, $close] = explode('-', $hours, 2);
+            foreach ($ranges[$range] as $day) {
+                $hoursByDay[$day] = [$open, $close];
+            }
+        }
+
+        return array_map(fn (string $day, int $index) => [
+            'day' => $day,
+            'open' => $hoursByDay[$index][0] ?? '',
+            'close' => $hoursByDay[$index][1] ?? '',
+            'closed' => ! isset($hoursByDay[$index]),
+        ], $days, array_keys($days));
     }
 }

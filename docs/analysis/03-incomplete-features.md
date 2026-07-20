@@ -6,7 +6,7 @@
 |---|---|---|---|---|
 | Verificação de e-mail | Rotas, controllers, views e testes existem (`routes/auth.php:38-48`; `tests/Feature/Auth/EmailVerificationTest.php`), mas `User` não implementa `MustVerifyEmail` (`app/Models/User.php:5,13-16`) | Decidir se é obrigatória, ativar contrato/middleware e testar impactos em login, claim e notificações | S | **Finalizar**, sobretudo antes de reivindicar negócios |
 | Reivindicação verificável de negócio | Token, e-mail, confirmação e atribuição existem (`ClaimBusinessController.php:15-41`; `ClaimBusinessAction.php:13-28`) | Provar domínio/telefone/documento ou revisão admin; expirar, tornar token único/hasheado, limitar tentativas e registrar auditoria | L | **Reformular**; o fluxo atual não prova propriedade |
-| Horário manual | Formulário monta dias/intervalos (`BusinessForm.php:118-167`) e model calcula aberto agora (`Business.php:127-152`) | Persistir `opening_hours` nas Actions, normalizar seed e dados, suportar período noturno e testar | M | **Finalizar imediatamente** |
+| ✅ Horário manual — concluído na B007 | Formulário e Actions persistem formato único; migração normaliza legado; model cobre período noturno | Manter testes e validar UX com dados reais | M concluído | **Manter** |
 | Promoções de plano gratuito | `StorePromotionRequest` limita uma por semana (`app/Http/Requests/StorePromotionRequest.php:37-64`) | Aplicar a mesma regra e Policy no fluxo Livewire usado pela UI (`PromotionForm.php:64-90`) | S | **Finalizar**, centralizando a regra |
 | Planos comerciais | Solicitação, aprovação e enum free/featured existem (`BusinessPlanController`; `app/Enums/BusinessPlan.php`) | Definir benefícios, vigência, cancelamento, preço, cobrança e termos | XL | **Manter manual no piloto** e validar demanda antes de pagamento |
 | Patrocínio de posts | Campos e duas interfaces/controllers administrativos existem (`PostSponsorController.php`; `SponsoredPostsController.php`) | Unificar workflow, definir validade/posicionamento, auditoria e métricas | M | **Simplificar** para um único fluxo |
@@ -47,6 +47,6 @@ O histórico Git mostra ondas de implementação por funcionalidade, mas não su
 
 ## Síntese de esforço
 
-- **Concluir antes de piloto:** claim, horários e jobs: aproximadamente 1–2 semanas de uma pessoa, incluindo testes. Dependências, status público e escopo Livewire já foram corrigidos nas B002–B005.
+- **Concluir antes de piloto:** claim e jobs: aproximadamente 1–2 semanas de uma pessoa, incluindo testes. Dependências, status público, escopo Livewire e horários já foram corrigidos nas B002–B007.
 - **Completar engajamento atual:** reputação, eventos, notificações e moderação: mais 2–4 semanas.
 - **Monetização completa:** só após validação; cobrança e ciclo de assinatura são XL e precisam ser quebrados.

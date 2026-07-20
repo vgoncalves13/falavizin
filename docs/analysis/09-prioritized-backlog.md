@@ -5,12 +5,12 @@ Prioridade: P0 bloqueia produção; P1 é necessária ao MVP; P2 é importante; 
 | ID | Módulo | Título | Descrição | Tipo | Pri. | Esf. | Dependências | Fase | Critério de aceite |
 |---|---|---|---|---|---|---|---|---|---|
 | B001 | Integrações | ✅ Rotacionar a credencial RapidAPI exposta — concluída em 20/07/2026 | Revogar chave observada na auditoria, restringir e instalar substituta sem revelar valor | segurança | P0 | XS | acesso RapidAPI | 0 | chave antiga inválida; nova mascarada e chamada passa |
-| B002 | Dependências | ✅ Corrigir advisories Composer e npm bloqueadores — concluída em 20/07/2026 | Atualizar versões compatíveis e revisar transitivas | segurança | P0 | M | — | 0 | audits zerados; 193 testes e build verdes |
+| B002 | Dependências | ✅ Corrigir advisories Composer e npm bloqueadores — concluída em 20/07/2026 | Atualizar versões compatíveis e revisar transitivas | segurança | P0 | M | — | 0 | audits zerados; 195 testes e build verdes |
 | B003 | Mapas | ✅ Neutralizar XSS nos popups Leaflet — concluída em 20/07/2026 | Substituir interpolação HTML por texto/nós seguros | segurança | P0 | S | — | 0 | payload vira `textContent`; teste de regressão passa |
 | B004 | Moderação | ✅ Restringir conteúdo não aprovado nas rotas públicas — concluída em 20/07/2026 | Aplicar status scope com exceção explícita para autor/admin | bug | P0 | S | — | 0 | visitante recebe 403; autor/proprietário e admin acessam |
-| B005 | Livewire | ✅ Escopar e reautorizar todas as mutações por ID — concluída em 20/07/2026 | Corrigir promoção, review, comentário, poll e BusinessForm | segurança | P0 | M | Policies atuais | 0 | testes cruzados bloqueiam IDs externos; 193 testes passam |
+| B005 | Livewire | ✅ Escopar e reautorizar todas as mutações por ID — concluída em 20/07/2026 | Corrigir promoção, review, comentário, poll e BusinessForm | segurança | P0 | M | Policies atuais | 0 | testes cruzados bloqueiam IDs externos; 195 testes passam |
 | B006 | Negócios | Reformular reivindicação com prova e expiração | Verificação de e-mail, aprovação/evidência, token seguro, rate limit | segurança | P0 | L | decisão operacional | 1 | nenhum solicitante sem prova assume negócio; token expira |
-| B007 | Negócios | Persistir e normalizar horários de funcionamento | Unificar formato em formulário, Actions, seed e dados | bug | P0 | M | definição do schema JSON | 0 | CRUD e aberto agora passam horários diurnos/noturnos |
+| B007 | Negócios | ✅ Persistir e normalizar horários de funcionamento — concluída em 20/07/2026 | Unificar formato em formulário, Actions, seed e dados | bug | P0 | M | schema JSON atual | 0 | migration aplicada; CRUD e horário noturno testados |
 | B008 | Reputação | Tornar premiação de pontos idempotente | Impedir ganho repetido e reconciliar total do usuário | bug | P1 | M | constraint/migração | 1 | mesma origem/razão não premia duas vezes; totals reconciliam |
 | B009 | Integrações | Recuperar jobs de enriquecimento falhos | Diagnosticar, corrigir, aplicar retry/backoff e runbook | infraestrutura | P1 | M | B001 | 0 | nove falhas triadas; retry seguro; alerta documentado |
 | B010 | Testes | Cobrir regressões P0 de segurança e integridade | Testes negativos para B003–B009 | segurança | P0 | M | B003–B009 | 0 | cada falha possui teste que reproduz e prova correção |
@@ -47,4 +47,4 @@ Prioridade: P0 bloqueia produção; P1 é necessária ao MVP; P2 é importante; 
 
 ## Ordem imediata
 
-~~B001~~ → ~~B002~~ → ~~B003~~ → ~~B004~~ → ~~B005~~ → **B007** → B006 → B011 → B009 → B010. B010 acompanha cada correção, embora apareça como item consolidado. B008 vem imediatamente depois desse bloco.
+~~B001~~ → ~~B002~~ → ~~B003~~ → ~~B004~~ → ~~B005~~ → ~~B007~~ → **B006** → B011 → B009 → B010. B010 acompanha cada correção, embora apareça como item consolidado. B008 vem imediatamente depois desse bloco.

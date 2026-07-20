@@ -140,16 +140,28 @@ class Business extends Model
             7 => 'Domingo',
         ];
 
-        $todayName = $dayNames[(int) now()->format('N')];
-        $todayHours = collect($this->opening_hours)->firstWhere('day', $todayName);
+        $now = now();
 
-        if (! $todayHours || ($todayHours['closed'] ?? true)) {
-            return false;
+        foreach ([$now, $now->copy()->subDay()] as $date) {
+            $hours = collect($this->opening_hours)->firstWhere('day', $dayNames[$date->isoWeekday()]);
+
+            if (! $hours || ($hours['closed'] ?? true) || empty($hours['open']) || empty($hours['close'])) {
+                continue;
+            }
+
+            $opensAt = $date->copy()->startOfDay()->setTimeFromTimeString($hours['open']);
+            $closesAt = $date->copy()->startOfDay()->setTimeFromTimeString($hours['close']);
+
+            if ($closesAt->lte($opensAt)) {
+                $closesAt->addDay();
+            }
+
+            if ($now->betweenIncluded($opensAt, $closesAt)) {
+                return true;
+            }
         }
 
-        $now = now()->format('H:i');
-
-        return $now >= $todayHours['open'] && $now <= $todayHours['close'];
+        return false;
     }
 
     public function scopeFeatured(Builder $query): Builder

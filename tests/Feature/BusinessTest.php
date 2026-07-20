@@ -101,6 +101,45 @@ class BusinessTest extends TestCase
         ]);
     }
 
+    public function test_business_form_persists_opening_hours_on_create_and_update(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create(['type' => 'business']);
+
+        Livewire::actingAs($user)
+            ->test(BusinessForm::class)
+            ->set('name', 'Mercado 24 Horas')
+            ->set('categoryId', $category->id)
+            ->set('neighborhood', 'Centro')
+            ->set('openingHours.0.closed', false)
+            ->set('openingHours.0.open', '08:00')
+            ->set('openingHours.0.close', '18:00')
+            ->call('save');
+
+        $business = Business::where('name', 'Mercado 24 Horas')->firstOrFail();
+        $this->assertSame('18:00', $business->opening_hours[0]['close']);
+
+        Livewire::actingAs($user)
+            ->test(BusinessForm::class, ['business' => $business])
+            ->set('openingHours.0.close', '20:00')
+            ->call('save');
+
+        $this->assertSame('20:00', $business->fresh()->opening_hours[0]['close']);
+    }
+
+    public function test_business_is_open_after_midnight_when_previous_day_closes_later(): void
+    {
+        $business = Business::factory()->make(['opening_hours' => [
+            ['day' => 'Segunda-feira', 'open' => '22:00', 'close' => '02:00', 'closed' => false],
+        ]]);
+
+        $this->travelTo('2026-07-21 01:00:00');
+        $this->assertTrue($business->isOpenNow());
+
+        $this->travelTo('2026-07-21 03:00:00');
+        $this->assertFalse($business->isOpenNow());
+    }
+
     public function test_business_store_requires_authentication(): void
     {
         $response = $this->post(route('businesses.store'), [

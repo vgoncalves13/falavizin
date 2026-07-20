@@ -78,7 +78,7 @@ As migrations seguem a convenção saudável de `string` + enum PHP, não `ENUM`
 | Pontos sem idempotência | Eventos duplicados e total divergente | `create_point_events_table.php`; `AwardPointsAction.php:12-23` | Chave idempotente e reconciliação |
 | Denúncia embutida no conteúdo | Só um reporte corrente, sem histórico/denunciante/decisão | migrations `add_reporting_fields_*`; `ReportContentAction.php` | Tabela `reports` quando moderação exigir histórico |
 | Bairro como texto livre | Variação de grafia impede segmentação confiável | `users.neighborhood`; `businesses.neighborhood`; `posts.location` | Entidade/ID canônico antes de expansão |
-| Horários em JSON com formatos históricos | Filtro inconsistente e difícil de consultar | migrations de normalização; `DatabaseSeeder.php:97`; `Business.php:127-152` | Um schema JSON versionado ou tabela de intervalos |
+| ✅ Horários em JSON tinham formatos históricos | B007 normalizou dados/seed e persistência; JSON continua difícil de consultar em escala | migration `2026_07_20_120000_*`; `DatabaseSeeder`; `Business.php` | Manter formato no MVP; tabela de intervalos só quando o volume exigir |
 | Review sem check DB para 1–5 | Escrita fora da aplicação pode violar regra | `create_reviews_table.php`; validação em `ReviewSection` | Check constraint opcional + validação |
 
 ## Índices e consultas

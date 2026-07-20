@@ -4,7 +4,7 @@
 
 | Verificação em 20/07/2026 | Resultado |
 |---|---|
-| `artisan test --compact` | **193 testes, 402 assertions, todos passando** após B005 |
+| `artisan test --compact` | **195 testes, 406 assertions, todos passando** após B007 |
 | `npm run build` | **Passou**; CSS 103,79 kB (18,75 kB gzip), JS 37,17 kB (14,87 kB gzip) |
 | `composer validate --strict` | **Passou** |
 | `pint --test` | **Falhou** em um arquivo: `tests/Feature/BusinessReviewTest.php` |
@@ -30,7 +30,7 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 | ID | Descrição e impacto | Arquivos/evidência | Recomendação | Esforço / prioridade |
 |---|---|---|---|---|
 | T06 | Reivindicação não comprova propriedade: o token vai ao próprio solicitante, não ao contato conhecido do estabelecimento; não expira, não é único/hasheado e e-mail nem é verificado | `ClaimBusinessController.php:15-41`; `ClaimBusinessAction.php:13-28`; migration de businesses `:33-35`; `User.php:5` | Exigir verificação forte ou aprovação admin; token expirável, único, hasheado; rate limit e auditoria | L / P0 |
-| T07 | Horários do formulário não são gravados; filtro “aberto agora” pode mentir. Seed usa formato antigo após migrations de normalização já terem rodado | `BusinessForm.php:118-167`; `CreateBusinessAction.php:20-33`; `UpdateBusinessAction.php:15-25`; `DatabaseSeeder.php:84-102`; `Business.php:127-152` | Persistir em uma Action única, normalizar seed/dados, testar horários noturnos | M / P0 |
+| T07 | ✅ **Resolvido em 20/07/2026.** Horários do formulário não eram gravados e seed/dados usavam formato legado. | Actions, `Business::isOpenNow`, `DatabaseSeeder` e migration `2026_07_20_120000_*`; regressões em `BusinessTest` | Manter formato estruturado e migration aplicada | M / P0 concluída |
 | T08 | Pontuação não idempotente: remover e recolocar voto útil pode premiar repetidamente; total desnormalizado pode divergir | `VoteButtons.php:35-63`; `AwardPointsAction.php:12-23`; migration de `point_events` sem chave idempotente | Chave única por razão/origem/beneficiário, transação e comando de reconciliação | M / P1 |
 | T09 | E-mails e notificações são síncronos apesar de usarem `Queueable`; falha externa pode degradar request e deixar operação parcialmente concluída | `NewContentNotification.php:9-20`; `ContentModerationNotification.php:9-22`; `ClaimBusinessController.php:22-25` | Implementar `ShouldQueue`, after-commit, retry/backoff e monitoramento | M / P1 |
 | T10 | Operações multi-etapa não usam transação/compensação: criação com imagem/enquete/pontos/notificação, claim, pontos e troca de foto podem ficar pela metade | `CreatePostAction.php:17-57`; `ClaimBusinessAction.php:13-28`; `AwardPointsAction.php:12-23`; `UpdateBusinessAction.php:34-54` | Delimitar transações de banco e limpar arquivos em falhas; notificar após commit | L / P1 |
@@ -41,7 +41,7 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 
 | ID | Descrição e impacto | Arquivos/evidência | Recomendação | Esforço / prioridade |
 |---|---|---|---|---|
-| T13 | Filtro “aberto agora” materializa toda a consulta antes de paginar; cresce em memória/latência e não trata expediente atravessando meia-noite | `BusinessList.php:52-66`; `Business.php:127-152` | Corrigir regra; para o MVP limitar conjunto ou modelar intervalos consultáveis | M / P1 |
+| T13 | Filtro “aberto agora” materializa toda a consulta antes de paginar; cresce em memória/latência | `BusinessList.php:52-66`; `Business.php:127-164` | Para o MVP limitar conjunto ou modelar intervalos consultáveis quando houver volume | M / P1 |
 | T14 | Consultas sem limite/paginação em conta, perfil público, comentários, reviews, sitemap e pontos do mapa | `ProfileController.php:14-24`; `UserProfileController.php:12-27`; `CommentSection.php:207-225`; `ReviewSection.php:123-135`; `SitemapController.php:16-28`; `BusinessController.php:24-39` | Paginar/cursor, limitar mapa por viewport e dividir sitemap | M / P1 |
 | T15 | Cache da home é fragmentado e invalidado de forma incompleta; a própria view faz três queries fora do cache | `HomeController.php:17-88`; `ModerationController.php:198-206`; `home/index.blade.php:143-147` | Serviço/chaveamento central, tags se cabível, invalidação por evento e remover queries da view | M / P1 |
 | T16 | Configuração de exemplo contradiz aplicação e ambiente: nome Laravel, locale inglês, SQLite, disco local e mail log | `.env.example:1,7-9,23,30,37-40,50-57`; intenção em `CLAUDE.md` | Tornar `.env.example` executável e seguro para o MVP; documentar variantes | S / P1 |
@@ -71,13 +71,13 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 
 - Actions e Policies existem para operações centrais; controllers em geral são pequenos.
 - Models possuem relacionamentos e scopes legíveis; listas principais usam eager loading.
-- A suíte de 193 testes é uma base forte e roda integralmente no MySQL local.
+- A suíte de 195 testes é uma base forte e roda integralmente no MySQL local.
 - Migrations evitam enum nativo do MySQL e incluem índices nas consultas mais óbvias.
 - Uploads são processados e armazenados pelo Laravel Storage.
 
 ### Acoplamento e duplicação
 
-Criação/edição de negócios e promoções possuem caminho HTTP com Form Request e caminho Livewire com validação própria. Essa duplicação já causou divergência: limite de promoção só no Request e horário omitido nas Actions. A regra deve morar em Action/Policy/objeto de domínio único, com a UI apenas orquestrando.
+Criação/edição de negócios e promoções possuem caminho HTTP com Form Request e caminho Livewire com validação própria. Essa duplicação já causou divergências; horários foram corrigidos na B007, mas o limite de promoção continua apenas no Request. A regra deve morar em Action/Policy/objeto de domínio único, com a UI apenas orquestrando.
 
 ## Auditoria Ponytail de sobre-engenharia
 
@@ -97,4 +97,4 @@ Formato: localização → corte → substituição mínima.
 
 ## Testes e cobertura
 
-Os testes atuais provam muitos caminhos felizes, Policies e validações. Não há número de cobertura disponível. As maiores lacunas são idempotência de pontos, persistência de horários, claim, jobs/retries, cache, limpeza de arquivos e acessibilidade. A aprovação de produção deve exigir esses testes, não apenas manter os 193 atuais verdes.
+Os testes atuais provam muitos caminhos felizes, Policies e validações. Não há número de cobertura disponível. As maiores lacunas são idempotência de pontos, claim, jobs/retries, cache, limpeza de arquivos e acessibilidade. A aprovação de produção deve exigir esses testes, não apenas manter os 195 atuais verdes.

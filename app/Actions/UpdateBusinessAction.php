@@ -21,6 +21,7 @@ class UpdateBusinessAction
             'address' => $data['address'] ?? null,
             'neighborhood' => $data['neighborhood'],
             'city' => $data['city'] ?? '',
+            'opening_hours' => $data['opening_hours'] ?? null,
             'website' => $data['website'] ?? null,
         ]);
 
