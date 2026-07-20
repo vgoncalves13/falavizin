@@ -4,7 +4,7 @@
 
 | Verificação em 20/07/2026 | Resultado |
 |---|---|
-| `artisan test --compact` | **216 testes, 459 assertions, todos passando** após B015 |
+| `artisan test --compact` | **218 testes, 468 assertions, todos passando** após B016 |
 | `npm run build` | **Passou**; CSS 103,79 kB (18,75 kB gzip), JS 37,17 kB (14,87 kB gzip) |
 | `composer validate --strict` | **Passou** |
 | `pint --test` | **Falhou** em um arquivo: `tests/Feature/BusinessReviewTest.php` |
@@ -71,13 +71,13 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 
 - Actions e Policies existem para operações centrais; controllers em geral são pequenos.
 - Models possuem relacionamentos e scopes legíveis; listas principais usam eager loading.
-- A suíte de 216 testes é uma base forte e roda integralmente no MySQL local.
+- A suíte de 218 testes é uma base forte e roda integralmente no MySQL local.
 - Migrations evitam enum nativo do MySQL e incluem índices nas consultas mais óbvias.
 - Uploads são processados e armazenados pelo Laravel Storage.
 
 ### Acoplamento e duplicação
 
-Criação/edição de negócios e promoções possuem caminho HTTP com Form Request e caminho Livewire com validação própria. Essa duplicação já causou divergências. Horários foram corrigidos na B007 e o cooldown de promoções foi centralizado com lock na `CreatePromotionAction` pela B015; validações/persistências restantes ainda devem convergir para Actions compartilhadas.
+✅ **Resolvido na B016 para negócios e promoções.** Form Requests expõem as regras reutilizadas pelo Livewire, `UpdateBusinessRequest` herda o contrato de criação, telefone HTTP é normalizado para array e edição de promoção usa `UpdatePromotionAction`. As rotas HTTP compatíveis e a UI Livewire agora convergem nas mesmas validações e Actions.
 
 ## Auditoria Ponytail de sobre-engenharia
 

@@ -90,6 +90,7 @@ class BusinessTest extends TestCase
             'category_id' => $category->id,
             'neighborhood' => 'Centro',
             'description' => 'A melhor padaria do bairro.',
+            'phone' => '(21) 3333-4444',
         ]);
 
         $response->assertRedirect();
@@ -99,6 +100,7 @@ class BusinessTest extends TestCase
             'status' => BusinessStatus::Pending->value,
             'claimed' => true,
         ]);
+        $this->assertSame(['(21) 3333-4444'], Business::where('name', 'Padaria do João')->firstOrFail()->phone);
     }
 
     public function test_business_form_persists_opening_hours_on_create_and_update(): void

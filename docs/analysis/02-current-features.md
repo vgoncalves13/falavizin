@@ -51,7 +51,7 @@
 |---|---|---|---|---|---|
 | F19 | Catálogo e filtros | Busca, categoria, destaque, “aberto agora” e lista/mapa | `BusinessList`; `businesses/index.blade.php` | `/servicos` | **Parcial.** Funciona, mas “aberto agora” carrega tudo em memória (`BusinessList.php:52-66`) |
 | F20 | Perfil do negócio | Exibe capa, galeria, contato, endereço, horário, mapa e ofertas | `BusinessController::show`; `BusinessPolicy`; `businesses/show.blade.php` | `/servicos/{business:slug}` | **Funcional.** B003 corrigiu o popup e B004 restringiu status não aprovado |
-| F21 | Cadastro/edição manual | Proprietário cadastra e edita dados/fotos | `BusinessForm`, Actions e Requests; views create/edit | `/cadastrar-negocio`, `/meu-negocio/{business}/editar` | **Funcional.** B007 persiste horários, normaliza dados/seed e trata períodos noturnos |
+| F21 | Cadastro/edição manual | Proprietário cadastra e edita dados/fotos | `BusinessForm`, Actions e Requests; views create/edit | `/cadastrar-negocio`, `/meu-negocio/{business}/editar` | **Funcional.** B007 corrigiu horários e B016 unificou regras HTTP/Livewire, Actions e formato de telefones |
 | F22 | Galeria de fotos | Upload, redimensionamento, capa e ordenação básica | `BusinessPhoto`, `PhotoGallery`, Actions | Perfil/formulário | **Funcional.** B013 corrigiu compensação/troca segura e B014 adicionou índice funcional que limita cada negócio a uma capa |
 | F23 | Favoritar negócio | Usuário alterna favorito e consulta na conta | `FavoriteButton`; pivot `business_user_favorites` | Ação Livewire | **Funcional.** `app/Livewire/Business/FavoriteButton.php`; migration da pivot |
 | F24 | Avaliações e resposta | Uma avaliação por usuário/negócio; proprietário responde | `ReviewSection`; `Review`, Policy | Ação Livewire | **Funcional.** Reviews são resolvidos pela relação do negócio desde a B005 |
@@ -62,7 +62,7 @@
 | ID | Funcionalidade | Fluxo, regras e envolvidos | Implementação e telas | Rotas | Status/evidência |
 |---|---|---|---|---|---|
 | F26 | Catálogo de promoções | Visitante vê promoções ativas agrupadas por negócio | `PromotionController::index`; `promotions/index.blade.php` | `/promocoes` | **Funcional.** `app/Models/Promotion.php:54-62` |
-| F27 | Gerenciar promoção | Proprietário cria, edita e exclui promoções | `PromotionForm`, Controller, Request, Policy | rotas em `/meu-negocio/*/promocoes` | **Funcional.** B005 corrigiu autorização/escopo e B015 centralizou na Action o cooldown de sete dias para HTTP/Livewire, com exceção Featured |
+| F27 | Gerenciar promoção | Proprietário cria, edita e exclui promoções | `PromotionForm`, Controller, Request, Policy | rotas em `/meu-negocio/*/promocoes` | **Funcional.** B015 centralizou o cooldown e B016 compartilhou validação e encaminhou edição por Action |
 | F28 | Planos free/featured | Usuário solicita upgrade; admin aprova/rejeita | `BusinessPlanController`; views admin/plans | `/meu-negocio/{business}/plano`, `/admin/planos*` | **Parcial.** Workflow administrativo existe; não há cobrança nem definição forte de entitlement |
 | F29 | Posts patrocinados | Admin alterna um flag de patrocínio | `PostSponsorController`, `SponsoredPostsController` | `/admin/posts/{post}/patrocinar`, `/admin/posts-patrocinados*` | **Parcial/duplicada.** Dois caminhos administrativos sobrepõem responsabilidade; não há vigência |
 

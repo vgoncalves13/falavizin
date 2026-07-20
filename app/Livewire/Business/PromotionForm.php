@@ -3,6 +3,8 @@
 namespace App\Livewire\Business;
 
 use App\Actions\CreatePromotionAction;
+use App\Actions\UpdatePromotionAction;
+use App\Http\Requests\StorePromotionRequest;
 use App\Models\Business;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\On;
@@ -24,21 +26,19 @@ class PromotionForm extends Component
 
     protected function rules(): array
     {
-        return [
-            'title' => ['required', 'string', 'min:5', 'max:255'],
-            'description' => ['nullable', 'string', 'max:1000'],
-            'startsAt' => ['nullable', 'date', 'before_or_equal:endsAt'],
-            'endsAt' => ['nullable', 'date', $this->editingId ? 'nullable' : 'after_or_equal:today'],
-        ];
+        return StorePromotionRequest::rulesFor(
+            startsAt: 'startsAt',
+            endsAt: 'endsAt',
+            editing: (bool) $this->editingId,
+        );
     }
 
     protected function messages(): array
     {
-        return [
-            'title.required' => 'O título da promoção é obrigatório.',
-            'title.min' => 'O título deve ter pelo menos 5 caracteres.',
-            'endsAt.after_or_equal' => 'A data de término deve ser hoje ou no futuro.',
-        ];
+        return StorePromotionRequest::messagesFor(
+            startsAt: 'startsAt',
+            endsAt: 'endsAt',
+        );
     }
 
     #[On('edit-promotion')]
@@ -74,7 +74,7 @@ class PromotionForm extends Component
         if ($this->editingId) {
             $promotion = $this->business->promotions()->findOrFail($this->editingId);
 
-            $promotion->update([
+            (new UpdatePromotionAction)->execute($promotion, [
                 'title' => $this->title,
                 'description' => $this->description ?: null,
                 'starts_at' => $this->startsAt ?: null,

@@ -120,6 +120,46 @@ class WeeklyLimitTest extends TestCase
         $this->assertDatabaseHas('promotions', ['title' => 'Promoção livre para destaque']);
     }
 
+    public function test_http_and_livewire_share_promotion_date_rules(): void
+    {
+        $user = User::factory()->create();
+        $business = Business::factory()->create(['user_id' => $user->id]);
+
+        $this->actingAs($user)
+            ->post(route('promotions.store', $business), [
+                'title' => 'Datas inválidas no HTTP',
+                'starts_at' => now()->addDay()->toDateString(),
+                'ends_at' => now()->toDateString(),
+            ])
+            ->assertSessionHasErrors('starts_at');
+
+        Livewire::actingAs($user)
+            ->test(PromotionForm::class, ['business' => $business])
+            ->set('title', 'Datas inválidas no Livewire')
+            ->set('startsAt', now()->addDay()->toDateString())
+            ->set('endsAt', now()->toDateString())
+            ->call('save')
+            ->assertHasErrors('startsAt');
+
+        $this->assertDatabaseCount('promotions', 0);
+    }
+
+    public function test_owner_can_update_promotion_through_shared_action(): void
+    {
+        $user = User::factory()->create();
+        $business = Business::factory()->create(['user_id' => $user->id]);
+        $promotion = Promotion::factory()->create(['business_id' => $business->id]);
+
+        Livewire::actingAs($user)
+            ->test(PromotionForm::class, ['business' => $business])
+            ->call('startEdit', $promotion->id)
+            ->set('title', 'Promoção atualizada')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertSame('Promoção atualizada', $promotion->fresh()->title);
+    }
+
     public function test_business_can_create_promotion_after_7_days(): void
     {
         $user = User::factory()->create();

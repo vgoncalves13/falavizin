@@ -4,6 +4,7 @@ namespace App\Livewire\Business;
 
 use App\Actions\CreateBusinessAction;
 use App\Actions\UpdateBusinessAction;
+use App\Http\Requests\StoreBusinessRequest;
 use App\Models\Business;
 use App\Models\Category;
 use Illuminate\Http\UploadedFile;
@@ -85,35 +86,20 @@ class BusinessForm extends Component
 
     protected function rules(): array
     {
-        return [
-            'name' => ['required', 'string', 'min:3', 'max:255'],
-            'categoryId' => ['required', 'integer', 'exists:categories,id'],
-            'description' => ['nullable', 'string', 'max:2000'],
-            'phones' => ['nullable', 'array', 'max:5'],
-            'phones.*' => ['nullable', 'string', 'max:20'],
-            'whatsapp' => ['nullable', 'string', 'max:20'],
-            'address' => ['nullable', 'string', 'max:255'],
-            'neighborhood' => ['required', 'string', 'max:255'],
-            'city' => ['nullable', 'string', 'max:255'],
-            'website' => ['nullable', 'url', 'max:255'],
-            'openingHours' => ['nullable', 'array'],
-            'openingHours.*.open' => ['nullable', 'string', 'max:10'],
-            'openingHours.*.close' => ['nullable', 'string', 'max:10'],
-            'openingHours.*.closed' => ['nullable', 'boolean'],
-            'coverPhoto' => ['nullable', 'image', 'max:5120'],
-        ];
+        return StoreBusinessRequest::rulesFor(
+            category: 'categoryId',
+            phones: 'phones',
+            openingHours: 'openingHours',
+            coverPhoto: 'coverPhoto',
+        );
     }
 
     protected function messages(): array
     {
-        return [
-            'name.required' => 'O nome do negócio é obrigatório.',
-            'name.min' => 'O nome deve ter pelo menos 3 caracteres.',
-            'categoryId.required' => 'Selecione uma categoria.',
-            'neighborhood.required' => 'O bairro é obrigatório.',
-            'coverPhoto.image' => 'O arquivo deve ser uma imagem.',
-            'coverPhoto.max' => 'A imagem não pode ter mais de 5MB.',
-        ];
+        return StoreBusinessRequest::messagesFor(
+            category: 'categoryId',
+            coverPhoto: 'coverPhoto',
+        );
     }
 
     /** @return array<int, array{day: string, open: string, close: string, closed: bool}>|null */
