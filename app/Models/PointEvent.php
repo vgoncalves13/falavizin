@@ -20,6 +20,7 @@ class PointEvent extends Model
         'user_id',
         'points',
         'reason',
+        'idempotency_key',
         'pointable_type',
         'pointable_id',
     ];

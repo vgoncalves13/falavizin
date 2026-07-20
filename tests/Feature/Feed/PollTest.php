@@ -147,4 +147,23 @@ class PollTest extends TestCase
             $author->fresh()->points
         );
     }
+
+    public function test_each_poll_voter_awards_points_once(): void
+    {
+        $author = User::factory()->create(['points' => 0]);
+        $voters = User::factory()->count(2)->create();
+        $post = Post::factory()->create(['user_id' => $author->id]);
+        $poll = Poll::create(['post_id' => $post->id, 'question' => 'Pergunta?']);
+        $option = PollOption::create(['poll_id' => $poll->id, 'text' => 'Sim']);
+
+        foreach ($voters as $voter) {
+            Livewire::actingAs($voter)
+                ->test(\App\Livewire\Feed\PollVote::class, ['poll' => $poll])
+                ->call('vote', $option->id)
+                ->call('vote', $option->id);
+        }
+
+        $this->assertDatabaseCount('poll_votes', 2);
+        $this->assertSame(PointEventReason::VoteReceived->points() * 2, $author->fresh()->points);
+    }
 }

@@ -52,6 +52,19 @@ class AwardPointsTest extends TestCase
         ]);
     }
 
+    public function test_same_source_only_awards_points_once(): void
+    {
+        $user = User::factory()->create(['points' => 0]);
+        $post = Post::factory()->create(['user_id' => $user->id]);
+        $action = new AwardPointsAction;
+
+        $action->execute($user, PointEventReason::PostCreated, $post);
+        $action->execute($user, PointEventReason::PostCreated, $post);
+
+        $this->assertDatabaseCount('point_events', 1);
+        $this->assertSame(PointEventReason::PostCreated->points(), $user->fresh()->points);
+    }
+
     public function test_all_reason_points_values(): void
     {
         $this->assertEquals(5, PointEventReason::PostCreated->points());

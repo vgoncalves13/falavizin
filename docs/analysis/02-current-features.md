@@ -33,7 +33,7 @@
 | ID | Funcionalidade | Fluxo, regras e envolvidos | Implementação e telas | Rotas | Status/evidência |
 |---|---|---|---|---|---|
 | F12 | Comentários e respostas | Autenticado comenta, responde, edita e exclui; 15 comentários/h | `CommentSection`; `comment-section.blade.php` | Ações Livewire no post | **Funcional.** IDs são escopados aos comentários do post desde a B005 |
-| F13 | Votos em posts | Único voto por usuário/alvo; alterna útil/não útil | `VoteButtons`; model polimórfico `Vote` | Ação Livewire | **Funcional com possível abuso.** `VoteButtons.php:35-63`; pontos podem ser ganhos repetidamente |
+| F13 | Votos em posts | Único voto por usuário/alvo; alterna útil/não útil | `VoteButtons`; model polimórfico `Vote` | Ação Livewire | **Funcional.** B008 impede que remover/recriar voto útil acumule pontos |
 | F14 | Votos em comentários | Usuário marca comentário útil | `CommentSection::vote` | Ação Livewire | **Funcional.** O comentário é resolvido pela relação do post desde a B005 |
 | F15 | Denúncias | Usuário informa motivo; item recebe `reported_at/by/reason`; limite 5/dia | `ReportModal`; `ReportContentAction` | Ação Livewire | **Funcional.** `app/Livewire/Shared/ReportModal.php`; `app/Actions/ReportContentAction.php` |
 
@@ -83,7 +83,7 @@
 
 | ID | Funcionalidade | Fluxo, regras e envolvidos | Implementação e telas | Rotas | Status/evidência |
 |---|---|---|---|---|---|
-| F33 | Pontos e ranking | Eventos concedem pontos e ranking lista moradores | `AwardPointsAction`, `PointEvent`, `RankingController` | `/ranking` | **Parcial/com erro.** Eventos não são idempotentes (`AwardPointsAction.php:12-23`) |
+| F33 | Pontos e ranking | Eventos idempotentes concedem pontos e ranking lista moradores | `AwardPointsAction`, `PointEvent`, `RankingController` | `/ranking` | **Funcional.** B008 adicionou chave única por origem, transação e reconciliação; regras de produto ainda precisam validação |
 | F34 | Pulso do bairro | Agrega problemas, resoluções e categorias | `NeighborhoodPulse`, `PulseController`; home/página própria | `/pulso-do-bairro` | **Funcional demonstrável.** `app/Livewire/Home/NeighborhoodPulse.php`; depende da qualidade dos dados |
 
 ## 11. Busca, categorias e SEO
@@ -100,8 +100,8 @@
 
 ## Resumo por status
 
-- **Funcionais no caminho feliz:** F01, F02, F04, F06–F12, F14–F18, F20–F26, F30–F31, F34–F35 (26).
-- **Parciais ou com ressalvas relevantes:** F03, F05, F13, F19, F27–F29, F32–F33, F36 (10).
+- **Funcionais no caminho feliz:** F01, F02, F04, F06–F18, F20–F26, F30–F31, F33–F35 (28).
+- **Parciais ou com ressalvas relevantes:** F03, F05, F19, F27–F29, F32, F36 (8).
 - **Aparentemente abandonadas/não utilizadas:** não contam entre as 36 capacidades; views scaffold e placeholders estão listados em `03-incomplete-features.md`.
 
 Esses números são uma classificação de auditoria, não uma métrica de cobertura ou prontidão comercial.

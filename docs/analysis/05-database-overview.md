@@ -36,7 +36,7 @@ Setting (chave/valor global; sem tenant)
 | `polls` | Enquete opcional ligada a post e término | `create_polls_table.php`; `Poll.php` |
 | `poll_options` | Opções da enquete | `create_poll_options_table.php`; `PollOption.php` |
 | `poll_votes` | Escolha do usuário por poll | `create_poll_votes_table.php`; `PollVote.php` |
-| `point_events` | Razão, pontos e origem polimórfica da reputação | `create_point_events_table.php`; `PointEvent.php` |
+| `point_events` | Razão, pontos, origem polimórfica e `idempotency_key` única da reputação | migration `2026_07_20_140000_*`; `PointEvent.php` |
 | `settings` | Configuração global chave/valor, inclusive bairro/coord. de importação | `create_settings_table.php`; `Setting.php` |
 
 ## Tabelas de associação e infraestrutura
@@ -75,7 +75,7 @@ As migrations seguem a convenção saudável de `string` + enum PHP, não `ENUM`
 | `poll_votes` não garante que `option_id` pertence a `poll_id` | Voto semanticamente inconsistente | `create_poll_votes_table.php:14-21` | Validação por relação; modelagem/chave coerente |
 | Capa de negócio sem unicidade | Duas fotos podem ser `is_cover=true` | `create_business_photos_table.php:14-20` | Transação e constraint/estratégia de capa |
 | Claim manual sem histórico de decisões | Estado pendente fica no negócio e é limpo ao decidir; não preserva ator, evidência ou motivo | migration `2026_07_20_130000_*`; `ClaimBusinessAction.php` | Criar trilha de auditoria quando a operação exigir histórico |
-| Pontos sem idempotência | Eventos duplicados e total divergente | `create_point_events_table.php`; `AwardPointsAction.php:12-23` | Chave idempotente e reconciliação |
+| ✅ Pontos tinham duplicação e total divergente | B008 saneou eventos, criou chave única e reconciliou `users.points` | migration `2026_07_20_140000_*`; `AwardPointsAction.php` | Manter regressões e definir regra de negócio do ranking |
 | Denúncia embutida no conteúdo | Só um reporte corrente, sem histórico/denunciante/decisão | migrations `add_reporting_fields_*`; `ReportContentAction.php` | Tabela `reports` quando moderação exigir histórico |
 | Bairro como texto livre | Variação de grafia impede segmentação confiável | `users.neighborhood`; `businesses.neighborhood`; `posts.location` | Entidade/ID canônico antes de expansão |
 | ✅ Horários em JSON tinham formatos históricos | B007 normalizou dados/seed e persistência; JSON continua difícil de consultar em escala | migration `2026_07_20_120000_*`; `DatabaseSeeder`; `Business.php` | Manter formato no MVP; tabela de intervalos só quando o volume exigir |

@@ -20,7 +20,8 @@
 | Item | Objetivo e escopo | Dependências | Pri. / esforço | Riscos | Critério de aceite | Resultado esperado |
 |---|---|---|---|---|---|---|
 | Formalizar operação do claim manual | Definir evidência, motivo, SLA e trilha de decisão sobre o fluxo entregue na B006 | Operador de moderação definido | P1 / M | Fricção e LGPD | Cada decisão futura registra ator, data e motivo; procedimento é documentado | Propriedade auditável |
-| Transações e idempotência | Envolver post/claim/pontos/fotos; notificar after-commit; limpar arquivos em falha | Testes de falha | P1 / L | Locks/duplicação | Falha injetada não deixa dados/arquivos parciais; pontos reconciliam | Consistência operacional |
+| ✅ Tornar pontos idempotentes — concluído na B008 | Chave estável, constraint, transação, saneamento e reconciliação | B005 e dados locais inspecionados | P1 / M | Perda de pontuação artificial antiga | Mesma origem premia uma vez; totais reconciliam; regressões passam | Ranking tecnicamente consistente |
+| Transações de operações compostas | Envolver post/claim/fotos; notificar after-commit e limpar arquivos em falha | Testes de falha | P1 / L | Locks/duplicação | Falha injetada não deixa dados/arquivos parciais | Consistência operacional |
 | Centralizar regras duplicadas | Action/Policy única para negócio e promoção; remover drift HTTP/Livewire | Decisão sobre UI canônica | P1 / L | Refactor amplo | Mesma regra em qualquer entrada e testes compartilhados | Menos código e bugs |
 | Reforçar constraints | Poll/post, opção/poll, capa e checks após saneamento | Backup e queries de diagnóstico | P1 / M | Dados existentes inválidos | Migrations reversíveis e constraints bloqueiam casos inválidos | Integridade no banco |
 | Colocar notificações em fila | `ShouldQueue`, after-commit, retry/backoff e preferências mínimas | Worker confiável | P1 / M | Atraso/duplicata | Request não depende de SMTP; falha é reprocessável | UX resiliente |

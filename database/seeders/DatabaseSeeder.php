@@ -52,27 +52,25 @@ class DatabaseSeeder extends Seeder
             'password' => $password,
             'email_verified_at' => now(),
             'neighborhood' => 'Jardim América',
-            'points' => 45,
         ]);
 
         $moradores = collect([
-            ['name' => 'Ana Paula Silva',    'email' => 'ana@example.com',     'points' => 23],
-            ['name' => 'Roberto Ferreira',   'email' => 'roberto@example.com', 'points' => 15],
-            ['name' => 'Mariana Costa',      'email' => 'mariana@example.com', 'points' => 38],
-            ['name' => 'José Santos',        'email' => 'jose@example.com',    'points' => 8],
-            ['name' => 'Fernanda Lima',      'email' => 'fernanda@example.com', 'points' => 52],
-            ['name' => 'Paulo Mendes',       'email' => 'paulo@example.com',   'points' => 12],
-            ['name' => 'Luciana Rodrigues',  'email' => 'luciana@example.com', 'points' => 29],
-            ['name' => 'Diego Alves',        'email' => 'diego@example.com',   'points' => 6],
-            ['name' => 'Camila Souza',       'email' => 'camila@example.com',  'points' => 41],
-            ['name' => 'Thiago Nunes',       'email' => 'thiago@example.com',  'points' => 18],
+            ['name' => 'Ana Paula Silva',    'email' => 'ana@example.com'],
+            ['name' => 'Roberto Ferreira',   'email' => 'roberto@example.com'],
+            ['name' => 'Mariana Costa',      'email' => 'mariana@example.com'],
+            ['name' => 'José Santos',        'email' => 'jose@example.com'],
+            ['name' => 'Fernanda Lima',      'email' => 'fernanda@example.com'],
+            ['name' => 'Paulo Mendes',       'email' => 'paulo@example.com'],
+            ['name' => 'Luciana Rodrigues',  'email' => 'luciana@example.com'],
+            ['name' => 'Diego Alves',        'email' => 'diego@example.com'],
+            ['name' => 'Camila Souza',       'email' => 'camila@example.com'],
+            ['name' => 'Thiago Nunes',       'email' => 'thiago@example.com'],
         ])->map(fn ($data) => User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => $password,
             'email_verified_at' => now(),
             'neighborhood' => 'Jardim América',
-            'points' => $data['points'],
         ]));
 
         $allUsers = $moradores->prepend($owner);

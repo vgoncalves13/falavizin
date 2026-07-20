@@ -11,7 +11,7 @@ Prioridade: P0 bloqueia produção; P1 é necessária ao MVP; P2 é importante; 
 | B005 | Livewire | ✅ Escopar e reautorizar todas as mutações por ID — concluída em 20/07/2026 | Corrigir promoção, review, comentário, poll e BusinessForm | segurança | P0 | M | Policies atuais | 0 | testes cruzados bloqueiam IDs externos; suíte passa |
 | B006 | Negócios | ✅ Substituir reivindicação por aprovação manual — concluída em 20/07/2026 | Remover token autoaprovável; criar pedido pendente, rate limit e decisão admin | segurança | P0 | L | decisão operacional | 1 | solicitante não assume negócio sem admin; 8 testes passam |
 | B007 | Negócios | ✅ Persistir e normalizar horários de funcionamento — concluída em 20/07/2026 | Unificar formato em formulário, Actions, seed e dados | bug | P0 | M | schema JSON atual | 0 | migration aplicada; CRUD e horário noturno testados |
-| B008 | Reputação | Tornar premiação de pontos idempotente | Impedir ganho repetido e reconciliar total do usuário | bug | P1 | M | constraint/migração | 1 | mesma origem/razão não premia duas vezes; totals reconciliam |
+| B008 | Reputação | ✅ Tornar premiação de pontos idempotente — concluída em 20/07/2026 | Chave única, transação, origem estável e reconciliação | bug | P1 | M | constraint/migração | 1 | mesma origem premia uma vez; zero totais divergentes |
 | B009 | Integrações | ✅ Recuperar jobs de enriquecimento falhos — concluída em 20/07/2026 | 429 diagnosticado; timeout, lote espaçado, backoff e recuperação individual | infraestrutura | P1 | M | B001 | 0 | zero falhos/pendentes; teste e runbook registrados |
 | B010 | Testes | Cobrir regressões P0 de segurança e integridade | Testes negativos para B003–B009 | segurança | P0 | M | B003–B009 | 0 | cada falha possui teste que reproduz e prova correção |
 | B011 | Seeds | ✅ Remover senhas padrão de seeds operacionais — concluída em 20/07/2026 | Produção semeia só categorias; demo exige senha explícita | segurança | P0 | S | decisão de ambientes | 1 | três regressões passam; produção cria zero usuários demo |
@@ -47,4 +47,4 @@ Prioridade: P0 bloqueia produção; P1 é necessária ao MVP; P2 é importante; 
 
 ## Ordem imediata
 
-~~B001~~ → ~~B002~~ → ~~B003~~ → ~~B004~~ → ~~B005~~ → ~~B007~~ → ~~B006~~ → ~~B011~~ → ~~B009~~ → **B010**. B010 acompanha cada correção, embora apareça como item consolidado. B008 vem imediatamente depois desse bloco.
+~~B001~~ → ~~B002~~ → ~~B003~~ → ~~B004~~ → ~~B005~~ → ~~B007~~ → ~~B006~~ → ~~B011~~ → ~~B009~~ → ~~B008~~ → **B010**. B010 acompanha cada correção e agora pode ser encerrada.

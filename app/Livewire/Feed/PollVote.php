@@ -49,7 +49,7 @@ class PollVote extends Component
             return;
         }
 
-        PollVoteModel::create([
+        $pollVote = PollVoteModel::create([
             'poll_id' => $this->poll->id,
             'poll_option_id' => $option->id,
             'user_id' => auth()->id(),
@@ -59,7 +59,7 @@ class PollVote extends Component
 
         $postAuthor = $this->poll->post?->user;
         if ($postAuthor && $postAuthor->id !== auth()->id()) {
-            (new AwardPointsAction)->execute($postAuthor, PointEventReason::VoteReceived, $this->poll->post);
+            (new AwardPointsAction)->execute($postAuthor, PointEventReason::VoteReceived, $pollVote);
         }
 
         $this->poll->load('options', 'votes');

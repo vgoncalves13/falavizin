@@ -44,21 +44,31 @@ class VoteButtons extends Component
                 return;
             }
             $existing->update(['type' => $voteType]);
-
-            return;
+            $vote = $existing;
+        } else {
+            $vote = Vote::create([
+                'user_id' => auth()->id(),
+                'votable_type' => Post::class,
+                'votable_id' => $this->post->id,
+                'type' => $voteType,
+            ]);
         }
-
-        $vote = Vote::create([
-            'user_id' => auth()->id(),
-            'votable_type' => Post::class,
-            'votable_id' => $this->post->id,
-            'type' => $voteType,
-        ]);
 
         if ($voteType === VoteType::Helpful) {
             $postAuthor = $this->post->user;
             if ($postAuthor && $postAuthor->id !== auth()->id()) {
-                (new AwardPointsAction)->execute($postAuthor, PointEventReason::VoteReceived, $vote);
+                (new AwardPointsAction)->execute(
+                    user: $postAuthor,
+                    reason: PointEventReason::VoteReceived,
+                    pointable: $vote,
+                    idempotencyKey: implode(':', [
+                        PointEventReason::VoteReceived->value,
+                        $this->post->getMorphClass(),
+                        $this->post->getKey(),
+                        'voter',
+                        auth()->id(),
+                    ]),
+                );
             }
         }
     }

@@ -4,13 +4,13 @@
 
 | Verificação em 20/07/2026 | Resultado |
 |---|---|
-| `artisan test --compact` | **201 testes, 423 assertions, todos passando** após B009 |
+| `artisan test --compact` | **204 testes, 429 assertions, todos passando** após B008 |
 | `npm run build` | **Passou**; CSS 103,79 kB (18,75 kB gzip), JS 37,17 kB (14,87 kB gzip) |
 | `composer validate --strict` | **Passou** |
 | `pint --test` | **Falhou** em um arquivo: `tests/Feature/BusinessReviewTest.php` |
 | `composer audit` | **0 advisories após B002**; baseline: 20 em 11 pacotes |
 | `npm audit` | **0 vulnerabilidades após B002**; baseline: 9, incluindo 2 críticas |
-| Migrations | 38 migrations aplicadas no MySQL local |
+| Migrations | 41 migrations aplicadas no MySQL local |
 | Jobs | **0 falhos e 0 pendentes** após recuperação controlada dos 9 erros HTTP 429 na B009 |
 
 Esses resultados são observações reproduzíveis do ambiente auditado. As versões diretas estão em `composer.json:10-18` e `package.json:12-18`; resoluções transitivas estão nos lockfiles.
@@ -31,7 +31,7 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 |---|---|---|---|---|
 | T06 | ✅ **Resolvido em 20/07/2026.** O token autoaprovável foi removido; claim agora cria pedido único pendente, tem rate limit e só um admin pode aprovar/rejeitar. | `ClaimBusinessController`; `ClaimBusinessAction`; `ModerationController`; migration `2026_07_20_130000_*`; `ClaimTest` | Documentar evidência operacional, SLA e adicionar trilha/motivo quando houver volume | L / P0 concluída |
 | T07 | ✅ **Resolvido em 20/07/2026.** Horários do formulário não eram gravados e seed/dados usavam formato legado. | Actions, `Business::isOpenNow`, `DatabaseSeeder` e migration `2026_07_20_120000_*`; regressões em `BusinessTest` | Manter formato estruturado e migration aplicada | M / P0 concluída |
-| T08 | Pontuação não idempotente: remover e recolocar voto útil pode premiar repetidamente; total desnormalizado pode divergir | `VoteButtons.php:35-63`; `AwardPointsAction.php:12-23`; migration de `point_events` sem chave idempotente | Chave única por razão/origem/beneficiário, transação e comando de reconciliação | M / P1 |
+| T08 | ✅ **Resolvido em 20/07/2026.** Premiações usam chave idempotente única e transação; voto normal possui origem estável, enquete usa cada `PollVote`, dados foram saneados e totais reconciliados. | `AwardPointsAction`; `VoteButtons`; `PollVote`; migration `2026_07_20_140000_*`; testes de reputação/voto/enquete | Validar regras do ranking e monitorar tentativas de abuso no piloto | M / P1 concluída |
 | T09 | E-mails e notificações são síncronos apesar de usarem `Queueable`; falha externa pode degradar request e deixar operação parcialmente concluída | `NewContentNotification.php:9-20`; `ContentModerationNotification.php:9-22`; `ClaimBusinessController.php:22-25` | Implementar `ShouldQueue`, after-commit, retry/backoff e monitoramento | M / P1 |
 | T10 | Operações multi-etapa não usam transação/compensação: criação com imagem/enquete/pontos/notificação, claim, pontos e troca de foto podem ficar pela metade | `CreatePostAction.php:17-57`; `ClaimBusinessAction.php:13-28`; `AwardPointsAction.php:12-23`; `UpdateBusinessAction.php:34-54` | Delimitar transações de banco e limpar arquivos em falhas; notificar após commit | L / P1 |
 | T11 | ✅ **Resolvido em 20/07/2026.** Produção semeia apenas categorias; dados demo ficam restritos a local/testing e exigem `DEMO_USER_PASSWORD` sem default. | `DatabaseSeeder.php`; `config/app.php`; `.env.example`; `DatabaseSeederTest.php` | Provisionar o primeiro admin de produção por procedimento deliberado até automação ser necessária | S / P0 concluída |
@@ -71,7 +71,7 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 
 - Actions e Policies existem para operações centrais; controllers em geral são pequenos.
 - Models possuem relacionamentos e scopes legíveis; listas principais usam eager loading.
-- A suíte de 201 testes é uma base forte e roda integralmente no MySQL local.
+- A suíte de 204 testes é uma base forte e roda integralmente no MySQL local.
 - Migrations evitam enum nativo do MySQL e incluem índices nas consultas mais óbvias.
 - Uploads são processados e armazenados pelo Laravel Storage.
 
@@ -97,7 +97,7 @@ Formato: localização → corte → substituição mínima.
 
 ## Testes e cobertura
 
-Os testes atuais provam muitos caminhos felizes, Policies e validações. Não há número de cobertura disponível. As maiores lacunas são idempotência de pontos, falhas prolongadas de integrações, cache, limpeza de arquivos e acessibilidade. Claim, isolamento dos seeds e resposta 429 possuem cobertura dedicada. A aprovação de produção deve exigir testes dos riscos restantes, não apenas manter os 201 atuais verdes.
+Os testes atuais provam muitos caminhos felizes, Policies e validações. Não há número de cobertura disponível. As maiores lacunas são falhas prolongadas de integrações, cache, limpeza de arquivos e acessibilidade. Claim, seeds, resposta 429 e idempotência de pontos possuem cobertura dedicada. A aprovação de produção deve exigir testes dos riscos restantes, não apenas manter os 204 atuais verdes.
 
 ## Recuperação do enriquecimento Google Places
 

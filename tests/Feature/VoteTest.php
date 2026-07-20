@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\PointEventReason;
 use App\Enums\VoteType;
 use App\Livewire\Feed\VoteButtons;
 use App\Models\Post;
@@ -115,5 +116,23 @@ class VoteTest extends TestCase
                 ->where('votable_id', $post->id)
                 ->count()
         );
+    }
+
+    public function test_recreating_helpful_vote_does_not_award_points_again(): void
+    {
+        $author = User::factory()->create(['points' => 0]);
+        $voter = User::factory()->create();
+        $post = Post::factory()->create(['user_id' => $author->id]);
+
+        $component = Livewire::actingAs($voter)
+            ->test(VoteButtons::class, ['post' => $post]);
+
+        $component->call('vote', 'not_helpful');
+        $component->call('vote', 'helpful');
+        $component->call('vote', 'helpful');
+        $component->call('vote', 'helpful');
+
+        $this->assertSame(PointEventReason::VoteReceived->points(), $author->fresh()->points);
+        $this->assertDatabaseCount('point_events', 1);
     }
 }
