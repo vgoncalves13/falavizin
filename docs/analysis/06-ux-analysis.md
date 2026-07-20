@@ -28,7 +28,7 @@
 
 ### Encontrar um serviço
 
-**Atual:** busca/filtros, lista/mapa, “aberto agora”, destaque e perfil completo. O modo mapa usa Leaflet por CDN; desde a B003, os popups constroem conteúdo dinâmico com nós DOM seguros (`businesses/index.blade.php:75-128`).
+**Atual:** busca/filtros, lista/mapa, “aberto agora”, destaque e perfil completo. O modo mapa usa Leaflet por CDN; desde a B003, popups usam nós DOM seguros e, desde a B018, pontos são buscados pela área visível com teto de 200 e feedback de carregamento/erro.
 
 **Melhoria:** manter lista como fallback, sincronizar filtros com URL, indicar quando horário é desconhecido, oferecer ação principal por negócio (WhatsApp/ligar) e limitar marcadores à área visível.
 

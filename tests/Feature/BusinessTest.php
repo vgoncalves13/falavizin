@@ -23,6 +23,42 @@ class BusinessTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_map_endpoint_requires_valid_bounds(): void
+    {
+        $this->getJson(route('businesses.map'))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['north', 'south', 'east', 'west']);
+    }
+
+    public function test_map_endpoint_limits_results_to_visible_bounds(): void
+    {
+        $category = Category::factory()->create(['type' => 'business']);
+        Business::factory()->count(201)->create([
+            'category_id' => $category->id,
+            'status' => BusinessStatus::Approved,
+            'lat' => -22.90,
+            'lng' => -43.20,
+        ]);
+        $outside = Business::factory()->create([
+            'category_id' => $category->id,
+            'status' => BusinessStatus::Approved,
+            'lat' => -23.50,
+            'lng' => -44.00,
+        ]);
+
+        $response = $this->getJson(route('businesses.map', [
+            'north' => -22.80,
+            'south' => -23.00,
+            'east' => -43.10,
+            'west' => -43.30,
+        ]));
+
+        $response->assertOk()
+            ->assertJsonCount(200, 'data')
+            ->assertJsonPath('truncated', true)
+            ->assertJsonMissing(['id' => $outside->id]);
+    }
+
     public function test_business_show_is_accessible_to_guests(): void
     {
         $business = Business::factory()->create();

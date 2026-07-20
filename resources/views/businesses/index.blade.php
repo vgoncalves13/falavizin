@@ -12,27 +12,25 @@
 
             <div class="flex items-center gap-3">
                 {{-- Toggle lista / mapa --}}
-                @if($mapBusinesses->isNotEmpty())
-                    <div class="flex items-center bg-stone-100 rounded-lg p-1 gap-1">
-                        <button
-                            @click="view = 'list'"
-                            :class="view === 'list' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-700'"
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-150"
-                        >
-                            <x-heroicon-o-squares-2x2 class="w-4 h-4" />
-                            Lista
-                        </button>
-                        <button
-                            @click="view = 'map'"
-                            :class="view === 'map' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-700'"
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-150"
-                        >
-                            <x-heroicon-o-map class="w-4 h-4" />
-                            Mapa
-                            <span class="text-xs text-stone-400">({{ $mapBusinesses->count() }})</span>
-                        </button>
-                    </div>
-                @endif
+                <div class="flex items-center bg-stone-100 rounded-lg p-1 gap-1">
+                    <button
+                        @click="view = 'list'"
+                        :class="view === 'list' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-700'"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-150"
+                    >
+                        <x-heroicon-o-squares-2x2 class="w-4 h-4" />
+                        Lista
+                    </button>
+                    <button
+                        @click="view = 'map'"
+                        :class="view === 'map' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-700'"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-150"
+                    >
+                        <x-heroicon-o-map class="w-4 h-4" />
+                        Mapa
+                        <span id="map-count" class="text-xs text-stone-400"></span>
+                    </button>
+                </div>
 
                 @auth
                     <a href="{{ route('businesses.create') }}"
@@ -56,32 +54,26 @@
         </div>
 
         {{-- Vista: Mapa --}}
-        @if($mapBusinesses->isNotEmpty())
-            <div
-                x-show="view === 'map'"
-                x-transition
-                x-effect="if (view === 'map') { $nextTick(() => window.dispatchEvent(new Event('map-visible'))) }"
-            >
-                <div class="bg-white rounded-xl border border-stone-200 overflow-hidden">
-                    <div id="businesses-map" class="w-full" style="height: 600px; z-index: 0;"></div>
-                </div>
-                <p class="text-xs text-stone-400 mt-2 text-right">
-                    {{ $mapBusinesses->count() }} negócio(s) com localização cadastrada
-                </p>
+        <div
+            x-show="view === 'map'"
+            x-transition
+            x-effect="if (view === 'map') { $nextTick(() => window.dispatchEvent(new Event('map-visible'))) }"
+        >
+            <div class="bg-white rounded-xl border border-stone-200 overflow-hidden">
+                <div id="businesses-map" class="w-full" style="height: 600px; z-index: 0;"></div>
             </div>
-        @endif
+            <p id="map-status" class="text-xs text-stone-400 mt-2 text-right">
+                Mova o mapa para buscar nesta área.
+            </p>
+        </div>
     </div>
 
     @push('scripts')
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
         <script>
-            const businesses = @json($mapBusinesses);
-
             document.addEventListener('DOMContentLoaded', function () {
-                if (!businesses.length) return;
-
                 const map = L.map('businesses-map', { scrollWheelZoom: true })
-                    .setView([businesses[0].lat, businesses[0].lng], 14);
+                    .setView([@js($mapCenter['lat']), @js($mapCenter['lng'])], 14);
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -104,38 +96,79 @@
                     className: '',
                 });
 
-                const bounds = [];
+                const markers = L.layerGroup().addTo(map);
+                const count = document.getElementById('map-count');
+                const status = document.getElementById('map-status');
+                let requestController;
 
-                businesses.forEach(b => {
-                    const popup = document.createElement('div');
-                    popup.style.minWidth = '160px';
+                const renderBusinesses = (businesses) => {
+                    markers.clearLayers();
 
-                    const name = document.createElement('p');
-                    name.style.cssText = 'font-weight:600;font-size:14px;margin:0 0 2px';
-                    name.textContent = b.name;
+                    businesses.forEach(b => {
+                        const popup = document.createElement('div');
+                        popup.style.minWidth = '160px';
 
-                    const location = document.createElement('p');
-                    location.style.cssText = 'font-size:12px;color:#78716c;margin:0 0 8px';
-                    location.textContent = `${b.category ?? ''} · ${b.neighborhood}`;
+                        const name = document.createElement('p');
+                        name.style.cssText = 'font-weight:600;font-size:14px;margin:0 0 2px';
+                        name.textContent = b.name;
 
-                    const link = document.createElement('a');
-                    link.href = b.url;
-                    link.style.cssText = 'font-size:12px;color:#d97706;font-weight:500';
-                    link.textContent = 'Ver perfil →';
+                        const location = document.createElement('p');
+                        location.style.cssText = 'font-size:12px;color:#78716c;margin:0 0 8px';
+                        location.textContent = `${b.category ?? ''} · ${b.neighborhood}`;
 
-                    popup.append(name, location, link);
+                        const link = document.createElement('a');
+                        link.href = b.url;
+                        link.style.cssText = 'font-size:12px;color:#d97706;font-weight:500';
+                        link.textContent = 'Ver perfil →';
 
-                    const marker = L.marker([b.lat, b.lng], { icon: makeIcon(b.featured) })
-                        .addTo(map)
-                        .bindPopup(popup);
-                    bounds.push([b.lat, b.lng]);
+                        popup.append(name, location, link);
+
+                        L.marker([b.lat, b.lng], { icon: makeIcon(b.featured) })
+                            .addTo(markers)
+                            .bindPopup(popup);
+                    });
+                };
+
+                const loadBusinesses = async () => {
+                    requestController?.abort();
+                    requestController = new AbortController();
+                    const bounds = map.getBounds();
+                    const url = new URL(@js(route('businesses.map')));
+                    url.searchParams.set('north', bounds.getNorth());
+                    url.searchParams.set('south', bounds.getSouth());
+                    url.searchParams.set('east', bounds.getEast());
+                    url.searchParams.set('west', bounds.getWest());
+
+                    status.textContent = 'Buscando negócios nesta área...';
+
+                    try {
+                        const response = await fetch(url, {
+                            headers: { Accept: 'application/json' },
+                            signal: requestController.signal,
+                        });
+
+                        if (!response.ok) throw new Error('Map request failed');
+
+                        const payload = await response.json();
+                        renderBusinesses(payload.data);
+                        count.textContent = `(${payload.data.length}${payload.truncated ? '+' : ''})`;
+                        status.textContent = payload.truncated
+                            ? 'Mais de 200 negócios nesta área. Aproxime o mapa para refinar.'
+                            : `${payload.data.length} negócio(s) nesta área`;
+                    } catch (error) {
+                        if (error.name !== 'AbortError') {
+                            status.textContent = 'Não foi possível carregar os negócios do mapa.';
+                        }
+                    }
+                };
+
+                map.on('moveend', loadBusinesses);
+                loadBusinesses();
+
+                window.addEventListener('map-visible', () => {
+                    map.invalidateSize();
+                    loadBusinesses();
                 });
-
-                if (bounds.length > 1) {
-                    map.fitBounds(bounds, { padding: [40, 40] });
-                }
-
-                window.addEventListener('map-visible', () => map.invalidateSize());
             });
         </script>
     @endpush

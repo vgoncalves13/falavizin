@@ -5,12 +5,16 @@ namespace App\Http\Controllers;
 use App\Actions\CreateBusinessAction;
 use App\Actions\UpdateBusinessAction;
 use App\Enums\BusinessPlan;
+use App\Enums\BusinessStatus;
+use App\Http\Requests\MapBusinessesRequest;
 use App\Http\Requests\StoreBusinessRequest;
 use App\Http\Requests\UpdateBusinessRequest;
 use App\Models\Business;
+use App\Models\Setting;
 use App\Models\User;
 use App\Notifications\PlanUpgradeApprovedNotification;
 use App\Notifications\PlanUpgradeRequestNotification;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
@@ -21,25 +25,42 @@ class BusinessController extends Controller
 {
     public function index(): View
     {
-        $mapBusinesses = Cache::remember('businesses:map', 300, fn () => Business::query()
-            ->where('status', 'approved')
-            ->whereNotNull('lat')
-            ->whereNotNull('lng')
-            ->with('category')
-            ->get()
-            ->map(fn (Business $b) => [
-                'id' => $b->id,
-                'name' => $b->name,
-                'category' => $b->category?->name,
-                'neighborhood' => $b->neighborhood,
-                'lat' => (float) $b->lat,
-                'lng' => (float) $b->lng,
-                'url' => route('businesses.show', $b),
-                'featured' => $b->plan->value === 'featured',
-            ])
-        );
+        $mapCenter = [
+            'lat' => (float) Setting::get('neighborhood_lat', -15.7801),
+            'lng' => (float) Setting::get('neighborhood_lng', -47.9292),
+        ];
 
-        return view('businesses.index', compact('mapBusinesses'));
+        return view('businesses.index', compact('mapCenter'));
+    }
+
+    public function map(MapBusinessesRequest $request): JsonResponse
+    {
+        $bounds = $request->validated();
+        $businesses = Business::query()
+            ->where('status', BusinessStatus::Approved)
+            ->whereBetween('lat', [$bounds['south'], $bounds['north']])
+            ->whereBetween('lng', [$bounds['west'], $bounds['east']])
+            ->with('category:id,name')
+            ->orderByRaw("plan = 'featured' DESC")
+            ->orderBy('name')
+            ->limit(201)
+            ->get();
+
+        $truncated = $businesses->count() > 200;
+
+        return response()->json([
+            'data' => $businesses->take(200)->map(fn (Business $business) => [
+                'id' => $business->id,
+                'name' => $business->name,
+                'category' => $business->category?->name,
+                'neighborhood' => $business->neighborhood,
+                'lat' => (float) $business->lat,
+                'lng' => (float) $business->lng,
+                'url' => route('businesses.show', $business),
+                'featured' => $business->plan === BusinessPlan::Featured,
+            ])->values(),
+            'truncated' => $truncated,
+        ]);
     }
 
     public function show(Business $business): View

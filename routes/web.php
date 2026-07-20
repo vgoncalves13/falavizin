@@ -30,6 +30,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/feed', [PostController::class, 'index'])->name('feed.index');
 Route::get('/feed/{post:slug}', [PostController::class, 'show'])->name('feed.show');
 Route::get('/servicos', [BusinessController::class, 'index'])->name('businesses.index');
+Route::get('/servicos/mapa', [BusinessController::class, 'map'])->name('businesses.map');
 Route::get('/servicos/{business:slug}', [BusinessController::class, 'show'])->name('businesses.show');
 Route::get('/categoria/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
 Route::get('/promocoes', [PromotionController::class, 'index'])->name('promotions.index');

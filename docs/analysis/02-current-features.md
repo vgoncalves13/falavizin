@@ -49,7 +49,7 @@
 
 | ID | Funcionalidade | Fluxo, regras e envolvidos | Implementação e telas | Rotas | Status/evidência |
 |---|---|---|---|---|---|
-| F19 | Catálogo e filtros | Busca, categoria, destaque, “aberto agora” e lista/mapa | `BusinessList`; `businesses/index.blade.php` | `/servicos` | **Parcial.** Funciona, mas “aberto agora” carrega tudo em memória (`BusinessList.php:52-66`) |
+| F19 | Catálogo e filtros | Busca, categoria, destaque, “aberto agora” e lista/mapa | `BusinessList`; `BusinessController::map`; `businesses/index.blade.php` | `/servicos`, `/servicos/mapa` | **Parcial.** B018 passou o mapa para endpoint com viewport e teto de 200; “aberto agora” ainda filtra tudo em memória |
 | F20 | Perfil do negócio | Exibe capa, galeria, contato, endereço, horário, mapa e ofertas | `BusinessController::show`; `BusinessPolicy`; `businesses/show.blade.php` | `/servicos/{business:slug}` | **Funcional.** B003 corrigiu o popup e B004 restringiu status não aprovado |
 | F21 | Cadastro/edição manual | Proprietário cadastra e edita dados/fotos | `BusinessForm`, Actions e Requests; views create/edit | `/cadastrar-negocio`, `/meu-negocio/{business}/editar` | **Funcional.** B007 corrigiu horários e B016 unificou regras HTTP/Livewire, Actions e formato de telefones |
 | F22 | Galeria de fotos | Upload, redimensionamento, capa e ordenação básica | `BusinessPhoto`, `PhotoGallery`, Actions | Perfil/formulário | **Funcional.** B013 corrigiu compensação/troca segura e B014 adicionou índice funcional que limita cada negócio a uma capa |
