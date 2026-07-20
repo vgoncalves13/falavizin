@@ -4,7 +4,7 @@
 
 | Verificação em 20/07/2026 | Resultado |
 |---|---|
-| `artisan test --compact` | **224 testes, 487 assertions, todos passando** após B018 |
+| `artisan test --compact` | **225 testes, 494 assertions, todos passando** após B019 |
 | `npm run build` | **Passou**; CSS 103,79 kB (18,75 kB gzip), JS 46,16 kB (17,79 kB gzip) |
 | `composer validate --strict` | **Passou** |
 | `pint --test` | **Falhou** em um arquivo: `tests/Feature/BusinessReviewTest.php` |
@@ -43,7 +43,7 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 |---|---|---|---|---|
 | T13 | Filtro “aberto agora” materializa toda a consulta antes de paginar; cresce em memória/latência | `BusinessList.php:52-66`; `Business.php:127-164` | Para o MVP limitar conjunto ou modelar intervalos consultáveis quando houver volume | M / P1 |
 | T14 | ⚠️ **Quase resolvido.** B017 paginou conta/perfis/interações e B018 moveu o mapa para endpoint validado por viewport com teto de 200. Resta apenas o sitemap carregar todos os registros. | componentes paginados; `BusinessController::map`; `MapBusinessesRequest`; `SitemapController` | Dividir sitemap quando o volume real se aproximar do limite operacional | S / P2 parcial |
-| T15 | Cache da home é fragmentado e invalidado de forma incompleta; a própria view faz três queries fora do cache | `HomeController.php:17-88`; `ModerationController.php:198-206`; `home/index.blade.php:143-147` | Serviço/chaveamento central, tags se cabível, invalidação por evento e remover queries da view | M / P1 |
+| T15 | ✅ **Resolvido na B019.** `HomeCache` concentra dez chaves/TTL; observer pós-commit invalida em mudanças de Post, Business, Promotion, Category e User; estatísticas saíram da Blade. | `HomeCache`; `AppServiceProvider`; `HomeController`; `HomeCacheTest` | Monitorar hit rate e só separar invalidação por agregado se houver pressão real | M / P1 concluída |
 | T16 | Configuração de exemplo contradiz aplicação e ambiente: nome Laravel, locale inglês, SQLite, disco local e mail log | `.env.example:1,7-9,23,30,37-40,50-57`; intenção em `CLAUDE.md` | Tornar `.env.example` executável e seguro para o MVP; documentar variantes | S / P1 |
 | T17 | ⚠️ **Parcialmente resolvido na B014.** O banco agora garante uma poll por post, opção pertencente à poll e uma capa por negócio. Resta apenas `reviews.rating` sem `CHECK` 1–5 para escritas externas. | migration `2026_07_20_150000_*`; `DatabaseConstraintsTest`; migration `create_reviews` | Manter regressões e adicionar `CHECK` de rating quando houver escrita fora da aplicação | XS / P2 |
 | T18 | Estados fixos são inconsistentes: `Promotion` e `Comment` usam strings onde outros models usam enums/casts | `app/Models/Promotion.php`; `app/Models/Comment.php`; projeto usa enums em `app/Enums` | Criar enums/casts e validar em uma camada central | S / P2 |
@@ -71,7 +71,7 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 
 - Actions e Policies existem para operações centrais; controllers em geral são pequenos.
 - Models possuem relacionamentos e scopes legíveis; listas principais usam eager loading.
-- A suíte de 224 testes é uma base forte e roda integralmente no MySQL local.
+- A suíte de 225 testes é uma base forte e roda integralmente no MySQL local.
 - Migrations evitam enum nativo do MySQL e incluem índices nas consultas mais óbvias.
 - Uploads são processados e armazenados pelo Laravel Storage.
 

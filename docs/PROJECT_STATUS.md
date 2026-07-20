@@ -7,7 +7,7 @@
 
 O Hub do Bairro é hoje um portal hiperlocal demonstrável para um bairro: moradores publicam e interagem em um feed; visitantes descobrem negócios, promoções e eventos; comerciantes mantêm perfis; administradores moderam e importam estabelecimentos. O inventário encontrou **12 módulos e 36 capacidades**, das quais **30 têm caminho feliz funcional** e **6 estão parciais ou possuem ressalvas relevantes**.
 
-A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Livewire 4, MySQL, Actions, Policies, migrations e 224 testes compõem uma fundação razoável. Em 20/07/2026, todos os 224 testes/487 assertions e o build frontend passaram; as auditorias Composer e npm também foram zeradas após a B002. Ainda assim, o produto **não deve ir para produção** antes de fechar observabilidade e deploy.
+A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Livewire 4, MySQL, Actions, Policies, migrations e 225 testes compõem uma fundação razoável. Em 20/07/2026, todos os 225 testes/494 assertions e o build frontend passaram; as auditorias Composer e npm também foram zeradas após a B002. Ainda assim, o produto **não deve ir para produção** antes de fechar observabilidade e deploy.
 
 ## O que está utilizável/demonstrável
 
@@ -84,7 +84,7 @@ O backlog completo está em [Backlog priorizado](analysis/09-prioritized-backlog
 
 ## Recomendação para começar hoje
 
-**Próxima tarefa: B019 — centralizar cache e invalidação da home.** A B018 retirou o catálogo do HTML e limitou o mapa por viewport; agora restam queries diretas na Blade e chaves de cache invalidadas de forma desigual.
+**Próxima tarefa: B020 — alinhar `.env.example` ao MVP.** Com cache e invalidação centralizados na B019, o próximo ganho rápido é tornar a configuração de um clone novo coerente com MySQL, fila, storage, locale e e-mail do projeto.
 
 ## Índice da análise
 

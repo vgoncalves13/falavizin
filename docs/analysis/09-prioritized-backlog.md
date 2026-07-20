@@ -22,7 +22,7 @@ Prioridade: P0 bloqueia produção; P1 é necessária ao MVP; P2 é importante; 
 | B016 | Arquitetura | ✅ Unificar fluxos de escrita HTTP e Livewire — concluída em 20/07/2026 | Regras compartilhadas, herança de Request, normalização e Action de edição | refatoração | P1 | L | B005/B007/B015 | 1 | paridade coberta e nenhuma regra duplicada nos formulários de negócio/promoção |
 | B017 | Performance | ✅ Paginar conta, perfis, comentários e reviews — concluída em 20/07/2026 | Cinco páginas da conta, perfil e listas Livewire com métricas globais | melhoria | P1 | M | UX definida | 1 | quatro regressões provam limites e navegação independentes |
 | B018 | Mapas | ✅ Limitar negócios do mapa por viewport/página — concluída em 20/07/2026 | Endpoint validado, teto de 200 e fetch pela área visível com fallback de lista | performance | P1 | M | mapa seguro | 1 | duas regressões provam bounds e limite; build/suíte verdes |
-| B019 | Cache | Centralizar cache e invalidação da home | Remover queries da Blade e chaves esquecidas | refatoração | P1 | M | eventos de domínio | 1 | zero query na view; mutação relevante atualiza seção |
+| B019 | Cache | ✅ Centralizar cache e invalidação da home — concluída em 20/07/2026 | Serviço com dez chaves, stats no controller e observer pós-commit | refatoração | P1 | M | eventos de domínio | 1 | zero Model na Blade; regressão comprova invalidação pós-commit |
 | B020 | Ambiente | Alinhar `.env.example` ao MVP | MySQL, pt_BR, nome, mail, storage e defaults seguros | documentação | P1 | XS | decisão deploy | 1 | clone limpo configura ambiente sem adivinhação |
 | B021 | Engenharia | Criar CI de test, build, Pint e audits | Verificações em toda mudança | infraestrutura | P1 | M | B002 | 1 | PR falha em regressão, estilo ou advisory bloqueador |
 | B022 | Operação | Documentar setup, deploy, worker, backup e restore | Substituir README padrão e criar runbook | documentação | P1 | S | ambiente/infra definidos | 1 | outra pessoa sobe e restaura ambiente seguindo docs |
@@ -47,4 +47,4 @@ Prioridade: P0 bloqueia produção; P1 é necessária ao MVP; P2 é importante; 
 
 ## Ordem imediata
 
-~~B001~~ → ~~B002~~ → ~~B003~~ → ~~B004~~ → ~~B005~~ → ~~B007~~ → ~~B006~~ → ~~B011~~ → ~~B009~~ → ~~B008~~ → ~~B010~~ → ~~B012~~ → ~~B013~~ → ~~B014~~ → ~~B015~~ → ~~B016~~ → ~~B017~~ → ~~B018~~ → **B019**. O bloco crítico inicial está concluído.
+~~B001~~ → ~~B002~~ → ~~B003~~ → ~~B004~~ → ~~B005~~ → ~~B007~~ → ~~B006~~ → ~~B011~~ → ~~B009~~ → ~~B008~~ → ~~B010~~ → ~~B012~~ → ~~B013~~ → ~~B014~~ → ~~B015~~ → ~~B016~~ → ~~B017~~ → ~~B018~~ → ~~B019~~ → **B020**. O bloco crítico inicial está concluído.

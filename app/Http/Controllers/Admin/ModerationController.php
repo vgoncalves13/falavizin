@@ -85,7 +85,7 @@ class ModerationController extends Controller
     public function approveClaim(Business $business, ClaimBusinessAction $action): RedirectResponse
     {
         $action->execute($business, approved: true);
-        $this->clearHomeCache();
+        $this->clearModerationCache();
 
         return redirect()->route('admin.moderation.index')
             ->with('success', 'Reivindicação aprovada.');
@@ -94,7 +94,7 @@ class ModerationController extends Controller
     public function rejectClaim(Business $business, ClaimBusinessAction $action): RedirectResponse
     {
         $action->execute($business, approved: false);
-        $this->clearHomeCache();
+        $this->clearModerationCache();
 
         return redirect()->route('admin.moderation.index')
             ->with('success', 'Reivindicação rejeitada.');
@@ -128,7 +128,7 @@ class ModerationController extends Controller
             },
         };
 
-        $this->clearHomeCache();
+        $this->clearModerationCache();
 
         $count = count($ids);
         $verb = $action === 'approve' ? 'aprovados' : 'rejeitados';
@@ -157,7 +157,7 @@ class ModerationController extends Controller
         };
 
         $this->notifyAuthor($model, $type, 'approved');
-        $this->clearHomeCache();
+        $this->clearModerationCache();
 
         return redirect()->route('admin.moderation.index')
             ->with('success', 'Conteúdo aprovado.');
@@ -182,7 +182,7 @@ class ModerationController extends Controller
         };
 
         $this->notifyAuthor($model, $type, 'rejected');
-        $this->clearHomeCache();
+        $this->clearModerationCache();
 
         return redirect()->route('admin.moderation.index')
             ->with('success', 'Conteúdo rejeitado.');
@@ -221,14 +221,8 @@ class ModerationController extends Controller
         ));
     }
 
-    private function clearHomeCache(): void
+    private function clearModerationCache(): void
     {
-        Cache::forget('home:posts');
-        Cache::forget('home:sponsored_posts');
-        Cache::forget('home:upcoming_events');
-        Cache::forget('home:featured_businesses');
-        Cache::forget('home:promotions');
-        Cache::forget('home:categories');
         Cache::forget('admin:moderation_count');
     }
 }

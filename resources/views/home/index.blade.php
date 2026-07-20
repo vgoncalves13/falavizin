@@ -140,24 +140,19 @@
             </div>
 
             {{-- Live stats --}}
-            @php
-                $heroUsers     = \App\Models\User::count();
-                $heroBusinesses = \App\Models\Business::where('status','approved')->count();
-                $heroPosts     = \App\Models\Post::approved()->count();
-            @endphp
             <div class="h-up4 flex items-center gap-5 flex-wrap" style="padding-top:1.5rem;border-top:1px solid rgba(255,255,255,.08);">
                 <div>
-                    <div style="font-family:var(--font-display);font-size:1.625rem;font-weight:800;color:#fbbf24;line-height:1;">{{ $heroPosts }}</div>
+                    <div style="font-family:var(--font-display);font-size:1.625rem;font-weight:800;color:#fbbf24;line-height:1;">{{ $heroStats['posts'] }}</div>
                     <div style="font-size:.6875rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;margin-top:.2rem;">publicações</div>
                 </div>
                 <div style="width:1px;height:38px;background:rgba(255,255,255,.1);"></div>
                 <div>
-                    <div style="font-family:var(--font-display);font-size:1.625rem;font-weight:800;color:#fbbf24;line-height:1;">{{ $heroBusinesses }}</div>
+                    <div style="font-family:var(--font-display);font-size:1.625rem;font-weight:800;color:#fbbf24;line-height:1;">{{ $heroStats['businesses'] }}</div>
                     <div style="font-size:.6875rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;margin-top:.2rem;">negócios locais</div>
                 </div>
                 <div style="width:1px;height:38px;background:rgba(255,255,255,.1);"></div>
                 <div>
-                    <div style="font-family:var(--font-display);font-size:1.625rem;font-weight:800;color:#fbbf24;line-height:1;">{{ $heroUsers }}</div>
+                    <div style="font-family:var(--font-display);font-size:1.625rem;font-weight:800;color:#fbbf24;line-height:1;">{{ $heroStats['users'] }}</div>
                     <div style="font-size:.6875rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;margin-top:.2rem;">vizinhos</div>
                 </div>
             </div>

@@ -10,7 +10,7 @@
 
 ### Descobrir o bairro
 
-**Atual:** a home apresenta busca, categorias, negócios, promoções, feed e Pulso. O bairro “Jardim América” aparece fixo (`home/index.blade.php:111`), embora existam settings administrativos. Três métricas são consultadas diretamente pela view (`:143-147`).
+**Atual:** a home apresenta busca, categorias, negócios, promoções, feed e Pulso. O bairro “Jardim América” aparece fixo (`home/index.blade.php:111`), embora existam settings administrativos. Desde a B019, as métricas são calculadas no controller, cacheadas e invalidadas pós-commit.
 
 **Melhoria:** usar o bairro configurado em uma única fonte, deixar a busca como ação principal e limitar a home a três blocos prioritários no piloto: acontecimentos, serviços e promoções. Mostrar claramente a data/abrangência do Pulso.
 

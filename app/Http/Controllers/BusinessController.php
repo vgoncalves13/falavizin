@@ -16,7 +16,6 @@ use App\Notifications\PlanUpgradeApprovedNotification;
 use App\Notifications\PlanUpgradeRequestNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\View\View;
@@ -145,8 +144,6 @@ class BusinessController extends Controller
             'plan' => BusinessPlan::Featured,
             'plan_upgrade_requested_at' => null,
         ]);
-
-        Cache::forget('home:featured_businesses');
 
         if ($business->user) {
             $business->user->notify(new PlanUpgradeApprovedNotification($business));
