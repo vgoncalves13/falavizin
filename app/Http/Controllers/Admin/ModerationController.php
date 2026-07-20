@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\ClaimBusinessAction;
 use App\Enums\BusinessStatus;
 use App\Enums\PostStatus;
 use App\Http\Controllers\Controller;
@@ -63,6 +64,12 @@ class ModerationController extends Controller
             ->oldest('plan_upgrade_requested_at')
             ->get();
 
+        $pendingClaims = Business::query()
+            ->whereNotNull('claim_user_id')
+            ->with(['claimUser', 'category'])
+            ->oldest('claim_requested_at')
+            ->get();
+
         return view('admin.moderation.index', compact(
             'pendingPosts',
             'pendingBusinesses',
@@ -71,7 +78,26 @@ class ModerationController extends Controller
             'reportedBusinesses',
             'reportedPromotions',
             'pendingUpgrades',
+            'pendingClaims',
         ));
+    }
+
+    public function approveClaim(Business $business, ClaimBusinessAction $action): RedirectResponse
+    {
+        $action->execute($business, approved: true);
+        $this->clearHomeCache();
+
+        return redirect()->route('admin.moderation.index')
+            ->with('success', 'Reivindicação aprovada.');
+    }
+
+    public function rejectClaim(Business $business, ClaimBusinessAction $action): RedirectResponse
+    {
+        $action->execute($business, approved: false);
+        $this->clearHomeCache();
+
+        return redirect()->route('admin.moderation.index')
+            ->with('success', 'Reivindicação rejeitada.');
     }
 
     public function bulk(Request $request): RedirectResponse

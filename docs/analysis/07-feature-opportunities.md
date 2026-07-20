@@ -7,7 +7,7 @@ As sugestões abaixo partem do código existente; não são apresentadas como im
 | Oportunidade | Problema/público | Fluxo proposto | Dependências | Complexidade | Valor / prioridade / risco |
 |---|---|---|---|---|---|
 | Status e retorno de moderação | Autor não sabe claramente o destino do conteúdo | Conta mostra pendente/aprovado/rejeitado, motivo e ação de corrigir | Moderação segura, notifications | M | Alto / P0 / risco de SLA não cumprido |
-| Verificação assistida de negócio | Claim atual não prova propriedade | Comerciante envia evidência; admin valida; contatos conhecidos podem confirmar | E-mail verificado, auditoria, token seguro | L | Alto / P0 / privacidade e trabalho operacional |
+| Evoluir verificação assistida de negócio | Aprovação manual existe, mas evidência e histórico ainda são externos | Comerciante informa evidência; admin registra motivo e decisão; contato conhecido pode confirmar | Claim B006, auditoria e política operacional | M | Alto / P1 / privacidade e trabalho operacional |
 | Bairro canônico único | Texto livre fragmenta filtros | Admin configura bairro do piloto; endereço/post apontam para entidade/ID | Migração e saneamento | M | Alto / P1 / migração de dados |
 | Operação confiável | Jobs/e-mails falham sem visibilidade | Painel/runbook de fila, retry e alerta; usuário recebe estado recuperável | Fila estabilizada | M | Alto / P0 / alert fatigue |
 | Jornada comercial mínima | Cadastro atual é extenso | Cadastro essencial → preview → completar fotos/horários → publicar | Horários corrigidos na B007 | M | Alto / P1 / dados inicialmente incompletos |

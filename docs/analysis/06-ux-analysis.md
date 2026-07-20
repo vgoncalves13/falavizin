@@ -34,9 +34,9 @@
 
 ### Cadastrar ou reivindicar negócio
 
-**Atual:** cadastro Livewire permite dados, horário e fotos; a persistência e períodos noturnos foram corrigidos na B007. Reivindicação envia link ao solicitante e uma view antiga ainda diz “em desenvolvimento”.
+**Atual:** cadastro Livewire permite dados, horário e fotos; a persistência e períodos noturnos foram corrigidos na B007. A B006 substituiu o link inseguro por pedido pendente, estado visível e aprovação/rejeição manual pelo admin.
 
-**Melhoria:** dividir em cadastro essencial e enriquecimento posterior; no claim explicar evidência necessária, estado da análise e canal de suporte. Não apresentar o fluxo atual como verificação de propriedade.
+**Melhoria:** dividir em cadastro essencial e enriquecimento posterior; no claim explicar evidência necessária, prazo esperado, resultado da decisão e canal de suporte.
 
 ### Avaliar e responder
 

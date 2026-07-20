@@ -4,8 +4,8 @@
 
 | Item | Evidência e parte pronta | O que falta | Esforço | Decisão recomendada |
 |---|---|---|---|---|
-| Verificação de e-mail | Rotas, controllers, views e testes existem (`routes/auth.php:38-48`; `tests/Feature/Auth/EmailVerificationTest.php`), mas `User` não implementa `MustVerifyEmail` (`app/Models/User.php:5,13-16`) | Decidir se é obrigatória, ativar contrato/middleware e testar impactos em login, claim e notificações | S | **Finalizar**, sobretudo antes de reivindicar negócios |
-| Reivindicação verificável de negócio | Token, e-mail, confirmação e atribuição existem (`ClaimBusinessController.php:15-41`; `ClaimBusinessAction.php:13-28`) | Provar domínio/telefone/documento ou revisão admin; expirar, tornar token único/hasheado, limitar tentativas e registrar auditoria | L | **Reformular**; o fluxo atual não prova propriedade |
+| Verificação de e-mail | Rotas, controllers, views e testes existem (`routes/auth.php:38-48`; `tests/Feature/Auth/EmailVerificationTest.php`), mas `User` não implementa `MustVerifyEmail` (`app/Models/User.php:5,13-16`) | Decidir se é obrigatória, ativar contrato/middleware e testar impactos em login e notificações | S | **Finalizar** antes do piloto aberto |
+| ✅ Reivindicação manual — concluída na B006 | Pedido pendente, exclusão mútua, rate limit, tela admin, aprovação/rejeição, notificação e testes existem | Definir procedimento/evidência externa, SLA, motivo e trilha de auditoria | L concluído; melhorias M | **Manter** no MVP; evoluir a operação conforme volume |
 | ✅ Horário manual — concluído na B007 | Formulário e Actions persistem formato único; migração normaliza legado; model cobre período noturno | Manter testes e validar UX com dados reais | M concluído | **Manter** |
 | Promoções de plano gratuito | `StorePromotionRequest` limita uma por semana (`app/Http/Requests/StorePromotionRequest.php:37-64`) | Aplicar a mesma regra e Policy no fluxo Livewire usado pela UI (`PromotionForm.php:64-90`) | S | **Finalizar**, centralizando a regra |
 | Planos comerciais | Solicitação, aprovação e enum free/featured existem (`BusinessPlanController`; `app/Enums/BusinessPlan.php`) | Definir benefícios, vigência, cancelamento, preço, cobrança e termos | XL | **Manter manual no piloto** e validar demanda antes de pagamento |
@@ -29,7 +29,6 @@
 
 | Artefato | Indício | Recomendação | Esforço |
 |---|---|---|---|
-| `resources/views/businesses/claim.blade.php` | Não há rota que renderize a view; texto diz que o recurso está “em desenvolvimento” | Excluir após confirmar o novo fluxo | XS |
 | `resources/views/dashboard.blade.php` | Nenhuma rota aponta para a dashboard padrão | Excluir | XS |
 | `resources/views/welcome.blade.php` | Home real usa `home/index.blade.php`; view padrão não é roteada | Excluir | XS |
 | Três componentes `⚡notification-bell`/`⚡favorite-button` | Placeholders anônimos sem uso encontrado em `resources/views/components/**` | Excluir após `rg` final | XS |
@@ -47,6 +46,6 @@ O histórico Git mostra ondas de implementação por funcionalidade, mas não su
 
 ## Síntese de esforço
 
-- **Concluir antes de piloto:** claim e jobs: aproximadamente 1–2 semanas de uma pessoa, incluindo testes. Dependências, status público, escopo Livewire e horários já foram corrigidos nas B002–B007.
+- **Concluir antes de piloto:** jobs e operação básica: aproximadamente 2–4 dias, incluindo testes. Dependências, status público, escopo Livewire, claim e horários já foram corrigidos nas B002–B007.
 - **Completar engajamento atual:** reputação, eventos, notificações e moderação: mais 2–4 semanas.
 - **Monetização completa:** só após validação; cobrança e ciclo de assinatura são XL e precisam ser quebrados.

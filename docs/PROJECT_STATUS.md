@@ -1,13 +1,13 @@
 # Estado do projeto — Hub do Bairro
 
 **Atualizado em:** 20/07/2026  
-**Revisão analisada:** `eec07a1`, preservando uma alteração local preexistente em `bootstrap/app.php`.
+**Revisão de base analisada:** `eec07a1`, com estabilizações concluídas até a B006 e preservando uma alteração local preexistente em `bootstrap/app.php`.
 
 ## Resumo executivo
 
-O Hub do Bairro é hoje um portal hiperlocal demonstrável para um bairro: moradores publicam e interagem em um feed; visitantes descobrem negócios, promoções e eventos; comerciantes mantêm perfis; administradores moderam e importam estabelecimentos. O inventário encontrou **12 módulos e 36 capacidades**, das quais **25 têm caminho feliz funcional** e **11 estão parciais ou possuem ressalvas relevantes**.
+O Hub do Bairro é hoje um portal hiperlocal demonstrável para um bairro: moradores publicam e interagem em um feed; visitantes descobrem negócios, promoções e eventos; comerciantes mantêm perfis; administradores moderam e importam estabelecimentos. O inventário encontrou **12 módulos e 36 capacidades**, das quais **26 têm caminho feliz funcional** e **10 estão parciais ou possuem ressalvas relevantes**.
 
-A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Livewire 4, MySQL, Actions, Policies, migrations e 195 testes compõem uma fundação razoável. Em 20/07/2026, todos os 195 testes/406 assertions e o build frontend passaram; as auditorias Composer e npm também foram zeradas após a B002. Ainda assim, o produto **não deve ir para produção** antes de corrigir a reivindicação insegura de negócios e os demais P0 abertos.
+A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Livewire 4, MySQL, Actions, Policies, migrations e 197 testes compõem uma fundação razoável. Em 20/07/2026, todos os 197 testes/413 assertions e o build frontend passaram; as auditorias Composer e npm também foram zeradas após a B002. Ainda assim, o produto **não deve ir para produção** antes de encerrar os P0 operacionais restantes, especialmente credenciais padrão de seed.
 
 ## O que está utilizável/demonstrável
 
@@ -27,7 +27,7 @@ A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Li
 2. ✅ XSS nos popups Leaflet: corrigido na B003 com nós DOM e `textContent`.
 3. ✅ Conteúdo não aprovado em rotas públicas: corrigido na B004; somente autor/proprietário e admin mantêm acesso.
 4. ✅ Escopo/autorização Livewire: corrigidos na B005 para promoção, review, comentário, enquete e negócio.
-5. Claim não comprova propriedade, não expira e não exige e-mail verificado.
+5. ✅ Reivindicação insegura por token: substituída na B006 por solicitação pendente e decisão manual exclusiva do admin.
 6. ✅ Horários manuais e períodos após meia-noite: corrigidos e normalizados na B007.
 7. Pontos não são idempotentes e podem ser acumulados repetidamente.
 8. E-mails são síncronos e operações compostas não são transacionais.
@@ -53,7 +53,7 @@ Ranking, Pulso, patrocínio e planos podem continuar em avaliação/área secund
 
 **Mais maduras:** schema central, autenticação básica, feed no caminho feliz, catálogo/perfil comercial, componentes visuais, moderação básica e suíte de testes.
 
-**Precisam de correção profunda:** claim, pontuação/idempotência e pipeline de integração. **Precisam de definição de produto:** Pulso, ranking, planos Featured e patrocinados.
+**Precisam de correção profunda:** pontuação/idempotência e pipeline de integração. **Precisam de definição de produto:** Pulso, ranking, planos Featured e patrocinados. O claim agora é seguro contra tomada automática, mas ainda precisa de procedimento operacional e auditoria.
 
 ## Cinco maiores oportunidades
 
@@ -73,16 +73,16 @@ Ranking, Pulso, patrocínio e planos podem continuar em avaliação/área secund
 | 4 | B004 | ✅ Restringir conteúdo não aprovado nas rotas públicas — concluída em 20/07/2026 | S |
 | 5 | B005 | ✅ Escopar e reautorizar mutações Livewire — concluída em 20/07/2026 | M |
 | 6 | B007 | ✅ Persistir e normalizar horários de funcionamento — concluída em 20/07/2026 | M |
-| 7 | B006 | Reformular a reivindicação de negócio | L |
-| 8 | B009 | Recuperar jobs de enriquecimento falhos | M |
-| 9 | B011 | Remover senhas padrão de seeds operacionais | S |
+| 7 | B006 | ✅ Substituir reivindicação por aprovação manual do admin — concluída em 20/07/2026 | L |
+| 8 | B011 | Remover senhas padrão de seeds operacionais | S |
+| 9 | B009 | Recuperar jobs de enriquecimento falhos | M |
 | 10 | B010 | Consolidar testes de regressão P0 | M |
 
 O backlog completo está em [Backlog priorizado](analysis/09-prioritized-backlog.md).
 
 ## Recomendação para começar hoje
 
-**Próxima tarefa: B006 — reformular a reivindicação de negócio.** Exige decisão sobre qual evidência comprova propriedade; até isso ser definido, o fluxo atual não deve ser considerado seguro.
+**Próxima tarefa: B011 — remover senhas padrão dos seeds operacionais.** É o P0 restante mais curto e elimina a criação acidental de contas com credenciais conhecidas.
 
 ## Índice da análise
 

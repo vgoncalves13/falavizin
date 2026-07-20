@@ -55,7 +55,7 @@
 | F22 | Galeria de fotos | Upload, redimensionamento, capa e ordenação básica | `BusinessPhoto`, `PhotoGallery`, Actions | Perfil/formulário | **Funcional com ressalvas.** Não há constraint de capa única nem limpeza completa de arquivos |
 | F23 | Favoritar negócio | Usuário alterna favorito e consulta na conta | `FavoriteButton`; pivot `business_user_favorites` | Ação Livewire | **Funcional.** `app/Livewire/Business/FavoriteButton.php`; migration da pivot |
 | F24 | Avaliações e resposta | Uma avaliação por usuário/negócio; proprietário responde | `ReviewSection`; `Review`, Policy | Ação Livewire | **Funcional.** Reviews são resolvidos pela relação do negócio desde a B005 |
-| F25 | Reivindicação | Usuário pede token por e-mail e confirma propriedade | `ClaimBusinessController`, `ClaimBusinessAction`, mail | POST `/servicos/{business}/reivindicar`, GET `/reivindicar/{token}` | **Incompleta/insegura.** Prova o e-mail do solicitante, não vínculo com o negócio; sem expiração (`ClaimBusinessController.php:15-41`) |
+| F25 | Reivindicação | Usuário solicita a posse; o negócio fica pendente até admin aprovar ou rejeitar | `ClaimBusinessController`, `ClaimBusinessAction`, `ModerationController`; tela de moderação | POST `/servicos/{business}/reivindicar`, POST `/admin/reivindicacoes/{business}/{aprovar|rejeitar}` | **Funcional.** B006 removeu token autoaprovável, impede substituição concorrente, limita solicitações e exige decisão de admin; 8 testes cobrem o fluxo (`tests/Feature/ClaimTest.php`) |
 
 ## 7. Promoções e comercial
 
@@ -100,8 +100,8 @@
 
 ## Resumo por status
 
-- **Funcionais no caminho feliz:** F01, F02, F04, F06–F12, F14–F18, F20–F24, F26, F30–F31, F34–F35 (25).
-- **Parciais ou com ressalvas relevantes:** F03, F05, F13, F19, F25, F27–F29, F32–F33, F36 (11).
+- **Funcionais no caminho feliz:** F01, F02, F04, F06–F12, F14–F18, F20–F26, F30–F31, F34–F35 (26).
+- **Parciais ou com ressalvas relevantes:** F03, F05, F13, F19, F27–F29, F32–F33, F36 (10).
 - **Aparentemente abandonadas/não utilizadas:** não contam entre as 36 capacidades; views scaffold e placeholders estão listados em `03-incomplete-features.md`.
 
 Esses números são uma classificação de auditoria, não uma métrica de cobertura ou prontidão comercial.

@@ -2,11 +2,12 @@
 
 namespace Tests\Feature;
 
-use App\Mail\ClaimBusinessMail;
 use App\Models\Business;
 use App\Models\User;
+use App\Notifications\ContentModerationNotification;
+use App\Notifications\NewContentNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class ClaimTest extends TestCase
@@ -15,91 +16,169 @@ class ClaimTest extends TestCase
 
     public function test_guest_cannot_request_claim(): void
     {
-        $business = Business::factory()->create(['claimed' => false]);
+        $business = Business::factory()->create(['claimed' => false, 'user_id' => null]);
 
-        $response = $this->post(route('businesses.claim.request', $business));
-
-        $response->assertRedirect(route('login'));
+        $this->post(route('businesses.claim.request', $business))
+            ->assertRedirect(route('login'));
     }
 
-    public function test_user_can_request_claim(): void
+    public function test_user_can_request_claim_for_admin_review(): void
     {
-        Mail::fake();
+        Notification::fake();
 
         $user = User::factory()->create();
-        $business = Business::factory()->create(['claimed' => false]);
+        $admin = User::factory()->create(['is_admin' => true]);
+        $business = Business::factory()->create(['claimed' => false, 'user_id' => null]);
 
-        $response = $this->actingAs($user)->post(route('businesses.claim.request', $business));
+        $this->actingAs($user)
+            ->post(route('businesses.claim.request', $business))
+            ->assertRedirect(route('businesses.show', $business))
+            ->assertSessionHas('success');
 
-        $response->assertRedirect(route('businesses.show', $business));
-        $response->assertSessionHas('success');
-
-        $this->assertDatabaseMissing('businesses', [
+        $this->assertDatabaseHas('businesses', [
             'id' => $business->id,
-            'claim_token' => null,
+            'claim_user_id' => $user->id,
+            'claimed' => false,
+        ]);
+        $this->assertNotNull($business->fresh()->claim_requested_at);
+        Notification::assertSentTo(
+            $admin,
+            NewContentNotification::class,
+            fn (NewContentNotification $notification): bool => $notification->type === 'claim',
+        );
+    }
+
+    public function test_pending_claim_cannot_be_replaced_by_another_user(): void
+    {
+        $requester = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $business = Business::factory()->create([
+            'claimed' => false,
+            'user_id' => null,
+            'claim_user_id' => $requester->id,
+            'claim_requested_at' => now(),
         ]);
 
-        Mail::assertSent(ClaimBusinessMail::class, function (ClaimBusinessMail $mail) use ($user) {
-            return $mail->hasTo($user->email);
-        });
+        $this->actingAs($otherUser)
+            ->post(route('businesses.claim.request', $business))
+            ->assertSessionHas('error');
+
+        $this->assertDatabaseHas('businesses', [
+            'id' => $business->id,
+            'claim_user_id' => $requester->id,
+        ]);
     }
 
     public function test_already_claimed_business_cannot_be_claimed_again(): void
     {
-        Mail::fake();
-
         $user = User::factory()->create();
         $business = Business::factory()->claimed()->create();
 
-        $response = $this->actingAs($user)->post(route('businesses.claim.request', $business));
+        $this->actingAs($user)
+            ->post(route('businesses.claim.request', $business))
+            ->assertSessionHas('error');
 
-        $response->assertRedirect(route('businesses.show', $business));
-        $response->assertSessionHas('error');
-
-        Mail::assertNothingSent();
+        $this->assertNull($business->fresh()->claim_user_id);
     }
 
-    public function test_guest_cannot_verify_claim(): void
+    public function test_admin_can_approve_claim(): void
     {
-        $business = Business::factory()->create(['claim_token' => 'some-token']);
+        Notification::fake();
 
-        $response = $this->get(route('businesses.claim.verify', 'some-token'));
-
-        $response->assertRedirect(route('login'));
-    }
-
-    public function test_valid_token_claims_business(): void
-    {
-        $user = User::factory()->create();
-        $token = 'valid-claim-token-uuid';
+        $admin = User::factory()->create(['is_admin' => true]);
+        $requester = User::factory()->create();
         $business = Business::factory()->create([
             'claimed' => false,
-            'claim_token' => $token,
             'user_id' => null,
+            'claim_user_id' => $requester->id,
+            'claim_requested_at' => now(),
         ]);
 
-        $response = $this->actingAs($user)->get(route('businesses.claim.verify', $token));
-
-        $response->assertRedirect(route('businesses.show', $business));
-        $response->assertSessionHas('success');
+        $this->actingAs($admin)
+            ->post(route('admin.claims.approve', $business))
+            ->assertRedirect(route('admin.moderation.index'))
+            ->assertSessionHas('success');
 
         $this->assertDatabaseHas('businesses', [
             'id' => $business->id,
-            'user_id' => $user->id,
+            'user_id' => $requester->id,
             'claimed' => true,
-            'claim_token' => null,
+            'claim_user_id' => null,
+            'claim_requested_at' => null,
         ]);
-
         $this->assertNotNull($business->fresh()->claimed_at);
+        Notification::assertSentTo(
+            $requester,
+            ContentModerationNotification::class,
+            fn (ContentModerationNotification $notification): bool => $notification->decision === 'approved',
+        );
     }
 
-    public function test_invalid_token_redirects_to_home(): void
+    public function test_admin_can_reject_claim(): void
+    {
+        Notification::fake();
+
+        $admin = User::factory()->create(['is_admin' => true]);
+        $requester = User::factory()->create();
+        $business = Business::factory()->create([
+            'claimed' => false,
+            'user_id' => null,
+            'claim_user_id' => $requester->id,
+            'claim_requested_at' => now(),
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.claims.reject', $business))
+            ->assertRedirect(route('admin.moderation.index'))
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseHas('businesses', [
+            'id' => $business->id,
+            'user_id' => null,
+            'claimed' => false,
+            'claim_user_id' => null,
+            'claim_requested_at' => null,
+        ]);
+        Notification::assertSentTo(
+            $requester,
+            ContentModerationNotification::class,
+            fn (ContentModerationNotification $notification): bool => $notification->decision === 'rejected',
+        );
+    }
+
+    public function test_non_admin_cannot_moderate_claim(): void
     {
         $user = User::factory()->create();
+        $requester = User::factory()->create();
+        $business = Business::factory()->create([
+            'claimed' => false,
+            'user_id' => null,
+            'claim_user_id' => $requester->id,
+            'claim_requested_at' => now(),
+        ]);
 
-        $response = $this->actingAs($user)->get(route('businesses.claim.verify', 'invalid-token'));
+        $this->actingAs($user)
+            ->post(route('admin.claims.approve', $business))
+            ->assertForbidden();
 
-        $response->assertRedirect(route('home'));
-        $response->assertSessionHas('error');
+        $this->assertFalse($business->fresh()->claimed);
+    }
+
+    public function test_admin_moderation_page_lists_pending_claim(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $requester = User::factory()->create();
+        $business = Business::factory()->create([
+            'claimed' => false,
+            'user_id' => null,
+            'claim_user_id' => $requester->id,
+            'claim_requested_at' => now(),
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.moderation.index'))
+            ->assertOk()
+            ->assertSee($business->name)
+            ->assertSee($requester->email);
     }
 }

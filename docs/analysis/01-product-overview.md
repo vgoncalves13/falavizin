@@ -26,7 +26,7 @@ Não existe papel separado de moderador nem tabela de papéis. A autorização a
 1. Visitante descobre conteúdo pela home, busca, feed ou catálogo.
 2. Usuário cria um post, opcionalmente com imagem, evento ou enquete; o conteúdo nasce pendente e segue para moderação (`app/Actions/CreatePostAction.php:17-57`).
 3. A comunidade comenta, vota, salva, denuncia e acompanha a resolução de problemas (`app/Livewire/Feed/CommentSection.php`; `VoteButtons.php`; `SaveButton.php`).
-4. Um negócio é cadastrado manualmente ou importado do Google Places, recebe fotos/dados e pode ser reivindicado (`app/Actions/CreateBusinessAction.php`; `app/Console/Commands/ImportBusinessesFromGoogle.php`; `app/Actions/ClaimBusinessAction.php`).
+4. Um negócio é cadastrado manualmente ou importado do Google Places, recebe fotos/dados e pode ser reivindicado após aprovação manual de um administrador (`app/Actions/CreateBusinessAction.php`; `app/Console/Commands/ImportBusinessesFromGoogle.php`; `app/Actions/ClaimBusinessAction.php`).
 5. Proprietários publicam promoções e respondem avaliações; administradores controlam destaque e patrocínio (`app/Livewire/Business/PromotionForm.php`; `ReviewSection.php`; `app/Http/Controllers/Admin/BusinessPlanController.php`).
 6. Administradores aprovam/rejeitam conteúdo e tratam denúncias (`app/Http/Controllers/Admin/ModerationController.php`).
 
@@ -48,7 +48,7 @@ A organização segue Models, Actions, Controllers, Form Requests, Policies, Liv
 
 - **Google Places via RapidAPI:** pesquisa, detalhes e fotos (`config/services.php:38-41`; `app/Services/GooglePlacesService.php:10-96`).
 - **OpenStreetMap/Leaflet:** mapa do catálogo e perfil; Leaflet é carregado de CDN (`resources/views/businesses/index.blade.php:75-128`; `resources/views/businesses/show.blade.php:311-353`).
-- **SMTP:** reivindicação e notificações de moderação (`app/Mail/BusinessClaimMail.php`; `app/Notifications`).
+- **SMTP:** recuperação de senha e notificações de moderação/reivindicação (`app/Notifications`).
 - **Google Fonts:** tipografia remota no layout (`resources/views/layouts/app.blade.php:16-24`).
 - **Storage público:** imagens de posts, negócios e promoções.
 

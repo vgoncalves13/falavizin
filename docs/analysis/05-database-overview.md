@@ -29,7 +29,7 @@ Setting (chave/valor global; sem tenant)
 | `posts` | Publicações, imagem, local, status, evento, patrocínio, denúncia e resolução | Migration `create_posts` e migrations `add_*_to_posts`; `app/Models/Post.php` |
 | `comments` | Comentários hierárquicos, status, denúncia e soft delete | `create_comments`, `add_parent_id_to_comments`, `add_reporting_fields_to_comments`; `Comment.php` |
 | `votes` | Voto polimórfico em post/comentário, único por usuário/alvo | `create_votes_table.php:14-23`; `Vote.php` |
-| `businesses` | Perfil comercial, owner opcional, localização, horário JSON, plano/status, claim, denúncia e pedido de upgrade | `create_businesses_table.php`; migrations posteriores; `Business.php` |
+| `businesses` | Perfil comercial, owner opcional, localização, horário JSON, plano/status, solicitante/data de claim, denúncia e pedido de upgrade | `create_businesses_table.php`; migration `2026_07_20_130000_*`; `Business.php` |
 | `business_photos` | Fotos, capa e ordenação | `create_business_photos_table.php`; `BusinessPhoto.php` |
 | `promotions` | Oferta, período, ativo/status, imagem e denúncia | `create_promotions_table.php`; migrations posteriores; `Promotion.php` |
 | `reviews` | Nota 1–5, comentário, resposta do proprietário e timestamps | `create_reviews_table.php`; `Review.php` |
@@ -74,7 +74,7 @@ As migrations seguem a convenção saudável de `string` + enum PHP, não `ENUM`
 | `polls.post_id` não é unique apesar de relação `hasOne` | Múltiplas enquetes por post podem existir no banco | `create_polls_table.php:14-19`; `Post.php:90-93` | Unique em `post_id` após saneamento |
 | `poll_votes` não garante que `option_id` pertence a `poll_id` | Voto semanticamente inconsistente | `create_poll_votes_table.php:14-21` | Validação por relação; modelagem/chave coerente |
 | Capa de negócio sem unicidade | Duas fotos podem ser `is_cover=true` | `create_business_photos_table.php:14-20` | Transação e constraint/estratégia de capa |
-| Claim sem expiração/unique/hash | Token reutilizável/colidível e exposto em claro | `create_businesses_table.php:33-35` | Tabela própria ou campos hash/expiry/attempts |
+| Claim manual sem histórico de decisões | Estado pendente fica no negócio e é limpo ao decidir; não preserva ator, evidência ou motivo | migration `2026_07_20_130000_*`; `ClaimBusinessAction.php` | Criar trilha de auditoria quando a operação exigir histórico |
 | Pontos sem idempotência | Eventos duplicados e total divergente | `create_point_events_table.php`; `AwardPointsAction.php:12-23` | Chave idempotente e reconciliação |
 | Denúncia embutida no conteúdo | Só um reporte corrente, sem histórico/denunciante/decisão | migrations `add_reporting_fields_*`; `ReportContentAction.php` | Tabela `reports` quando moderação exigir histórico |
 | Bairro como texto livre | Variação de grafia impede segmentação confiável | `users.neighborhood`; `businesses.neighborhood`; `posts.location` | Entidade/ID canônico antes de expansão |

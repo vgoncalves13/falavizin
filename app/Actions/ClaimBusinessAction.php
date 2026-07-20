@@ -4,27 +4,31 @@ namespace App\Actions;
 
 use App\Enums\PointEventReason;
 use App\Models\Business;
-use App\Models\User;
-use App\Notifications\BusinessClaimedNotification;
-use Illuminate\Support\Facades\Notification;
+use App\Notifications\ContentModerationNotification;
 
 class ClaimBusinessAction
 {
-    public function execute(Business $business, User $user): void
+    public function execute(Business $business, bool $approved): void
     {
+        $user = $business->claimUser()->firstOrFail();
+
         $business->update([
-            'user_id' => $user->id,
-            'claimed' => true,
-            'claimed_at' => now(),
-            'claim_token' => null,
+            'user_id' => $approved ? $user->id : $business->user_id,
+            'claimed' => $approved,
+            'claimed_at' => $approved ? now() : null,
+            'claim_user_id' => null,
+            'claim_requested_at' => null,
         ]);
 
-        (new AwardPointsAction)->execute($user, PointEventReason::BusinessClaimed, $business);
-
-        $admins = User::where('is_admin', true)->get();
-
-        if ($admins->isNotEmpty()) {
-            Notification::send($admins, new BusinessClaimedNotification($business, $user));
+        if ($approved) {
+            (new AwardPointsAction)->execute($user, PointEventReason::BusinessClaimed, $business);
         }
+
+        $user->notify(new ContentModerationNotification(
+            type: 'business',
+            title: 'Reivindicação de '.$business->name,
+            decision: $approved ? 'approved' : 'rejected',
+            url: $approved ? route('businesses.show', $business) : null,
+        ));
     }
 }

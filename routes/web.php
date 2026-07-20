@@ -55,9 +55,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/meu-negocio/{business}/solicitar-upgrade', [BusinessController::class, 'requestUpgrade'])->name('businesses.upgrade.request');
 
     Route::post('/servicos/{business}/reivindicar', [ClaimBusinessController::class, 'request'])
+        ->middleware('throttle:5,60')
         ->name('businesses.claim.request');
-    Route::get('/reivindicar/{token}', [ClaimBusinessController::class, 'verify'])
-        ->name('businesses.claim.verify');
 
     Route::post('/meu-negocio/{business}/promocoes', [PromotionController::class, 'store'])
         ->name('promotions.store');
@@ -75,6 +74,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/moderacao/em-massa', [ModerationController::class, 'bulk'])->name('moderation.bulk');
     Route::post('/moderacao/{type}/{id}/aprovar', [ModerationController::class, 'approve'])->name('moderation.approve');
     Route::post('/moderacao/{type}/{id}/rejeitar', [ModerationController::class, 'reject'])->name('moderation.reject');
+    Route::post('/reivindicacoes/{business}/aprovar', [ModerationController::class, 'approveClaim'])->name('claims.approve');
+    Route::post('/reivindicacoes/{business}/rejeitar', [ModerationController::class, 'rejectClaim'])->name('claims.reject');
     Route::get('/importar-google-places', GooglePlacesImport::class)->name('google-places-import');
     Route::get('/configuracoes', AppSettings::class)->name('settings');
     Route::get('/estatisticas', [StatsController::class, 'index'])->name('stats');

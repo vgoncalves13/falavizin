@@ -40,7 +40,8 @@ class Business extends Model
         'plan',
         'status',
         'claimed',
-        'claim_token',
+        'claim_user_id',
+        'claim_requested_at',
         'claimed_at',
         'plan_upgrade_requested_at',
         'reported_at',
@@ -55,6 +56,7 @@ class Business extends Model
             'phone' => 'array',
             'opening_hours' => 'array',
             'claimed' => 'boolean',
+            'claim_requested_at' => 'datetime',
             'claimed_at' => 'datetime',
             'plan_upgrade_requested_at' => 'datetime',
             'reported_at' => 'datetime',
@@ -76,6 +78,11 @@ class Business extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function claimUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'claim_user_id');
     }
 
     public function category(): BelongsTo

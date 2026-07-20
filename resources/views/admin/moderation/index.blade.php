@@ -27,10 +27,54 @@
             $totalReported = $reportedPosts->total() + $reportedBusinesses->total() + $reportedPromotions->total();
         @endphp
 
-        @if($totalPending === 0 && $totalReported === 0 && $pendingUpgrades->isEmpty())
+        @if($totalPending === 0 && $totalReported === 0 && $pendingUpgrades->isEmpty() && $pendingClaims->isEmpty())
             <div class="bg-white rounded-xl border border-stone-200 p-10 text-center">
                 <x-heroicon-o-shield-check class="w-10 h-10 text-green-400 mx-auto mb-3" />
                 <p class="text-stone-500">Nenhum conteúdo pendente ou reportado.</p>
+            </div>
+        @endif
+
+        {{-- Reivindicações de negócio --}}
+        @if($pendingClaims->isNotEmpty())
+            <div class="mb-10">
+                <h2 class="text-base font-semibold text-amber-600 uppercase tracking-wide mb-4">
+                    Reivindicações de negócio ({{ $pendingClaims->count() }})
+                </h2>
+                <div class="space-y-2">
+                    @foreach($pendingClaims as $business)
+                        <div class="bg-white rounded-xl border border-amber-200 p-4 flex items-start justify-between gap-4">
+                            <div class="min-w-0">
+                                <p class="font-medium text-stone-900">{{ $business->name }}</p>
+                                <p class="text-xs text-stone-500 mt-0.5">
+                                    Solicitante: {{ $business->claimUser->name }} ({{ $business->claimUser->email }})
+                                </p>
+                                <p class="text-xs text-stone-400 mt-0.5">
+                                    {{ $business->neighborhood }} · Solicitado {{ $business->claim_requested_at->diffForHumans() }}
+                                </p>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <a href="{{ route('businesses.show', $business) }}"
+                                   target="_blank"
+                                   class="px-3 py-1.5 text-stone-600 bg-stone-100 hover:bg-stone-200 text-xs font-medium rounded-lg transition-colors inline-flex items-center gap-1">
+                                    <x-heroicon-o-arrow-top-right-on-square class="w-3.5 h-3.5" />
+                                    Ver
+                                </a>
+                                <form action="{{ route('admin.claims.approve', $business) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-xs font-medium rounded-lg transition-colors">
+                                        Aprovar
+                                    </button>
+                                </form>
+                                <form action="{{ route('admin.claims.reject', $business) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-xs font-medium rounded-lg transition-colors">
+                                        Rejeitar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
             </div>
         @endif
 

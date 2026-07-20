@@ -4,7 +4,7 @@
 
 | Verificação em 20/07/2026 | Resultado |
 |---|---|
-| `artisan test --compact` | **195 testes, 406 assertions, todos passando** após B007 |
+| `artisan test --compact` | **197 testes, 413 assertions, todos passando** após B006 |
 | `npm run build` | **Passou**; CSS 103,79 kB (18,75 kB gzip), JS 37,17 kB (14,87 kB gzip) |
 | `composer validate --strict` | **Passou** |
 | `pint --test` | **Falhou** em um arquivo: `tests/Feature/BusinessReviewTest.php` |
@@ -23,13 +23,13 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 | T02 | ✅ **Resolvido em 20/07/2026.** Popups Leaflet interpolavam nome, categoria e bairro em HTML. | Correção em `resources/views/businesses/index.blade.php` e `show.blade.php`; regressão em `tests/Feature/BusinessTest.php` | Manter conteúdo dinâmico em nós DOM com `textContent` | S / P0 concluída |
 | T03 | ✅ **Resolvido em 20/07/2026.** Conteúdo pendente/rejeitado era acessível por URL pública. | `PostPolicy::view`, `BusinessPolicy::view` e autorização nos métodos `show`; regressões em `PostTest`/`BusinessTest` | Manter exceção somente para autor/proprietário e admin | S / P0 concluída |
 | T04 | ✅ **Resolvido em 20/07/2026.** Mutações Livewire aceitavam IDs não escopados e `BusinessForm::save` não reautorizava update. | Componentes `PromotionForm`, `ReviewSection`, `CommentSection`, `PollVote`, `BusinessForm`; seis regressões nos testes Feature | Manter autorização no momento da mutação e resolver filhos pela relação pai | M / P0 concluída |
-| T05 | **Credencial externa exposta durante a inspeção do ambiente.** Um valor configurado foi exibido por ferramenta de diagnóstico. O valor não está reproduzido nestes documentos. | Configuração `config/services.php:38-41`; incidente operacional da sessão de auditoria | Revogar/rotacionar a chave RapidAPI imediatamente, revisar uso/quota e garantir mascaramento de diagnósticos | XS / P0 |
+| T05 | ✅ **Resolvido pelo responsável em 20/07/2026.** A credencial RapidAPI exposta durante o diagnóstico foi rotacionada; o valor nunca foi reproduzido nestes documentos. | Configuração `config/services.php:38-41`; confirmação operacional do responsável | Manter escopo/quota mínimos e mascarar diagnósticos | XS / P0 concluída |
 
 ## Problemas de severidade alta
 
 | ID | Descrição e impacto | Arquivos/evidência | Recomendação | Esforço / prioridade |
 |---|---|---|---|---|
-| T06 | Reivindicação não comprova propriedade: o token vai ao próprio solicitante, não ao contato conhecido do estabelecimento; não expira, não é único/hasheado e e-mail nem é verificado | `ClaimBusinessController.php:15-41`; `ClaimBusinessAction.php:13-28`; migration de businesses `:33-35`; `User.php:5` | Exigir verificação forte ou aprovação admin; token expirável, único, hasheado; rate limit e auditoria | L / P0 |
+| T06 | ✅ **Resolvido em 20/07/2026.** O token autoaprovável foi removido; claim agora cria pedido único pendente, tem rate limit e só um admin pode aprovar/rejeitar. | `ClaimBusinessController`; `ClaimBusinessAction`; `ModerationController`; migration `2026_07_20_130000_*`; `ClaimTest` | Documentar evidência operacional, SLA e adicionar trilha/motivo quando houver volume | L / P0 concluída |
 | T07 | ✅ **Resolvido em 20/07/2026.** Horários do formulário não eram gravados e seed/dados usavam formato legado. | Actions, `Business::isOpenNow`, `DatabaseSeeder` e migration `2026_07_20_120000_*`; regressões em `BusinessTest` | Manter formato estruturado e migration aplicada | M / P0 concluída |
 | T08 | Pontuação não idempotente: remover e recolocar voto útil pode premiar repetidamente; total desnormalizado pode divergir | `VoteButtons.php:35-63`; `AwardPointsAction.php:12-23`; migration de `point_events` sem chave idempotente | Chave única por razão/origem/beneficiário, transação e comando de reconciliação | M / P1 |
 | T09 | E-mails e notificações são síncronos apesar de usarem `Queueable`; falha externa pode degradar request e deixar operação parcialmente concluída | `NewContentNotification.php:9-20`; `ContentModerationNotification.php:9-22`; `ClaimBusinessController.php:22-25` | Implementar `ShouldQueue`, after-commit, retry/backoff e monitoramento | M / P1 |
@@ -45,11 +45,11 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 | T14 | Consultas sem limite/paginação em conta, perfil público, comentários, reviews, sitemap e pontos do mapa | `ProfileController.php:14-24`; `UserProfileController.php:12-27`; `CommentSection.php:207-225`; `ReviewSection.php:123-135`; `SitemapController.php:16-28`; `BusinessController.php:24-39` | Paginar/cursor, limitar mapa por viewport e dividir sitemap | M / P1 |
 | T15 | Cache da home é fragmentado e invalidado de forma incompleta; a própria view faz três queries fora do cache | `HomeController.php:17-88`; `ModerationController.php:198-206`; `home/index.blade.php:143-147` | Serviço/chaveamento central, tags se cabível, invalidação por evento e remover queries da view | M / P1 |
 | T16 | Configuração de exemplo contradiz aplicação e ambiente: nome Laravel, locale inglês, SQLite, disco local e mail log | `.env.example:1,7-9,23,30,37-40,50-57`; intenção em `CLAUDE.md` | Tornar `.env.example` executável e seguro para o MVP; documentar variantes | S / P1 |
-| T17 | Integridade de banco insuficiente: poll 1:1 sem unique; voto aceita opção de outra poll; capa de foto não é única; claim sem unique/expiry; rating sem check | migrations `create_polls`, `create_poll_votes`, `create_business_photos`, `create_businesses`, `create_reviews` | Adicionar constraints após saneamento; manter validação de aplicação | M / P1 |
+| T17 | Integridade de banco insuficiente: poll 1:1 sem unique; voto aceita opção de outra poll; capa de foto não é única; rating não tem check | migrations `create_polls`, `create_poll_votes`, `create_business_photos`, `create_reviews` | Adicionar constraints após saneamento; manter validação de aplicação | M / P1 |
 | T18 | Estados fixos são inconsistentes: `Promotion` e `Comment` usam strings onde outros models usam enums/casts | `app/Models/Promotion.php`; `app/Models/Comment.php`; projeto usa enums em `app/Enums` | Criar enums/casts e validar em uma camada central | S / P2 |
 | T19 | Serviço Google pede field mask `*`, sem timeout/retry consistente; UI enriquece e CLI não, produzindo resultados diferentes | `GooglePlacesService.php:15-25,73-96`; `GooglePlacesImport.php:111-121`; `ImportBusinessesFromGoogle.php:82-92` | Pedir só campos usados; padronizar pipeline, timeout, retry e quota | M / P1 |
 | T20 | Não há trilha de auditoria para moderação, plano, patrocínio, configurações ou claim; notifications não substituem histórico imutável | Controllers em `app/Http/Controllers/Admin`; `ClaimBusinessAction.php` | Registrar ator, ação, alvo, antes/depois e motivo | M / P2 |
-| T21 | Rate limits cobrem posts/comentários/votos/denúncias, mas não reviews, respostas, claims, favoritos, salvos ou upgrades | componentes Livewire correspondentes | Limitar operações de abuso por usuário/IP e testar | S / P1 |
+| T21 | Rate limits cobrem posts/comentários/votos/denúncias e claims, mas não reviews, respostas, favoritos, salvos ou upgrades | componentes Livewire correspondentes; rota `businesses.claim.request` | Limitar operações de abuso por usuário/IP e testar | S / P1 |
 | T22 | Verificação de e-mail é uma promessa de UI não aplicada ao model | `routes/auth.php:38-48`; `User.php:5,13-16` | Decidir e alinhar contrato, middleware, UI e testes | S / P1 |
 | T23 | SQL específico de MySQL (`YEARWEEK`, expressão de tendência) conflita com `.env.example` SQLite e reduz portabilidade | `StatsController.php:39-56`; `FeedList.php:49-51`; `.env.example:23` | Assumir/documentar MySQL ou encapsular dialeto; não fingir suporte a SQLite | XS / P2 |
 | T24 | `trustProxies('*')` está na alteração local preexistente e confia em qualquer proxy; perigoso se app puder ser acessado diretamente | `bootstrap/app.php:18` | Validar topologia e restringir proxies/headers confiáveis | XS / P1 |
@@ -71,7 +71,7 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 
 - Actions e Policies existem para operações centrais; controllers em geral são pequenos.
 - Models possuem relacionamentos e scopes legíveis; listas principais usam eager loading.
-- A suíte de 195 testes é uma base forte e roda integralmente no MySQL local.
+- A suíte de 197 testes é uma base forte e roda integralmente no MySQL local.
 - Migrations evitam enum nativo do MySQL e incluem índices nas consultas mais óbvias.
 - Uploads são processados e armazenados pelo Laravel Storage.
 
@@ -83,7 +83,7 @@ Criação/edição de negócios e promoções possuem caminho HTTP com Form Requ
 
 Formato: localização → corte → substituição mínima.
 
-- `resources/views/welcome.blade.php`, `dashboard.blade.php`, `businesses/claim.blade.php` → apagar views sem rota → nenhuma substituição.
+- `resources/views/welcome.blade.php`, `dashboard.blade.php` → apagar views sem rota → nenhuma substituição. A antiga `businesses/claim.blade.php` foi removida na B006.
 - `resources/views/components/**/⚡*.blade.php` → apagar três placeholders não usados → usar os componentes Livewire de classe já existentes.
 - `resources/views/vendor/pagination/*` → manter apenas o template efetivamente renderizado → paginação Tailwind/Livewire padrão.
 - `app/Http/Requests/StorePostRequest.php` → apagar se o fluxo continuar exclusivamente Livewire → regras no componente/Action escolhidos.
@@ -97,4 +97,4 @@ Formato: localização → corte → substituição mínima.
 
 ## Testes e cobertura
 
-Os testes atuais provam muitos caminhos felizes, Policies e validações. Não há número de cobertura disponível. As maiores lacunas são idempotência de pontos, claim, jobs/retries, cache, limpeza de arquivos e acessibilidade. A aprovação de produção deve exigir esses testes, não apenas manter os 195 atuais verdes.
+Os testes atuais provam muitos caminhos felizes, Policies e validações. Não há número de cobertura disponível. As maiores lacunas são idempotência de pontos, jobs/retries, cache, limpeza de arquivos e acessibilidade. O claim possui cobertura positiva e negativa dedicada. A aprovação de produção deve exigir testes dos riscos restantes, não apenas manter os 197 atuais verdes.

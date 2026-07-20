@@ -7,20 +7,21 @@
 | Item | Objetivo e escopo | Dependências | Pri. / esforço | Riscos | Critério de aceite | Resultado esperado |
 |---|---|---|---|---|---|---|
 | ✅ Rotacionar credencial RapidAPI — concluído em 20/07/2026 | Revogar a credencial exposta na sessão, criar outra com menor privilégio/quota e verificar secrets | Acesso à conta RapidAPI | P0 / XS | Interromper importação temporariamente | Chave antiga inválida; nova não aparece em logs/config output; chamada controlada passa | Incidente contido |
-| ✅ Corrigir vulnerabilidades conhecidas — concluído em 20/07/2026 | Atualizar locks dentro de versões compatíveis; revisar Laravel/Symfony/Guzzle/Axios/Vite/transitivas | Backup/branch e suíte atual verde | P0 / M | Regressões de patch | Audits zerados; 195 testes e build passam | Base atualizável e segura |
+| ✅ Corrigir vulnerabilidades conhecidas — concluído em 20/07/2026 | Atualizar locks dentro de versões compatíveis; revisar Laravel/Symfony/Guzzle/Axios/Vite/transitivas | Backup/branch e suíte atual verde | P0 / M | Regressões de patch | Audits zerados; suíte e build passam | Base atualizável e segura |
 | ✅ Fechar exposição pública e XSS — concluído nas B003/B004 | Restringir status e construir popups sem HTML inseguro | Testes de status e payload malicioso | P0 / S | Bloquear autor/admin indevidamente | Popup é texto inerte; visitante é bloqueado em não aprovados | Conteúdo moderado protegido |
 | ✅ Corrigir escopo Livewire — concluído na B005 | Reautorizar BusinessForm/Promotion e buscar review/comment/poll option pela relação pai | Policies existentes | P0 / M | Quebrar interações legítimas | Seis regressões negativas e suíte completa passam | Integridade/autorização restauradas |
 | ✅ Estabilizar horários — concluído na B007 | Persistir formato único, corrigir seed/dados e períodos noturnos | Schema JSON atual | P0 / M | Saneamento incorreto | Migration aplicada; CRUD e horários noturnos testados | Catálogo confiável |
+| ✅ Substituir claim por aprovação manual — concluído na B006 | Pedido pendente, exclusão mútua, rate limit, decisão admin e notificação | Decisão operacional do responsável | P0 / L | Fricção e carga administrativa | Solicitante não assume negócio sem decisão admin; 8 testes passam | Tomada automática eliminada |
 | Diagnosticar fila de enriquecimento | Inspecionar nove falhas, corrigir causa, retry seguro e registrar runbook | Chave rotacionada e serviço disponível | P1 / M | Quota e duplicação | Zero falhas sem triagem; retry é idempotente; erro gera evidência acionável | Importação operável |
 
 ## Fase 1 — Limpeza e base técnica
 
 | Item | Objetivo e escopo | Dependências | Pri. / esforço | Riscos | Critério de aceite | Resultado esperado |
 |---|---|---|---|---|---|---|
-| Reformular claim | E-mail verificado, prova/aprovação, token hash/expiry/unique, rate limit e auditoria | Fase 0, decisão operacional | P0 / L | Fricção e LGPD | Usuário sem evidência não assume negócio; tokens expiram/não reutilizam | Propriedade confiável |
+| Formalizar operação do claim manual | Definir evidência, motivo, SLA e trilha de decisão sobre o fluxo entregue na B006 | Operador de moderação definido | P1 / M | Fricção e LGPD | Cada decisão futura registra ator, data e motivo; procedimento é documentado | Propriedade auditável |
 | Transações e idempotência | Envolver post/claim/pontos/fotos; notificar after-commit; limpar arquivos em falha | Testes de falha | P1 / L | Locks/duplicação | Falha injetada não deixa dados/arquivos parciais; pontos reconciliam | Consistência operacional |
 | Centralizar regras duplicadas | Action/Policy única para negócio e promoção; remover drift HTTP/Livewire | Decisão sobre UI canônica | P1 / L | Refactor amplo | Mesma regra em qualquer entrada e testes compartilhados | Menos código e bugs |
-| Reforçar constraints | Poll/post, opção/poll, capa, claim e checks após saneamento | Backup e queries de diagnóstico | P1 / M | Dados existentes inválidos | Migrations reversíveis e constraints bloqueiam casos inválidos | Integridade no banco |
+| Reforçar constraints | Poll/post, opção/poll, capa e checks após saneamento | Backup e queries de diagnóstico | P1 / M | Dados existentes inválidos | Migrations reversíveis e constraints bloqueiam casos inválidos | Integridade no banco |
 | Colocar notificações em fila | `ShouldQueue`, after-commit, retry/backoff e preferências mínimas | Worker confiável | P1 / M | Atraso/duplicata | Request não depende de SMTP; falha é reprocessável | UX resiliente |
 | Paginação/cache/consultas | Paginar coleções, mapa por limite/viewport, remover queries da view e centralizar invalidação | Métricas/query plan | P1 / L | Mudança de UX | Limites explícitos, zero queries em Blade, cache invalida por mutação | Escala básica |
 | Baseline de engenharia | `.env.example`, README, CI, formatter, audit, worker/scheduler/backup | Decisões de deploy | P1 / M | Divergência local/CI | Setup limpo reproduz testes/build; CI verde; runbook testado | Desenvolvimento reproduzível |
@@ -71,7 +72,7 @@
 ## Sequência crítica
 
 ```text
-segredos/dependências → autorização/status/XSS → horários/claim →
+segredos/dependências → autorização/status/XSS → horários/claim manual →
 transações/fila/constraints → jornada moderada + comercial → piloto →
 engajamento medido → monetização → expansão
 ```

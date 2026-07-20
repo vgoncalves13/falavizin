@@ -81,6 +81,7 @@
                                         \App\Models\Post::where('status', 'pending')->count() +
                                         \App\Models\Business::where('status', 'pending')->count() +
                                         \App\Models\Promotion::where('status', 'pending')->count() +
+                                        \App\Models\Business::whereNotNull('claim_user_id')->count() +
                                         \App\Models\Post::whereNotNull('reported_at')->where('status', 'approved')->count() +
                                         \App\Models\Business::whereNotNull('reported_at')->where('status', 'approved')->count() +
                                         \App\Models\Promotion::whereNotNull('reported_at')->where('status', 'approved')->count()
