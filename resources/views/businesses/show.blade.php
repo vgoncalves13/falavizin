@@ -345,9 +345,12 @@
                         className: '',
                     });
 
+                    const popup = document.createElement('strong');
+                    popup.textContent = name;
+
                     L.marker([lat, lng], { icon })
                         .addTo(map)
-                        .bindPopup(`<strong>${name}</strong>`)
+                        .bindPopup(popup)
                         .openPopup();
                 });
             </script>

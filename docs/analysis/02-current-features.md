@@ -50,7 +50,7 @@
 | ID | Funcionalidade | Fluxo, regras e envolvidos | Implementação e telas | Rotas | Status/evidência |
 |---|---|---|---|---|---|
 | F19 | Catálogo e filtros | Busca, categoria, destaque, “aberto agora” e lista/mapa | `BusinessList`; `businesses/index.blade.php` | `/servicos` | **Parcial.** Funciona, mas “aberto agora” carrega tudo em memória (`BusinessList.php:52-66`) |
-| F20 | Perfil do negócio | Exibe capa, galeria, contato, endereço, horário, mapa e ofertas | `BusinessController::show`; `businesses/show.blade.php` | `/servicos/{business:slug}` | **Com possível erro.** Status não é filtrado (`BusinessController.php:45-55`) e popup permite XSS |
+| F20 | Perfil do negócio | Exibe capa, galeria, contato, endereço, horário, mapa e ofertas | `BusinessController::show`; `businesses/show.blade.php` | `/servicos/{business:slug}` | **Com possível erro.** Status não é filtrado (`BusinessController.php:45-55`); o XSS do popup foi corrigido na B003 |
 | F21 | Cadastro/edição manual | Proprietário cadastra e edita dados/fotos | `BusinessForm`, Actions e Requests; views create/edit | `/cadastrar-negocio`, `/meu-negocio/{business}/editar` | **Parcial.** Horários digitados não são persistidos (`BusinessForm.php:118-167`; Actions omitem o campo) |
 | F22 | Galeria de fotos | Upload, redimensionamento, capa e ordenação básica | `BusinessPhoto`, `PhotoGallery`, Actions | Perfil/formulário | **Funcional com ressalvas.** Não há constraint de capa única nem limpeza completa de arquivos |
 | F23 | Favoritar negócio | Usuário alterna favorito e consulta na conta | `FavoriteButton`; pivot `business_user_favorites` | Ação Livewire | **Funcional.** `app/Livewire/Business/FavoriteButton.php`; migration da pivot |

@@ -107,15 +107,27 @@
                 const bounds = [];
 
                 businesses.forEach(b => {
+                    const popup = document.createElement('div');
+                    popup.style.minWidth = '160px';
+
+                    const name = document.createElement('p');
+                    name.style.cssText = 'font-weight:600;font-size:14px;margin:0 0 2px';
+                    name.textContent = b.name;
+
+                    const location = document.createElement('p');
+                    location.style.cssText = 'font-size:12px;color:#78716c;margin:0 0 8px';
+                    location.textContent = `${b.category ?? ''} · ${b.neighborhood}`;
+
+                    const link = document.createElement('a');
+                    link.href = b.url;
+                    link.style.cssText = 'font-size:12px;color:#d97706;font-weight:500';
+                    link.textContent = 'Ver perfil →';
+
+                    popup.append(name, location, link);
+
                     const marker = L.marker([b.lat, b.lng], { icon: makeIcon(b.featured) })
                         .addTo(map)
-                        .bindPopup(`
-                            <div style="min-width:160px">
-                                <p style="font-weight:600;font-size:14px;margin:0 0 2px">${b.name}</p>
-                                <p style="font-size:12px;color:#78716c;margin:0 0 8px">${b.category ?? ''} · ${b.neighborhood}</p>
-                                <a href="${b.url}" style="font-size:12px;color:#d97706;font-weight:500;">Ver perfil →</a>
-                            </div>
-                        `);
+                        .bindPopup(popup);
                     bounds.push([b.lat, b.lng]);
                 });
 

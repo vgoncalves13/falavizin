@@ -30,6 +30,18 @@ class BusinessTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_map_popups_render_business_data_as_text(): void
+    {
+        $indexView = file_get_contents(resource_path('views/businesses/index.blade.php'));
+        $showView = file_get_contents(resource_path('views/businesses/show.blade.php'));
+
+        $this->assertStringContainsString('name.textContent = b.name;', $indexView);
+        $this->assertStringContainsString('location.textContent =', $indexView);
+        $this->assertStringNotContainsString('${b.name}', $indexView);
+        $this->assertStringContainsString('popup.textContent = name;', $showView);
+        $this->assertStringNotContainsString('<strong>${name}</strong>', $showView);
+    }
+
     public function test_create_business_page_requires_authentication(): void
     {
         $response = $this->get(route('businesses.create'));
