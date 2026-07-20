@@ -17,7 +17,7 @@ Prioridade: P0 bloqueia produção; P1 é necessária ao MVP; P2 é importante; 
 | B011 | Seeds | ✅ Remover senhas padrão de seeds operacionais — concluída em 20/07/2026 | Produção semeia só categorias; demo exige senha explícita | segurança | P0 | S | decisão de ambientes | 1 | três regressões passam; produção cria zero usuários demo |
 | B012 | Notificações | ✅ Enfileirar e-mails após commit — concluída em 20/07/2026 | Database síncrono; mail/reset com queue, retry, backoff e timeout | infraestrutura | P1 | M | queue database | 1 | testes provam separação de canais e after-commit; suíte verde |
 | B013 | Dados | ✅ Adicionar transações a operações compostas — concluída em 20/07/2026 | Post, claim, pontos, capas e galeria com transação/compensação | refatoração | P1 | L | B008/B012 | 1 | regressões de falha e troca de arquivos passam; suíte verde |
-| B014 | Banco | Reforçar constraints de polls e fotos | Sanear dados e criar unicidade/integridade | débito técnico | P1 | M | backup; B005 | 1 | banco rejeita relações inválidas |
+| B014 | Banco | ✅ Reforçar constraints de polls e fotos — concluída em 20/07/2026 | Saneamento, unique post/poll, FK composta opção/poll e índice funcional de capa | débito técnico | P1 | M | B005/B013 | 1 | três regressões provam que o banco rejeita relações inválidas |
 | B015 | Promoções | Centralizar Policy e limite semanal | Eliminar divergência Request/Livewire | bug | P1 | S | B005 | 1 | ambos os caminhos aplicam exatamente a mesma regra |
 | B016 | Arquitetura | Unificar fluxos de escrita HTTP e Livewire | Escolher UI canônica e Actions compartilhadas | refatoração | P1 | L | B005/B007/B015 | 1 | não há regras duplicadas entre Request/componente |
 | B017 | Performance | Paginar conta, perfis, comentários e reviews | Evitar carregamento irrestrito | melhoria | P1 | M | UX definida | 1 | páginas têm limites, navegação e queries constantes |
@@ -47,4 +47,4 @@ Prioridade: P0 bloqueia produção; P1 é necessária ao MVP; P2 é importante; 
 
 ## Ordem imediata
 
-~~B001~~ → ~~B002~~ → ~~B003~~ → ~~B004~~ → ~~B005~~ → ~~B007~~ → ~~B006~~ → ~~B011~~ → ~~B009~~ → ~~B008~~ → ~~B010~~ → ~~B012~~ → ~~B013~~ → **B014**. O bloco crítico inicial está concluído.
+~~B001~~ → ~~B002~~ → ~~B003~~ → ~~B004~~ → ~~B005~~ → ~~B007~~ → ~~B006~~ → ~~B011~~ → ~~B009~~ → ~~B008~~ → ~~B010~~ → ~~B012~~ → ~~B013~~ → ~~B014~~ → **B015**. O bloco crítico inicial está concluído.

@@ -71,9 +71,9 @@ As migrations seguem a convenção saudável de `string` + enum PHP, não `ENUM`
 
 | Risco | Impacto | Evidência | Correção sugerida |
 |---|---|---|---|
-| `polls.post_id` não é unique apesar de relação `hasOne` | Múltiplas enquetes por post podem existir no banco | `create_polls_table.php:14-19`; `Post.php:90-93` | Unique em `post_id` após saneamento |
-| `poll_votes` não garante que `option_id` pertence a `poll_id` | Voto semanticamente inconsistente | `create_poll_votes_table.php:14-21` | Validação por relação; modelagem/chave coerente |
-| Capa de negócio sem unicidade | Duas fotos podem ser `is_cover=true` | `create_business_photos_table.php:14-20` | Transação e constraint/estratégia de capa |
+| ✅ Relação post/poll era apenas lógica | B014 saneou duplicatas e criou unique em `polls.post_id` | migration `2026_07_20_150000_*`; `DatabaseConstraintsTest` | Manter a relação `hasOne` e a regressão |
+| ✅ Voto podia apontar para opção de outra poll | B014 removeu inconsistências e criou FK composta `(poll_id, poll_option_id)` | migration `2026_07_20_150000_*`; `DatabaseConstraintsTest` | Manter validação na aplicação e constraint no banco |
+| ✅ Capa de negócio não era única | B014 saneou duplicatas e criou índice funcional único condicionado a `is_cover=1` | migration `2026_07_20_150000_*`; `DatabaseConstraintsTest` | Manter troca de capa dentro de transação |
 | Claim manual sem histórico de decisões | Estado pendente fica no negócio e é limpo ao decidir; não preserva ator, evidência ou motivo | migration `2026_07_20_130000_*`; `ClaimBusinessAction.php` | Criar trilha de auditoria quando a operação exigir histórico |
 | ✅ Pontos tinham duplicação e total divergente | B008 saneou eventos, criou chave única e reconciliou `users.points` | migration `2026_07_20_140000_*`; `AwardPointsAction.php` | Manter regressões e definir regra de negócio do ranking |
 | Denúncia embutida no conteúdo | Só um reporte corrente, sem histórico/denunciante/decisão | migrations `add_reporting_fields_*`; `ReportContentAction.php` | Tabela `reports` quando moderação exigir histórico |

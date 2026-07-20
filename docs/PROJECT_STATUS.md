@@ -1,13 +1,13 @@
 # Estado do projeto — Hub do Bairro
 
 **Atualizado em:** 20/07/2026  
-**Revisão de base analisada:** `eec07a1`, com estabilizações concluídas até a B006 e preservando uma alteração local preexistente em `bootstrap/app.php`.
+**Revisão de base analisada:** `eec07a1`, com estabilizações concluídas até a B014 e preservando uma alteração local preexistente em `bootstrap/app.php`.
 
 ## Resumo executivo
 
 O Hub do Bairro é hoje um portal hiperlocal demonstrável para um bairro: moradores publicam e interagem em um feed; visitantes descobrem negócios, promoções e eventos; comerciantes mantêm perfis; administradores moderam e importam estabelecimentos. O inventário encontrou **12 módulos e 36 capacidades**, das quais **28 têm caminho feliz funcional** e **8 estão parciais ou possuem ressalvas relevantes**.
 
-A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Livewire 4, MySQL, Actions, Policies, migrations e 211 testes compõem uma fundação razoável. Em 20/07/2026, todos os 211 testes/450 assertions e o build frontend passaram; as auditorias Composer e npm também foram zeradas após a B002. Ainda assim, o produto **não deve ir para produção** antes de fechar constraints, observabilidade e deploy.
+A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Livewire 4, MySQL, Actions, Policies, migrations e 214 testes compõem uma fundação razoável. Em 20/07/2026, todos os 214 testes/453 assertions e o build frontend passaram; as auditorias Composer e npm também foram zeradas após a B002. Ainda assim, o produto **não deve ir para produção** antes de fechar observabilidade e deploy.
 
 ## O que está utilizável/demonstrável
 
@@ -33,7 +33,8 @@ A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Li
 8. ✅ Pontos não idempotentes: corrigidos na B008 com chave única, transação e reconciliação dos totais.
 9. ✅ E-mails e operações compostas: fila após commit na B012; transações e compensação de arquivos na B013.
 10. ✅ Nove jobs de enriquecimento falhos: causa 429 identificada, fila recuperada e backoff/timeout corrigidos na B009.
-11. Não há CI, runbook de deploy/backup/worker ou README real do projeto.
+11. ✅ Integridade de enquetes e capas: B014 adicionou unicidade, chave composta e índice funcional após diagnóstico/saneamento.
+12. Não há CI, runbook de deploy/backup/worker ou README real do projeto.
 
 Detalhes, arquivos, severidade e correções: [Auditoria técnica](analysis/04-technical-audit.md).
 
@@ -54,7 +55,7 @@ Ranking, Pulso, patrocínio e planos podem continuar em avaliação/área secund
 
 **Mais maduras:** schema central, autenticação básica, feed no caminho feliz, catálogo/perfil comercial, componentes visuais, moderação básica e suíte de testes.
 
-**Precisam de correção profunda:** constraints restantes e riscos do pipeline externo. **Precisam de definição de produto:** Pulso, ranking, planos Featured e patrocinados. O claim agora é seguro contra tomada automática, mas ainda precisa de procedimento operacional e auditoria.
+**Precisam de correção profunda:** riscos do pipeline externo e operação sem observabilidade/deploy formal. **Precisam de definição de produto:** Pulso, ranking, planos Featured e patrocinados. O claim agora é seguro contra tomada automática, mas ainda precisa de procedimento operacional e auditoria.
 
 ## Cinco maiores oportunidades
 
@@ -83,7 +84,7 @@ O backlog completo está em [Backlog priorizado](analysis/09-prioritized-backlog
 
 ## Recomendação para começar hoje
 
-**Próxima tarefa: B014 — reforçar constraints de polls e fotos.** As Actions agora são atômicas; falta fazer o banco rejeitar relações inválidas mesmo fora da aplicação.
+**Próxima tarefa: B015 — centralizar Policy e limite semanal de promoções.** Hoje os caminhos HTTP e Livewire ainda podem aplicar regras diferentes; a próxima correção deve tornar o limite único e testável.
 
 ## Índice da análise
 

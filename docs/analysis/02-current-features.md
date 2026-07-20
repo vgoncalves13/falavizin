@@ -42,7 +42,7 @@
 | ID | Funcionalidade | Fluxo, regras e envolvidos | Implementação e telas | Rotas | Status/evidência |
 |---|---|---|---|---|---|
 | F16 | Publicação de evento | Post pode receber datas inicial/final | `CreatePost`, campos em `posts` | `/criar-post` | **Funcional básico.** `database/migrations/2026_02_06_163344_add_event_fields_to_posts_table.php` |
-| F17 | Enquetes | Autor cria opções e término; usuário vota uma vez | `PollVote`, `Poll`, `PollOption`, `PollVote` model | Ação Livewire no post | **Funcional.** Opção é validada pela relação da enquete desde a B005 |
+| F17 | Enquetes | Autor cria opções e término; usuário vota uma vez | `PollVote`, `Poll`, `PollOption`, `PollVote` model | Ação Livewire no post | **Funcional.** B005 valida a opção pela relação e B014 garante no banco uma enquete por post e coerência opção/enquete |
 | F18 | Resolução de problemas | Autor/admin altera status de resolução | `ResolutionStatus`; `PostResolutionStatus` | Ação Livewire | **Funcional.** `app/Livewire/Feed/ResolutionStatus.php`; migration `add_resolution_fields_to_posts_table.php` |
 
 ## 6. Negócios e serviços locais
@@ -52,7 +52,7 @@
 | F19 | Catálogo e filtros | Busca, categoria, destaque, “aberto agora” e lista/mapa | `BusinessList`; `businesses/index.blade.php` | `/servicos` | **Parcial.** Funciona, mas “aberto agora” carrega tudo em memória (`BusinessList.php:52-66`) |
 | F20 | Perfil do negócio | Exibe capa, galeria, contato, endereço, horário, mapa e ofertas | `BusinessController::show`; `BusinessPolicy`; `businesses/show.blade.php` | `/servicos/{business:slug}` | **Funcional.** B003 corrigiu o popup e B004 restringiu status não aprovado |
 | F21 | Cadastro/edição manual | Proprietário cadastra e edita dados/fotos | `BusinessForm`, Actions e Requests; views create/edit | `/cadastrar-negocio`, `/meu-negocio/{business}/editar` | **Funcional.** B007 persiste horários, normaliza dados/seed e trata períodos noturnos |
-| F22 | Galeria de fotos | Upload, redimensionamento, capa e ordenação básica | `BusinessPhoto`, `PhotoGallery`, Actions | Perfil/formulário | **Funcional com ressalvas.** B013 corrigiu compensação e troca segura; constraint de capa única ainda é B014 |
+| F22 | Galeria de fotos | Upload, redimensionamento, capa e ordenação básica | `BusinessPhoto`, `PhotoGallery`, Actions | Perfil/formulário | **Funcional.** B013 corrigiu compensação/troca segura e B014 adicionou índice funcional que limita cada negócio a uma capa |
 | F23 | Favoritar negócio | Usuário alterna favorito e consulta na conta | `FavoriteButton`; pivot `business_user_favorites` | Ação Livewire | **Funcional.** `app/Livewire/Business/FavoriteButton.php`; migration da pivot |
 | F24 | Avaliações e resposta | Uma avaliação por usuário/negócio; proprietário responde | `ReviewSection`; `Review`, Policy | Ação Livewire | **Funcional.** Reviews são resolvidos pela relação do negócio desde a B005 |
 | F25 | Reivindicação | Usuário solicita a posse; o negócio fica pendente até admin aprovar ou rejeitar | `ClaimBusinessController`, `ClaimBusinessAction`, `ModerationController`; tela de moderação | POST `/servicos/{business}/reivindicar`, POST `/admin/reivindicacoes/{business}/{aprovar|rejeitar}` | **Funcional.** B006 removeu token autoaprovável, impede substituição concorrente, limita solicitações e exige decisão de admin; 8 testes cobrem o fluxo (`tests/Feature/ClaimTest.php`) |

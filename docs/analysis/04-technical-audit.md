@@ -4,13 +4,13 @@
 
 | Verificação em 20/07/2026 | Resultado |
 |---|---|
-| `artisan test --compact` | **211 testes, 450 assertions, todos passando** após B013 |
+| `artisan test --compact` | **214 testes, 453 assertions, todos passando** após B014 |
 | `npm run build` | **Passou**; CSS 103,79 kB (18,75 kB gzip), JS 37,17 kB (14,87 kB gzip) |
 | `composer validate --strict` | **Passou** |
 | `pint --test` | **Falhou** em um arquivo: `tests/Feature/BusinessReviewTest.php` |
 | `composer audit` | **0 advisories após B002**; baseline: 20 em 11 pacotes |
 | `npm audit` | **0 vulnerabilidades após B002**; baseline: 9, incluindo 2 críticas |
-| Migrations | 41 migrations aplicadas no MySQL local |
+| Migrations | 42 migrations aplicadas no MySQL local |
 | Jobs | **0 falhos e 0 pendentes** após recuperação controlada dos 9 erros HTTP 429 na B009 |
 
 Esses resultados são observações reproduzíveis do ambiente auditado. As versões diretas estão em `composer.json:10-18` e `package.json:12-18`; resoluções transitivas estão nos lockfiles.
@@ -45,7 +45,7 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 | T14 | Consultas sem limite/paginação em conta, perfil público, comentários, reviews, sitemap e pontos do mapa | `ProfileController.php:14-24`; `UserProfileController.php:12-27`; `CommentSection.php:207-225`; `ReviewSection.php:123-135`; `SitemapController.php:16-28`; `BusinessController.php:24-39` | Paginar/cursor, limitar mapa por viewport e dividir sitemap | M / P1 |
 | T15 | Cache da home é fragmentado e invalidado de forma incompleta; a própria view faz três queries fora do cache | `HomeController.php:17-88`; `ModerationController.php:198-206`; `home/index.blade.php:143-147` | Serviço/chaveamento central, tags se cabível, invalidação por evento e remover queries da view | M / P1 |
 | T16 | Configuração de exemplo contradiz aplicação e ambiente: nome Laravel, locale inglês, SQLite, disco local e mail log | `.env.example:1,7-9,23,30,37-40,50-57`; intenção em `CLAUDE.md` | Tornar `.env.example` executável e seguro para o MVP; documentar variantes | S / P1 |
-| T17 | Integridade de banco insuficiente: poll 1:1 sem unique; voto aceita opção de outra poll; capa de foto não é única; rating não tem check | migrations `create_polls`, `create_poll_votes`, `create_business_photos`, `create_reviews` | Adicionar constraints após saneamento; manter validação de aplicação | M / P1 |
+| T17 | ⚠️ **Parcialmente resolvido na B014.** O banco agora garante uma poll por post, opção pertencente à poll e uma capa por negócio. Resta apenas `reviews.rating` sem `CHECK` 1–5 para escritas externas. | migration `2026_07_20_150000_*`; `DatabaseConstraintsTest`; migration `create_reviews` | Manter regressões e adicionar `CHECK` de rating quando houver escrita fora da aplicação | XS / P2 |
 | T18 | Estados fixos são inconsistentes: `Promotion` e `Comment` usam strings onde outros models usam enums/casts | `app/Models/Promotion.php`; `app/Models/Comment.php`; projeto usa enums em `app/Enums` | Criar enums/casts e validar em uma camada central | S / P2 |
 | T19 | Serviço Google ainda pede field mask `*`; UI enriquece e CLI não, e a busca interativa não possui retry, produzindo custo e resultados diferentes | `GooglePlacesService.php`; `GooglePlacesImport.php`; `ImportBusinessesFromGoogle.php` | Pedir só campos usados; padronizar pipeline e tratamento de quota | M / P1 |
 | T20 | Não há trilha de auditoria para moderação, plano, patrocínio, configurações ou claim; notifications não substituem histórico imutável | Controllers em `app/Http/Controllers/Admin`; `ClaimBusinessAction.php` | Registrar ator, ação, alvo, antes/depois e motivo | M / P2 |
@@ -71,7 +71,7 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 
 - Actions e Policies existem para operações centrais; controllers em geral são pequenos.
 - Models possuem relacionamentos e scopes legíveis; listas principais usam eager loading.
-- A suíte de 211 testes é uma base forte e roda integralmente no MySQL local.
+- A suíte de 214 testes é uma base forte e roda integralmente no MySQL local.
 - Migrations evitam enum nativo do MySQL e incluem índices nas consultas mais óbvias.
 - Uploads são processados e armazenados pelo Laravel Storage.
 
