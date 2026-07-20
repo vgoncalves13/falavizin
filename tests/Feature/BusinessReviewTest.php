@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\Business\ReviewSection;
 use App\Models\Business;
 use App\Models\Review;
 use App\Models\User;
@@ -19,7 +20,7 @@ class BusinessReviewTest extends TestCase
         $business = Business::factory()->create();
 
         Livewire::actingAs($user)
-            ->test(\App\Livewire\Business\ReviewSection::class, ['business' => $business])
+            ->test(ReviewSection::class, ['business' => $business])
             ->set('rating', 5)
             ->set('body', 'Excelente serviço!')
             ->call('saveReview')
@@ -39,7 +40,7 @@ class BusinessReviewTest extends TestCase
         $business = Business::factory()->create();
 
         Livewire::actingAs($user)
-            ->test(\App\Livewire\Business\ReviewSection::class, ['business' => $business])
+            ->test(ReviewSection::class, ['business' => $business])
             ->set('rating', 0)
             ->call('saveReview')
             ->assertHasErrors(['rating']);
@@ -52,7 +53,7 @@ class BusinessReviewTest extends TestCase
         Review::create(['user_id' => $user->id, 'business_id' => $business->id, 'rating' => 3, 'body' => 'Ok']);
 
         Livewire::actingAs($user)
-            ->test(\App\Livewire\Business\ReviewSection::class, ['business' => $business])
+            ->test(ReviewSection::class, ['business' => $business])
             ->set('rating', 5)
             ->set('body', 'Melhorou muito!')
             ->call('saveReview')
@@ -69,7 +70,7 @@ class BusinessReviewTest extends TestCase
         $review = Review::create(['user_id' => $user->id, 'business_id' => $business->id, 'rating' => 4]);
 
         Livewire::actingAs($user)
-            ->test(\App\Livewire\Business\ReviewSection::class, ['business' => $business])
+            ->test(ReviewSection::class, ['business' => $business])
             ->call('deleteReview', $review->id);
 
         $this->assertSoftDeleted('reviews', ['id' => $review->id]);
@@ -83,7 +84,7 @@ class BusinessReviewTest extends TestCase
         $review = Review::create(['user_id' => $owner->id, 'business_id' => $business->id, 'rating' => 4]);
 
         Livewire::actingAs($other)
-            ->test(\App\Livewire\Business\ReviewSection::class, ['business' => $business])
+            ->test(ReviewSection::class, ['business' => $business])
             ->call('deleteReview', $review->id)
             ->assertForbidden();
     }
@@ -100,5 +101,23 @@ class BusinessReviewTest extends TestCase
         $this->get(route('businesses.show', $business))
             ->assertOk()
             ->assertSee('3,0');
+    }
+
+    public function test_reviews_are_paginated_without_changing_global_average(): void
+    {
+        $business = Business::factory()->create();
+        User::factory()->count(11)->create()->each(function (User $user) use ($business): void {
+            $business->reviews()->create([
+                'user_id' => $user->id,
+                'rating' => 5,
+            ]);
+        });
+
+        Livewire::test(ReviewSection::class, ['business' => $business])
+            ->set('paginators.reviewsPage', 2)
+            ->assertViewHas('reviews', fn ($reviews) => $reviews->total() === 11
+                && $reviews->count() === 1
+                && $reviews->currentPage() === 2)
+            ->assertViewHas('averageRating', 5.0);
     }
 }

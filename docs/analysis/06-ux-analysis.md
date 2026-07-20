@@ -55,7 +55,7 @@
 | Problema | Evidência/impacto | Recomendação | Severidade UX |
 |---|---|---|---|
 | Filtros Livewire não ficam na URL | `FeedList` e `BusinessList` não usam atributos URL; voltar/compartilhar perde contexto | Sincronizar busca, categoria, ordem e modo | Médio |
-| Conta e perfis crescem sem paginação | `ProfileController.php:14-24`; `UserProfileController.php:12-27` | Tabs com paginação e contagens | Alto em escala |
+| ✅ Conta e perfis cresciam sem paginação | B017 adicionou tabs/contagens e paginadores independentes; regressões em `ProfileTest` e `UserProfileTest` | Observar uso e ajustar tamanho de página | Resolvido para o MVP |
 | Bairro fixo e configuração desconectada | `home/index.blade.php:111`; `Setting.php` | Fonte única e fallback explícito | Alto |
 | Auth visualmente inconsistente | views reset/verify/confirm preservam scaffold enquanto login/register foram personalizados | Unificar layout, idioma e feedback | Médio |
 | Recurso pendente sem jornada clara | status existe, mas não há central de pendências/rejeições | Timeline/status e orientação de correção | Alto |

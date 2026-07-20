@@ -10,13 +10,13 @@
 | F02 | Recuperação e confirmação de senha | Token por e-mail, redefinição e confirmação | Controllers de auth e views correspondentes | `/forgot-password`, `/reset-password/{token}`, `/confirm-password` | **Funcional.** `routes/auth.php:34-57`; testes de auth |
 | F03 | Verificação de e-mail | Scaffold exibe aviso e aceita link | `EmailVerificationPromptController`, `VerifyEmailController` | `/verify-email*` | **Parcial.** Rotas existem (`routes/auth.php:38-48`), mas `User` não implementa `MustVerifyEmail` (`app/Models/User.php:5,13-16`) |
 | F04 | Perfil e exclusão da conta | Usuário altera dados; exclusão desvincula negócios | `ProfileController`; `profile/edit.blade.php` | `/profile` GET/PATCH/DELETE | **Funcional com ressalvas.** `app/Http/Controllers/ProfileController.php:14-70`; não há transação/auditoria |
-| F05 | Minha conta | Agrega posts, negócios, comentários, favoritos e salvos | `ProfileController::account`; `profile/account.blade.php` | `/minha-conta` | **Funcional, pouco escalável.** Carrega coleções sem paginação (`ProfileController.php:14-24`) |
+| F05 | Minha conta | Agrega posts, negócios, comentários, favoritos e salvos | `ProfileController::account`; `profile/account.blade.php` | `/minha-conta` | **Funcional.** B017 adicionou contagens e cinco paginadores independentes com aba preservada na URL |
 
 ## 2. Perfis públicos e descoberta de pessoas
 
 | ID | Funcionalidade | Fluxo, regras e envolvidos | Implementação e telas | Rotas | Status/evidência |
 |---|---|---|---|---|---|
-| F06 | Perfil público | Visitante vê conteúdo aprovado de um usuário | `UserProfileController`; `users/show.blade.php` | `/moradores/{user}` | **Funcional.** `app/Http/Controllers/UserProfileController.php:12-27`; sem paginação |
+| F06 | Perfil público | Visitante vê conteúdo aprovado de um usuário | `UserProfileController`; `users/show.blade.php` | `/u/{user}` | **Funcional.** Posts e negócios aprovados possuem paginação independente desde a B017 |
 
 ## 3. Feed e publicações
 
@@ -32,7 +32,7 @@
 
 | ID | Funcionalidade | Fluxo, regras e envolvidos | Implementação e telas | Rotas | Status/evidência |
 |---|---|---|---|---|---|
-| F12 | Comentários e respostas | Autenticado comenta, responde, edita e exclui; 15 comentários/h | `CommentSection`; `comment-section.blade.php` | Ações Livewire no post | **Funcional.** IDs são escopados aos comentários do post desde a B005 |
+| F12 | Comentários e respostas | Autenticado comenta, responde, edita e exclui; 15 comentários/h | `CommentSection`; `comment-section.blade.php` | Ações Livewire no post | **Funcional.** IDs são escopados desde a B005 e comentários raiz são paginados desde a B017 |
 | F13 | Votos em posts | Único voto por usuário/alvo; alterna útil/não útil | `VoteButtons`; model polimórfico `Vote` | Ação Livewire | **Funcional.** B008 impede que remover/recriar voto útil acumule pontos |
 | F14 | Votos em comentários | Usuário marca comentário útil | `CommentSection::vote` | Ação Livewire | **Funcional.** O comentário é resolvido pela relação do post desde a B005 |
 | F15 | Denúncias | Usuário informa motivo; item recebe `reported_at/by/reason`; limite 5/dia | `ReportModal`; `ReportContentAction` | Ação Livewire | **Funcional.** `app/Livewire/Shared/ReportModal.php`; `app/Actions/ReportContentAction.php` |
@@ -54,7 +54,7 @@
 | F21 | Cadastro/edição manual | Proprietário cadastra e edita dados/fotos | `BusinessForm`, Actions e Requests; views create/edit | `/cadastrar-negocio`, `/meu-negocio/{business}/editar` | **Funcional.** B007 corrigiu horários e B016 unificou regras HTTP/Livewire, Actions e formato de telefones |
 | F22 | Galeria de fotos | Upload, redimensionamento, capa e ordenação básica | `BusinessPhoto`, `PhotoGallery`, Actions | Perfil/formulário | **Funcional.** B013 corrigiu compensação/troca segura e B014 adicionou índice funcional que limita cada negócio a uma capa |
 | F23 | Favoritar negócio | Usuário alterna favorito e consulta na conta | `FavoriteButton`; pivot `business_user_favorites` | Ação Livewire | **Funcional.** `app/Livewire/Business/FavoriteButton.php`; migration da pivot |
-| F24 | Avaliações e resposta | Uma avaliação por usuário/negócio; proprietário responde | `ReviewSection`; `Review`, Policy | Ação Livewire | **Funcional.** Reviews são resolvidos pela relação do negócio desde a B005 |
+| F24 | Avaliações e resposta | Uma avaliação por usuário/negócio; proprietário responde | `ReviewSection`; `Review`, Policy | Ação Livewire | **Funcional.** Reviews são escopados desde a B005; B017 paginou a lista preservando média e total globais |
 | F25 | Reivindicação | Usuário solicita a posse; o negócio fica pendente até admin aprovar ou rejeitar | `ClaimBusinessController`, `ClaimBusinessAction`, `ModerationController`; tela de moderação | POST `/servicos/{business}/reivindicar`, POST `/admin/reivindicacoes/{business}/{aprovar|rejeitar}` | **Funcional.** B006 removeu token autoaprovável, impede substituição concorrente, limita solicitações e exige decisão de admin; 8 testes cobrem o fluxo (`tests/Feature/ClaimTest.php`) |
 
 ## 7. Promoções e comercial
@@ -100,8 +100,8 @@
 
 ## Resumo por status
 
-- **Funcionais no caminho feliz:** F01, F02, F04, F06–F18, F20–F27, F30–F31, F33–F35 (29).
-- **Parciais ou com ressalvas relevantes:** F03, F05, F19, F28–F29, F32, F36 (7).
+- **Funcionais no caminho feliz:** F01–F02, F04–F18, F20–F27, F30–F31, F33–F35 (30).
+- **Parciais ou com ressalvas relevantes:** F03, F19, F28–F29, F32, F36 (6).
 - **Aparentemente abandonadas/não utilizadas:** não contam entre as 36 capacidades; views scaffold e placeholders estão listados em `03-incomplete-features.md`.
 
 Esses números são uma classificação de auditoria, não uma métrica de cobertura ou prontidão comercial.

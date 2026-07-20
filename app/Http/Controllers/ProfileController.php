@@ -13,17 +13,38 @@ class ProfileController extends Controller
 {
     public function account(Request $request): View
     {
-        $user = $request->user()->load([
-            'posts.category',
-            'businesses.category',
-            'comments.post',
-            'favorites.category',
-            'favorites.coverPhoto',
-            'savedPosts.category',
-            'savedPosts.user',
+        $user = $request->user()->loadCount([
+            'posts',
+            'businesses',
+            'comments',
+            'favorites',
+            'savedPosts',
         ]);
 
-        return view('profile.account', compact('user'));
+        $posts = $user->posts()->with('category')->latest()
+            ->paginate(10, ['*'], 'posts_page')->appends(['tab' => 'posts']);
+        $businesses = $user->businesses()->with('category')->latest()
+            ->paginate(10, ['*'], 'businesses_page')->appends(['tab' => 'businesses']);
+        $comments = $user->comments()->with('post')->latest()
+            ->paginate(10, ['*'], 'comments_page')->appends(['tab' => 'comments']);
+        $favorites = $user->favorites()->with(['category', 'coverPhoto'])
+            ->paginate(10, ['*'], 'favorites_page')->appends(['tab' => 'favorites']);
+        $savedPosts = $user->savedPosts()->with(['category', 'user'])
+            ->paginate(10, ['*'], 'saved_page')->appends(['tab' => 'saved']);
+        $requestedTab = $request->string('tab')->value();
+        $activeTab = in_array($requestedTab, ['posts', 'businesses', 'comments', 'favorites', 'saved'], true)
+            ? $requestedTab
+            : 'posts';
+
+        return view('profile.account', compact(
+            'user',
+            'posts',
+            'businesses',
+            'comments',
+            'favorites',
+            'savedPosts',
+            'activeTab',
+        ));
     }
 
     public function edit(Request $request): View

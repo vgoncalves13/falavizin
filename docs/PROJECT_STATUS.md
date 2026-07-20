@@ -5,9 +5,9 @@
 
 ## Resumo executivo
 
-O Hub do Bairro é hoje um portal hiperlocal demonstrável para um bairro: moradores publicam e interagem em um feed; visitantes descobrem negócios, promoções e eventos; comerciantes mantêm perfis; administradores moderam e importam estabelecimentos. O inventário encontrou **12 módulos e 36 capacidades**, das quais **29 têm caminho feliz funcional** e **7 estão parciais ou possuem ressalvas relevantes**.
+O Hub do Bairro é hoje um portal hiperlocal demonstrável para um bairro: moradores publicam e interagem em um feed; visitantes descobrem negócios, promoções e eventos; comerciantes mantêm perfis; administradores moderam e importam estabelecimentos. O inventário encontrou **12 módulos e 36 capacidades**, das quais **30 têm caminho feliz funcional** e **6 estão parciais ou possuem ressalvas relevantes**.
 
-A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Livewire 4, MySQL, Actions, Policies, migrations e 218 testes compõem uma fundação razoável. Em 20/07/2026, todos os 218 testes/468 assertions e o build frontend passaram; as auditorias Composer e npm também foram zeradas após a B002. Ainda assim, o produto **não deve ir para produção** antes de fechar observabilidade e deploy.
+A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Livewire 4, MySQL, Actions, Policies, migrations e 222 testes compõem uma fundação razoável. Em 20/07/2026, todos os 222 testes/477 assertions e o build frontend passaram; as auditorias Composer e npm também foram zeradas após a B002. Ainda assim, o produto **não deve ir para produção** antes de fechar observabilidade e deploy.
 
 ## O que está utilizável/demonstrável
 
@@ -84,7 +84,7 @@ O backlog completo está em [Backlog priorizado](analysis/09-prioritized-backlog
 
 ## Recomendação para começar hoje
 
-**Próxima tarefa: B017 — paginar conta, perfis, comentários e reviews.** Com os fluxos de escrita alinhados na B016, o próximo risco direto do MVP é o carregamento irrestrito de coleções conforme o uso crescer.
+**Próxima tarefa: B018 — limitar negócios do mapa por viewport/página.** A B017 limitou as coleções pessoais e sociais; o mapa ainda serializa todo o catálogo aprovado com coordenadas.
 
 ## Índice da análise
 

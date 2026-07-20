@@ -14,9 +14,12 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\View\View;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class CommentSection extends Component
 {
+    use WithPagination;
+
     public Post $post;
 
     public string $body = '';
@@ -79,6 +82,7 @@ class CommentSection extends Component
         (new AwardPointsAction)->execute(auth()->user(), PointEventReason::CommentCreated, $comment);
 
         $this->body = '';
+        $this->resetPage(pageName: 'commentsPage');
     }
 
     public function startReply(int $commentId): void
@@ -214,10 +218,11 @@ class CommentSection extends Component
             ->whereNull('parent_id')
             ->where('status', 'approved')
             ->latest()
-            ->get();
+            ->paginate(10, pageName: 'commentsPage');
 
         // Collect all comment IDs (top-level + replies) to fetch user votes in one query
-        $allIds = $comments->flatMap(fn ($c) => $c->replies->pluck('id')->prepend($c->id));
+        $allIds = $comments->getCollection()
+            ->flatMap(fn ($comment) => $comment->replies->pluck('id')->prepend($comment->id));
 
         $userVotedIds = auth()->check()
             ? Vote::where('user_id', auth()->id())

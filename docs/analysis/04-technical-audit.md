@@ -4,7 +4,7 @@
 
 | Verificação em 20/07/2026 | Resultado |
 |---|---|
-| `artisan test --compact` | **218 testes, 468 assertions, todos passando** após B016 |
+| `artisan test --compact` | **222 testes, 477 assertions, todos passando** após B017 |
 | `npm run build` | **Passou**; CSS 103,79 kB (18,75 kB gzip), JS 37,17 kB (14,87 kB gzip) |
 | `composer validate --strict` | **Passou** |
 | `pint --test` | **Falhou** em um arquivo: `tests/Feature/BusinessReviewTest.php` |
@@ -42,7 +42,7 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 | ID | Descrição e impacto | Arquivos/evidência | Recomendação | Esforço / prioridade |
 |---|---|---|---|---|
 | T13 | Filtro “aberto agora” materializa toda a consulta antes de paginar; cresce em memória/latência | `BusinessList.php:52-66`; `Business.php:127-164` | Para o MVP limitar conjunto ou modelar intervalos consultáveis quando houver volume | M / P1 |
-| T14 | Consultas sem limite/paginação em conta, perfil público, comentários, reviews, sitemap e pontos do mapa | `ProfileController.php:14-24`; `UserProfileController.php:12-27`; `CommentSection.php:207-225`; `ReviewSection.php:123-135`; `SitemapController.php:16-28`; `BusinessController.php:24-39` | Paginar/cursor, limitar mapa por viewport e dividir sitemap | M / P1 |
+| T14 | ⚠️ **Parcialmente resolvido na B017.** Conta, perfil público, comentários e reviews agora são paginados com métricas globais. Sitemap e pontos do mapa continuam sem limite. | `ProfileController`; `UserProfileController`; `CommentSection`; `ReviewSection`; `SitemapController`; `BusinessController::index` | Limitar mapa por viewport na B018 e dividir sitemap quando o volume exigir | M / P1 parcial |
 | T15 | Cache da home é fragmentado e invalidado de forma incompleta; a própria view faz três queries fora do cache | `HomeController.php:17-88`; `ModerationController.php:198-206`; `home/index.blade.php:143-147` | Serviço/chaveamento central, tags se cabível, invalidação por evento e remover queries da view | M / P1 |
 | T16 | Configuração de exemplo contradiz aplicação e ambiente: nome Laravel, locale inglês, SQLite, disco local e mail log | `.env.example:1,7-9,23,30,37-40,50-57`; intenção em `CLAUDE.md` | Tornar `.env.example` executável e seguro para o MVP; documentar variantes | S / P1 |
 | T17 | ⚠️ **Parcialmente resolvido na B014.** O banco agora garante uma poll por post, opção pertencente à poll e uma capa por negócio. Resta apenas `reviews.rating` sem `CHECK` 1–5 para escritas externas. | migration `2026_07_20_150000_*`; `DatabaseConstraintsTest`; migration `create_reviews` | Manter regressões e adicionar `CHECK` de rating quando houver escrita fora da aplicação | XS / P2 |
@@ -71,7 +71,7 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 
 - Actions e Policies existem para operações centrais; controllers em geral são pequenos.
 - Models possuem relacionamentos e scopes legíveis; listas principais usam eager loading.
-- A suíte de 218 testes é uma base forte e roda integralmente no MySQL local.
+- A suíte de 222 testes é uma base forte e roda integralmente no MySQL local.
 - Migrations evitam enum nativo do MySQL e incluem índices nas consultas mais óbvias.
 - Uploads são processados e armazenados pelo Laravel Storage.
 

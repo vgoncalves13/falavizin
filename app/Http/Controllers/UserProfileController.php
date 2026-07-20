@@ -16,13 +16,15 @@ class UserProfileController extends Controller
             ->withCount(['comments', 'votes'])
             ->where('status', PostStatus::Approved)
             ->latest()
-            ->get();
+            ->paginate(10, ['*'], 'posts_page')
+            ->withQueryString();
 
         $businesses = $user->businesses()
             ->with(['category', 'coverPhoto'])
             ->where('status', BusinessStatus::Approved)
             ->latest()
-            ->get();
+            ->paginate(8, ['*'], 'businesses_page')
+            ->withQueryString();
 
         return view('users.show', compact('user', 'posts', 'businesses'));
     }

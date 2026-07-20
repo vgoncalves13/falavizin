@@ -26,13 +26,13 @@
                 </div>
                 <div class="shrink-0 flex gap-6 text-center">
                     <div>
-                        <p class="text-xl font-bold text-stone-900">{{ $posts->count() }}</p>
-                        <p class="text-xs text-stone-400 mt-0.5">{{ Str::plural('post', $posts->count()) }}</p>
+                        <p class="text-xl font-bold text-stone-900">{{ $posts->total() }}</p>
+                        <p class="text-xs text-stone-400 mt-0.5">{{ Str::plural('post', $posts->total()) }}</p>
                     </div>
-                    @if($businesses->isNotEmpty())
+                    @if($businesses->total() > 0)
                         <div>
-                            <p class="text-xl font-bold text-stone-900">{{ $businesses->count() }}</p>
-                            <p class="text-xs text-stone-400 mt-0.5">{{ Str::plural('negócio', $businesses->count()) }}</p>
+                            <p class="text-xl font-bold text-stone-900">{{ $businesses->total() }}</p>
+                            <p class="text-xs text-stone-400 mt-0.5">{{ Str::plural('negócio', $businesses->total()) }}</p>
                         </div>
                     @endif
                     @if($user->points > 0)
@@ -45,7 +45,7 @@
             </div>
         </div>
 
-        @if($posts->isEmpty() && $businesses->isEmpty())
+        @if($posts->total() === 0 && $businesses->total() === 0)
             <div class="bg-white rounded-xl border border-stone-200 px-6 py-16 text-center">
                 <x-heroicon-o-user class="w-10 h-10 mx-auto mb-3 text-stone-300" />
                 <p class="text-stone-400 text-sm">Este usuário ainda não publicou nada.</p>
@@ -53,7 +53,7 @@
         @else
             <div class="space-y-8">
                 {{-- Negócios --}}
-                @if($businesses->isNotEmpty())
+                @if($businesses->total() > 0)
                     <div>
                         <h2 class="text-base font-semibold text-stone-700 mb-3 flex items-center gap-2">
                             <x-heroicon-o-building-storefront class="w-4 h-4 text-stone-400" />
@@ -64,11 +64,12 @@
                                 <x-business-card :business="$business" />
                             @endforeach
                         </div>
+                        {{ $businesses->links() }}
                     </div>
                 @endif
 
                 {{-- Posts --}}
-                @if($posts->isNotEmpty())
+                @if($posts->total() > 0)
                     <div>
                         <h2 class="text-base font-semibold text-stone-700 mb-3 flex items-center gap-2">
                             <x-heroicon-o-newspaper class="w-4 h-4 text-stone-400" />
@@ -79,6 +80,7 @@
                                 <x-post-card :post="$post" />
                             @endforeach
                         </div>
+                        {{ $posts->links() }}
                     </div>
                 @endif
             </div>

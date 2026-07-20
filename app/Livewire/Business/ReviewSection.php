@@ -7,9 +7,12 @@ use App\Models\Review;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class ReviewSection extends Component
 {
+    use WithPagination;
+
     public Business $business;
 
     public int $rating = 0;
@@ -62,6 +65,8 @@ class ReviewSection extends Component
                 'body' => $this->body ?: null,
             ]);
         }
+
+        $this->resetPage(pageName: 'reviewsPage');
     }
 
     public function startReply(int $reviewId): void
@@ -118,6 +123,8 @@ class ReviewSection extends Component
             $this->rating = 0;
             $this->body = '';
         }
+
+        $this->resetPage(pageName: 'reviewsPage');
     }
 
     public function render(): View
@@ -125,9 +132,9 @@ class ReviewSection extends Component
         $reviews = $this->business->reviews()
             ->with('user')
             ->latest()
-            ->get();
+            ->paginate(10, pageName: 'reviewsPage');
 
-        $averageRating = $reviews->avg('rating');
+        $averageRating = $this->business->reviews()->avg('rating');
         $averageRating = $averageRating ? round($averageRating, 1) : null;
 
         $userReview = $this->userReview();

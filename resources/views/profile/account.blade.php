@@ -37,22 +37,22 @@
             {{-- Estatísticas rápidas --}}
             <div class="mt-5 pt-5 border-t border-stone-100 grid grid-cols-3 gap-4 text-center">
                 <div>
-                    <p class="text-2xl font-bold text-stone-900">{{ $user->posts->count() }}</p>
+                    <p class="text-2xl font-bold text-stone-900">{{ $user->posts_count }}</p>
                     <p class="text-xs text-stone-500 mt-0.5">Posts</p>
                 </div>
                 <div>
-                    <p class="text-2xl font-bold text-stone-900">{{ $user->businesses->count() }}</p>
+                    <p class="text-2xl font-bold text-stone-900">{{ $user->businesses_count }}</p>
                     <p class="text-xs text-stone-500 mt-0.5">Negócios</p>
                 </div>
                 <div>
-                    <p class="text-2xl font-bold text-stone-900">{{ $user->comments->count() }}</p>
+                    <p class="text-2xl font-bold text-stone-900">{{ $user->comments_count }}</p>
                     <p class="text-xs text-stone-500 mt-0.5">Comentários</p>
                 </div>
             </div>
         </div>
 
         {{-- Tabs --}}
-        <div x-data="{ tab: 'posts' }">
+        <div x-data="{ tab: @js($activeTab) }">
             <div class="flex gap-1 bg-white rounded-xl border border-stone-200 p-1 mb-5 overflow-x-auto">
                 <button
                     @click="tab = 'posts'"
@@ -61,7 +61,7 @@
                 >
                     <x-heroicon-o-newspaper class="w-4 h-4" />
                     Meus Posts
-                    <span class="text-xs opacity-75">({{ $user->posts->count() }})</span>
+                    <span class="text-xs opacity-75">({{ $user->posts_count }})</span>
                 </button>
                 <button
                     @click="tab = 'businesses'"
@@ -70,7 +70,7 @@
                 >
                     <x-heroicon-o-building-storefront class="w-4 h-4" />
                     Negócios
-                    <span class="text-xs opacity-75">({{ $user->businesses->count() }})</span>
+                    <span class="text-xs opacity-75">({{ $user->businesses_count }})</span>
                 </button>
                 <button
                     @click="tab = 'favorites'"
@@ -79,7 +79,7 @@
                 >
                     <x-heroicon-o-heart class="w-4 h-4" />
                     Favoritos
-                    <span class="text-xs opacity-75">({{ $user->favorites->count() }})</span>
+                    <span class="text-xs opacity-75">({{ $user->favorites_count }})</span>
                 </button>
                 <button
                     @click="tab = 'comments'"
@@ -88,7 +88,7 @@
                 >
                     <x-heroicon-o-chat-bubble-left class="w-4 h-4" />
                     Comentários
-                    <span class="text-xs opacity-75">({{ $user->comments->count() }})</span>
+                    <span class="text-xs opacity-75">({{ $user->comments_count }})</span>
                 </button>
                 <button
                     @click="tab = 'saved'"
@@ -97,13 +97,13 @@
                 >
                     <x-heroicon-o-bookmark class="w-4 h-4" />
                     Salvos
-                    <span class="text-xs opacity-75">({{ $user->savedPosts->count() }})</span>
+                    <span class="text-xs opacity-75">({{ $user->saved_posts_count }})</span>
                 </button>
             </div>
 
             {{-- Posts --}}
             <div x-show="tab === 'posts'">
-                @if($user->posts->isEmpty())
+                @if($posts->isEmpty())
                     <div class="bg-white rounded-xl border border-stone-200 p-12 text-center">
                         <x-heroicon-o-newspaper class="w-10 h-10 text-stone-300 mx-auto mb-3" />
                         <p class="text-stone-500 text-sm">Você ainda não publicou nenhum post.</p>
@@ -115,7 +115,7 @@
                     </div>
                 @else
                     <div class="space-y-3">
-                        @foreach($user->posts as $post)
+                        @foreach($posts as $post)
                             <div class="bg-white rounded-xl border border-stone-200 p-4 flex items-start justify-between gap-3">
                                 <div class="min-w-0">
                                     <div class="flex items-center gap-2 mb-1 flex-wrap">
@@ -144,12 +144,13 @@
                             </div>
                         @endforeach
                     </div>
+                    {{ $posts->links() }}
                 @endif
             </div>
 
             {{-- Negócios --}}
             <div x-show="tab === 'businesses'" style="display: none;">
-                @if($user->businesses->isEmpty())
+                @if($businesses->isEmpty())
                     <div class="bg-white rounded-xl border border-stone-200 p-12 text-center">
                         <x-heroicon-o-building-storefront class="w-10 h-10 text-stone-300 mx-auto mb-3" />
                         <p class="text-stone-500 text-sm">Você ainda não cadastrou nenhum negócio.</p>
@@ -161,7 +162,7 @@
                     </div>
                 @else
                     <div class="space-y-3">
-                        @foreach($user->businesses as $business)
+                        @foreach($businesses as $business)
                             <div class="bg-white rounded-xl border border-stone-200 p-4 flex items-start justify-between gap-3">
                                 <div class="min-w-0">
                                     <div class="flex items-center gap-2 mb-1 flex-wrap">
@@ -194,12 +195,13 @@
                             </div>
                         @endforeach
                     </div>
+                    {{ $businesses->links() }}
                 @endif
             </div>
 
             {{-- Favoritos --}}
             <div x-show="tab === 'favorites'" style="display: none;">
-                @if($user->favorites->isEmpty())
+                @if($favorites->isEmpty())
                     <div class="bg-white rounded-xl border border-stone-200 p-12 text-center">
                         <x-heroicon-o-heart class="w-10 h-10 text-stone-300 mx-auto mb-3" />
                         <p class="text-stone-500 text-sm">Você ainda não favoritou nenhum negócio.</p>
@@ -210,23 +212,24 @@
                     </div>
                 @else
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        @foreach($user->favorites as $business)
+                        @foreach($favorites as $business)
                             <x-business-card :business="$business" />
                         @endforeach
                     </div>
+                    {{ $favorites->links() }}
                 @endif
             </div>
 
             {{-- Comentários --}}
             <div x-show="tab === 'comments'" style="display: none;">
-                @if($user->comments->isEmpty())
+                @if($comments->isEmpty())
                     <div class="bg-white rounded-xl border border-stone-200 p-12 text-center">
                         <x-heroicon-o-chat-bubble-left class="w-10 h-10 text-stone-300 mx-auto mb-3" />
                         <p class="text-stone-500 text-sm">Você ainda não fez nenhum comentário.</p>
                     </div>
                 @else
                     <div class="space-y-3">
-                        @foreach($user->comments as $comment)
+                        @foreach($comments as $comment)
                             <div class="bg-white rounded-xl border border-stone-200 p-4">
                                 <a href="{{ route('feed.show', $comment->post) }}"
                                    class="text-xs font-medium text-amber-600 hover:text-amber-700 mb-2 inline-block transition-colors">
@@ -238,11 +241,12 @@
                             </div>
                         @endforeach
                     </div>
+                    {{ $comments->links() }}
                 @endif
             </div>
             {{-- Salvos --}}
             <div x-show="tab === 'saved'" style="display: none;">
-                @if($user->savedPosts->isEmpty())
+                @if($savedPosts->isEmpty())
                     <div class="bg-white rounded-xl border border-stone-200 p-12 text-center">
                         <x-heroicon-o-bookmark class="w-10 h-10 text-stone-300 mx-auto mb-3" />
                         <p class="text-stone-500 text-sm">Você ainda não salvou nenhum post.</p>
@@ -253,7 +257,7 @@
                     </div>
                 @else
                     <div class="space-y-3">
-                        @foreach($user->savedPosts as $post)
+                        @foreach($savedPosts as $post)
                             <div class="bg-white rounded-xl border border-stone-200 p-4 flex items-start justify-between gap-3">
                                 <div class="min-w-0">
                                     <div class="flex items-center gap-2 mb-1 flex-wrap">
@@ -274,6 +278,7 @@
                             </div>
                         @endforeach
                     </div>
+                    {{ $savedPosts->links() }}
                 @endif
             </div>
         </div>

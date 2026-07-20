@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Business;
+use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -105,6 +106,20 @@ class ProfileTest extends TestCase
         $this->actingAs($user)
             ->get(route('profile.account'))
             ->assertOk();
+    }
+
+    public function test_account_collections_are_paginated_independently(): void
+    {
+        $user = User::factory()->create();
+        Post::factory()->count(11)->for($user)->create();
+
+        $this->actingAs($user)
+            ->get(route('profile.account', ['tab' => 'posts', 'posts_page' => 2]))
+            ->assertOk()
+            ->assertViewHas('activeTab', 'posts')
+            ->assertViewHas('posts', fn ($posts) => $posts->total() === 11
+                && $posts->count() === 1
+                && $posts->currentPage() === 2);
     }
 
     public function test_guest_cannot_access_account_page(): void

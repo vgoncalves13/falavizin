@@ -168,4 +168,16 @@ class CommentTest extends TestCase
 
         $this->assertSoftDeleted('comments', ['id' => $comment->id]);
     }
+
+    public function test_comments_are_paginated(): void
+    {
+        $post = Post::factory()->create();
+        Comment::factory()->count(11)->create(['post_id' => $post->id, 'parent_id' => null]);
+
+        Livewire::test(CommentSection::class, ['post' => $post])
+            ->set('paginators.commentsPage', 2)
+            ->assertViewHas('comments', fn ($comments) => $comments->total() === 11
+                && $comments->count() === 1
+                && $comments->currentPage() === 2);
+    }
 }

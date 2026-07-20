@@ -62,4 +62,20 @@ class UserProfileTest extends TestCase
             ->assertOk()
             ->assertSee('Copacabana');
     }
+
+    public function test_public_profile_paginates_posts_and_businesses(): void
+    {
+        $user = User::factory()->create();
+        Post::factory()->count(11)->for($user)->create(['status' => PostStatus::Approved]);
+        Business::factory()->count(9)->for($user)->create(['status' => BusinessStatus::Approved]);
+
+        $this->get(route('users.show', [
+            'user' => $user,
+            'posts_page' => 2,
+            'businesses_page' => 2,
+        ]))
+            ->assertOk()
+            ->assertViewHas('posts', fn ($posts) => $posts->total() === 11 && $posts->count() === 1)
+            ->assertViewHas('businesses', fn ($businesses) => $businesses->total() === 9 && $businesses->count() === 1);
+    }
 }

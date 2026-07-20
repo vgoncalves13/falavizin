@@ -14,7 +14,7 @@
                     @endfor
                 </div>
                 <span class="text-sm font-semibold text-stone-800">{{ number_format($averageRating, 1, ',') }}</span>
-                <span class="text-xs text-stone-400">({{ $reviews->count() }} {{ Str::plural('avaliação', $reviews->count()) }})</span>
+                <span class="text-xs text-stone-400">({{ $reviews->total() }} {{ Str::plural('avaliação', $reviews->total()) }})</span>
             </div>
         @else
             <span class="text-sm text-stone-400">Sem avaliações ainda.</span>
@@ -210,5 +210,11 @@
                 </div>
             @endforeach
         </div>
+
+        @if($reviews->hasPages())
+            <div class="mt-5">
+                {{ $reviews->links() }}
+            </div>
+        @endif
     @endif
 </div>

@@ -229,4 +229,10 @@
             <p class="text-sm text-stone-400 text-center py-4">Seja o primeiro a comentar.</p>
         @endforelse
     </div>
+
+    @if($comments->hasPages())
+        <div class="mt-5">
+            {{ $comments->links() }}
+        </div>
+    @endif
 </div>

@@ -20,7 +20,7 @@ Prioridade: P0 bloqueia produção; P1 é necessária ao MVP; P2 é importante; 
 | B014 | Banco | ✅ Reforçar constraints de polls e fotos — concluída em 20/07/2026 | Saneamento, unique post/poll, FK composta opção/poll e índice funcional de capa | débito técnico | P1 | M | B005/B013 | 1 | três regressões provam que o banco rejeita relações inválidas |
 | B015 | Promoções | ✅ Centralizar Policy e limite semanal — concluída em 20/07/2026 | Cooldown único na Action, lock concorrente e mesma Policy nos dois canais | bug | P1 | S | B005 | 1 | HTTP/Livewire bloqueiam free e liberam Featured igualmente |
 | B016 | Arquitetura | ✅ Unificar fluxos de escrita HTTP e Livewire — concluída em 20/07/2026 | Regras compartilhadas, herança de Request, normalização e Action de edição | refatoração | P1 | L | B005/B007/B015 | 1 | paridade coberta e nenhuma regra duplicada nos formulários de negócio/promoção |
-| B017 | Performance | Paginar conta, perfis, comentários e reviews | Evitar carregamento irrestrito | melhoria | P1 | M | UX definida | 1 | páginas têm limites, navegação e queries constantes |
+| B017 | Performance | ✅ Paginar conta, perfis, comentários e reviews — concluída em 20/07/2026 | Cinco páginas da conta, perfil e listas Livewire com métricas globais | melhoria | P1 | M | UX definida | 1 | quatro regressões provam limites e navegação independentes |
 | B018 | Mapas | Limitar negócios do mapa por viewport/página | Não serializar catálogo completo | performance | P1 | M | mapa seguro | 1 | payload tem limite/viewport e fallback de lista |
 | B019 | Cache | Centralizar cache e invalidação da home | Remover queries da Blade e chaves esquecidas | refatoração | P1 | M | eventos de domínio | 1 | zero query na view; mutação relevante atualiza seção |
 | B020 | Ambiente | Alinhar `.env.example` ao MVP | MySQL, pt_BR, nome, mail, storage e defaults seguros | documentação | P1 | XS | decisão deploy | 1 | clone limpo configura ambiente sem adivinhação |
@@ -47,4 +47,4 @@ Prioridade: P0 bloqueia produção; P1 é necessária ao MVP; P2 é importante; 
 
 ## Ordem imediata
 
-~~B001~~ → ~~B002~~ → ~~B003~~ → ~~B004~~ → ~~B005~~ → ~~B007~~ → ~~B006~~ → ~~B011~~ → ~~B009~~ → ~~B008~~ → ~~B010~~ → ~~B012~~ → ~~B013~~ → ~~B014~~ → ~~B015~~ → ~~B016~~ → **B017**. O bloco crítico inicial está concluído.
+~~B001~~ → ~~B002~~ → ~~B003~~ → ~~B004~~ → ~~B005~~ → ~~B007~~ → ~~B006~~ → ~~B011~~ → ~~B009~~ → ~~B008~~ → ~~B010~~ → ~~B012~~ → ~~B013~~ → ~~B014~~ → ~~B015~~ → ~~B016~~ → ~~B017~~ → **B018**. O bloco crítico inicial está concluído.
