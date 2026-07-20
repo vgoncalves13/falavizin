@@ -7,7 +7,7 @@
 
 O Hub do Bairro é hoje um portal hiperlocal demonstrável para um bairro: moradores publicam e interagem em um feed; visitantes descobrem negócios, promoções e eventos; comerciantes mantêm perfis; administradores moderam e importam estabelecimentos. O inventário encontrou **12 módulos e 36 capacidades**, das quais **28 têm caminho feliz funcional** e **8 estão parciais ou possuem ressalvas relevantes**.
 
-A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Livewire 4, MySQL, Actions, Policies, migrations e 204 testes compõem uma fundação razoável. Em 20/07/2026, todos os 204 testes/429 assertions e o build frontend passaram; as auditorias Composer e npm também foram zeradas após a B002. Ainda assim, o produto **não deve ir para produção** antes de fechar operações compostas, observabilidade e deploy.
+A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Livewire 4, MySQL, Actions, Policies, migrations e 206 testes compõem uma fundação razoável. Em 20/07/2026, todos os 206 testes/436 assertions e o build frontend passaram; as auditorias Composer e npm também foram zeradas após a B002. Ainda assim, o produto **não deve ir para produção** antes de fechar operações compostas, observabilidade e deploy.
 
 ## O que está utilizável/demonstrável
 
@@ -31,7 +31,7 @@ A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Li
 6. ✅ Horários manuais e períodos após meia-noite: corrigidos e normalizados na B007.
 7. ✅ Credenciais padrão de seed: removidas na B011; produção cria apenas categorias e demo exige senha explícita.
 8. ✅ Pontos não idempotentes: corrigidos na B008 com chave única, transação e reconciliação dos totais.
-9. E-mails são síncronos e operações compostas não são transacionais.
+9. ✅ E-mails síncronos: movidos na B012 para fila após commit, com retries; operações compostas ainda precisam de transações.
 10. ✅ Nove jobs de enriquecimento falhos: causa 429 identificada, fila recuperada e backoff/timeout corrigidos na B009.
 11. Não há CI, runbook de deploy/backup/worker ou README real do projeto.
 
@@ -83,7 +83,7 @@ O backlog completo está em [Backlog priorizado](analysis/09-prioritized-backlog
 
 ## Recomendação para começar hoje
 
-**Próxima tarefa: B012 — enfileirar e-mails após commit.** A B010 foi encerrada com 94 testes/202 asserções direcionadas; agora é preciso impedir que indisponibilidade SMTP bloqueie ou deixe requests parcialmente concluídos.
+**Próxima tarefa: B013 — adicionar transações às operações compostas.** E-mails já não bloqueiam requests; agora falhas em post, claim e arquivos não devem deixar estado parcial.
 
 ## Índice da análise
 

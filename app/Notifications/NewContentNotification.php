@@ -3,12 +3,13 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class NewContentNotification extends Notification
+class NewContentNotification extends Notification implements ShouldQueueAfterCommit
 {
-    use Queueable;
+    use Queueable, QueuesMailAfterCommit;
 
     public function __construct(
         public string $type,

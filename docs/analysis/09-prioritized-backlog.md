@@ -15,7 +15,7 @@ Prioridade: P0 bloqueia produção; P1 é necessária ao MVP; P2 é importante; 
 | B009 | Integrações | ✅ Recuperar jobs de enriquecimento falhos — concluída em 20/07/2026 | 429 diagnosticado; timeout, lote espaçado, backoff e recuperação individual | infraestrutura | P1 | M | B001 | 0 | zero falhos/pendentes; teste e runbook registrados |
 | B010 | Testes | ✅ Consolidar regressões P0 — concluída em 20/07/2026 | Mapear e executar testes negativos B003–B009 | segurança | P0 | M | B003–B009 | 0 | matriz passa com 94 testes/202 assertions; suíte completa verde |
 | B011 | Seeds | ✅ Remover senhas padrão de seeds operacionais — concluída em 20/07/2026 | Produção semeia só categorias; demo exige senha explícita | segurança | P0 | S | decisão de ambientes | 1 | três regressões passam; produção cria zero usuários demo |
-| B012 | Notificações | Enfileirar e-mails após commit | Implementar queue, retry/backoff e comportamento de falha | infraestrutura | P1 | M | worker estável | 1 | SMTP fora não reverte/bloqueia request; retry funciona |
+| B012 | Notificações | ✅ Enfileirar e-mails após commit — concluída em 20/07/2026 | Database síncrono; mail/reset com queue, retry, backoff e timeout | infraestrutura | P1 | M | queue database | 1 | testes provam separação de canais e after-commit; suíte verde |
 | B013 | Dados | Adicionar transações a operações compostas | Post, claim, pontos e troca de arquivos atômicos | refatoração | P1 | L | testes de falha | 1 | falha injetada não deixa estado parcial |
 | B014 | Banco | Reforçar constraints de polls e fotos | Sanear dados e criar unicidade/integridade | débito técnico | P1 | M | backup; B005 | 1 | banco rejeita relações inválidas |
 | B015 | Promoções | Centralizar Policy e limite semanal | Eliminar divergência Request/Livewire | bug | P1 | S | B005 | 1 | ambos os caminhos aplicam exatamente a mesma regra |
@@ -47,4 +47,4 @@ Prioridade: P0 bloqueia produção; P1 é necessária ao MVP; P2 é importante; 
 
 ## Ordem imediata
 
-~~B001~~ → ~~B002~~ → ~~B003~~ → ~~B004~~ → ~~B005~~ → ~~B007~~ → ~~B006~~ → ~~B011~~ → ~~B009~~ → ~~B008~~ → ~~B010~~ → **B012** → B013. O bloco crítico inicial está concluído.
+~~B001~~ → ~~B002~~ → ~~B003~~ → ~~B004~~ → ~~B005~~ → ~~B007~~ → ~~B006~~ → ~~B011~~ → ~~B009~~ → ~~B008~~ → ~~B010~~ → ~~B012~~ → **B013**. O bloco crítico inicial está concluído.

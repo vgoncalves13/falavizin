@@ -4,12 +4,13 @@ namespace App\Notifications;
 
 use App\Models\Business;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class PlanUpgradeRequestNotification extends Notification
+class PlanUpgradeRequestNotification extends Notification implements ShouldQueueAfterCommit
 {
-    use Queueable;
+    use Queueable, QueuesMailAfterCommit;
 
     public function __construct(public Business $business) {}
 

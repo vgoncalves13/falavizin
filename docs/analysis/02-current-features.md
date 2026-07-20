@@ -77,7 +77,7 @@
 
 | ID | Funcionalidade | Fluxo, regras e envolvidos | Implementação e telas | Rotas | Status/evidência |
 |---|---|---|---|---|---|
-| F32 | Central de notificações | Sino, lista, marcar lida; banco e alguns e-mails | componentes em `app/Livewire/Notifications`; classes em `app/Notifications` | `/notificacoes` | **Parcial.** Canais existem, mas notificações de e-mail são síncronas e sem preferências |
+| F32 | Central de notificações | Sino, lista, marcar lida; banco e alguns e-mails | componentes em `app/Livewire/Notifications`; classes em `app/Notifications` | `/notificacoes` | **Parcial.** B012 enfileirou e-mails após commit; ainda não há preferências nem alerta operacional do worker |
 
 ## 10. Reputação e inteligência comunitária
 
