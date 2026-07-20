@@ -4,12 +4,15 @@ namespace App\Livewire\Business;
 
 use App\Models\Business;
 use App\Models\BusinessPhoto;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use RuntimeException;
+use Throwable;
 
 class PhotoGallery extends Component
 {
@@ -43,22 +46,43 @@ class PhotoGallery extends Component
 
         $manager = new ImageManager(new Driver);
         $nextOrder = ($this->business->photos()->max('sort_order') ?? 0) + 1;
-
-        Storage::disk('public')->makeDirectory('businesses/'.$this->business->id);
+        $preparedPhotos = [];
 
         foreach ($this->newPhotos as $photo) {
-            $ext = $photo->getClientOriginalExtension();
-            $path = 'businesses/'.$this->business->id.'/photo_'.uniqid().'.'.$ext;
-
             $image = $manager->read($photo->getRealPath());
             $image->scaleDown(width: 1200);
-            $image->save(storage_path('app/public/'.$path));
+            $extension = strtolower($photo->getClientOriginalExtension());
 
-            $this->business->photos()->create([
-                'path' => $path,
-                'is_cover' => false,
-                'sort_order' => $nextOrder++,
-            ]);
+            $preparedPhotos[] = [
+                'extension' => $extension,
+                'contents' => (string) $image->encodeByExtension($extension, quality: 85),
+            ];
+        }
+
+        $storedPaths = [];
+
+        try {
+            DB::transaction(function () use ($preparedPhotos, &$storedPaths, &$nextOrder): void {
+                foreach ($preparedPhotos as $photo) {
+                    $path = 'businesses/'.$this->business->id.'/photo_'.uniqid().'.'.$photo['extension'];
+
+                    if (! Storage::disk('public')->put($path, $photo['contents'])) {
+                        throw new RuntimeException('Não foi possível salvar uma foto da galeria.');
+                    }
+
+                    $storedPaths[] = $path;
+
+                    $this->business->photos()->create([
+                        'path' => $path,
+                        'is_cover' => false,
+                        'sort_order' => $nextOrder++,
+                    ]);
+                }
+            });
+        } catch (Throwable $exception) {
+            Storage::disk('public')->delete($storedPaths);
+
+            throw $exception;
         }
 
         $this->newPhotos = [];
@@ -69,8 +93,12 @@ class PhotoGallery extends Component
     {
         Gate::authorize('update', $this->business);
 
-        $this->business->photos()->update(['is_cover' => false]);
-        $this->business->photos()->where('id', $photoId)->update(['is_cover' => true, 'sort_order' => 0]);
+        $photo = $this->business->photos()->findOrFail($photoId);
+
+        DB::transaction(function () use ($photo): void {
+            $this->business->photos()->update(['is_cover' => false]);
+            $photo->update(['is_cover' => true, 'sort_order' => 0]);
+        });
 
         $this->business->unsetRelation('photos');
         $this->business->unsetRelation('coverPhoto');
@@ -82,8 +110,8 @@ class PhotoGallery extends Component
 
         $photo = BusinessPhoto::query()->where('business_id', $this->business->id)->findOrFail($photoId);
 
+        DB::transaction(fn () => $photo->delete());
         Storage::disk('public')->delete($photo->path);
-        $photo->delete();
 
         $this->business->unsetRelation('photos');
         $this->business->unsetRelation('coverPhoto');

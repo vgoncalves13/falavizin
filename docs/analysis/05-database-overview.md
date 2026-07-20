@@ -89,7 +89,7 @@ Possíveis ajustes devem ser guiados por `EXPLAIN` em dados reais. Candidatos at
 
 ## Dados locais observados
 
-No ambiente auditado havia 12 usuários, 24 categorias, 28 negócios, 88 fotos, 12 posts, 32 comentários, 45 votos, 6 promoções, 27 reviews, 5 notificações, 2 eventos de ponto, 1 enquete/5 opções/8 votos e 9 jobs falhos. Esses números apenas ajudam a avaliar demonstrabilidade; não pertencem ao schema nem devem ser usados como métricas de produção.
+No snapshot inicial havia 12 usuários, 24 categorias, 28 negócios, 88 fotos, 12 posts, 32 comentários, 45 votos, 6 promoções, 27 reviews, 5 notificações, 2 eventos de ponto, 1 enquete/5 opções/8 votos e 9 jobs falhos. A B009 recuperou a fila para zero jobs falhos/pendentes e a B008 reconciliou pontos; os demais números são apenas evidência histórica de demonstrabilidade.
 
 ## Tabelas/campos aparentemente obsoletos
 

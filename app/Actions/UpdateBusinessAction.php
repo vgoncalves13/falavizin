@@ -4,54 +4,82 @@ namespace App\Actions;
 
 use App\Models\Business;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
+use RuntimeException;
+use Throwable;
 
 class UpdateBusinessAction
 {
     public function execute(Business $business, array $data, ?UploadedFile $coverPhoto = null): Business
     {
-        $business->update([
-            'category_id' => $data['category_id'],
-            'name' => $data['name'],
-            'description' => $data['description'] ?? null,
-            'phone' => $data['phone'] ?? null,
-            'whatsapp' => $data['whatsapp'] ?? null,
-            'address' => $data['address'] ?? null,
-            'neighborhood' => $data['neighborhood'],
-            'city' => $data['city'] ?? '',
-            'opening_hours' => $data['opening_hours'] ?? null,
-            'website' => $data['website'] ?? null,
-        ]);
+        $preparedCover = $coverPhoto ? $this->prepareCoverPhoto($coverPhoto) : null;
+        $existingCover = $business->coverPhoto;
+        $oldPath = $existingCover?->path;
+        $newPath = null;
 
-        if ($coverPhoto) {
-            $this->replaceCoverPhoto($business, $coverPhoto);
+        try {
+            DB::transaction(function () use ($business, $data, $preparedCover, $existingCover, &$newPath): void {
+                $business->update([
+                    'category_id' => $data['category_id'],
+                    'name' => $data['name'],
+                    'description' => $data['description'] ?? null,
+                    'phone' => $data['phone'] ?? null,
+                    'whatsapp' => $data['whatsapp'] ?? null,
+                    'address' => $data['address'] ?? null,
+                    'neighborhood' => $data['neighborhood'],
+                    'city' => $data['city'] ?? '',
+                    'opening_hours' => $data['opening_hours'] ?? null,
+                    'website' => $data['website'] ?? null,
+                ]);
+
+                if ($preparedCover) {
+                    $newPath = 'businesses/'.$business->id.'/cover_'.Str::uuid().'.'.$preparedCover['extension'];
+
+                    if (! Storage::disk('public')->put($newPath, $preparedCover['contents'])) {
+                        throw new RuntimeException('Não foi possível salvar a foto de capa.');
+                    }
+
+                    if ($existingCover) {
+                        $existingCover->update(['path' => $newPath]);
+                    } else {
+                        $business->photos()->create([
+                            'path' => $newPath,
+                            'is_cover' => true,
+                            'sort_order' => 0,
+                        ]);
+                    }
+                }
+            });
+        } catch (Throwable $exception) {
+            if ($newPath) {
+                Storage::disk('public')->delete($newPath);
+            }
+
+            throw $exception;
+        }
+
+        if ($newPath && $oldPath) {
+            Storage::disk('public')->delete($oldPath);
         }
 
         return $business->fresh();
     }
 
-    private function replaceCoverPhoto(Business $business, UploadedFile $file): void
+    /** @return array{extension: string, contents: string} */
+    private function prepareCoverPhoto(UploadedFile $file): array
     {
-        $existing = $business->coverPhoto;
-        if ($existing) {
-            Storage::disk('public')->delete($existing->path);
-            $existing->delete();
-        }
-
         $manager = new ImageManager(new Driver);
         $image = $manager->read($file);
         $image->scaleDown(width: 1200);
+        $extension = strtolower($file->getClientOriginalExtension());
 
-        $path = 'businesses/'.$business->id.'/cover.'.$file->getClientOriginalExtension();
-        Storage::disk('public')->makeDirectory('businesses/'.$business->id);
-        $image->save(storage_path('app/public/'.$path));
-
-        $business->photos()->create([
-            'path' => $path,
-            'is_cover' => true,
-            'sort_order' => 0,
-        ]);
+        return [
+            'extension' => $extension,
+            'contents' => (string) $image->encodeByExtension($extension, quality: 85),
+        ];
     }
 }

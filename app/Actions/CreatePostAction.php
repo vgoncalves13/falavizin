@@ -9,8 +9,11 @@ use App\Models\User;
 use App\Notifications\NewContentNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Throwable;
 
 class CreatePostAction
 {
@@ -28,29 +31,41 @@ class CreatePostAction
             $imagePath = $image->store('posts', 'public');
         }
 
-        $post = $user->posts()->create([
-            'category_id' => $data['category_id'],
-            'title' => $data['title'],
-            'body' => $data['body'],
-            'location' => $data['location'] ?? null,
-            'image' => $imagePath,
-            'event_starts_at' => $eventStartsAt,
-            'event_ends_at' => $eventEndsAt,
-            'status' => PostStatus::Pending,
-        ]);
+        try {
+            $post = DB::transaction(function () use ($user, $data, $imagePath, $eventStartsAt, $eventEndsAt, $pollData): Post {
+                $post = $user->posts()->create([
+                    'category_id' => $data['category_id'],
+                    'title' => $data['title'],
+                    'body' => $data['body'],
+                    'location' => $data['location'] ?? null,
+                    'image' => $imagePath,
+                    'event_starts_at' => $eventStartsAt,
+                    'event_ends_at' => $eventEndsAt,
+                    'status' => PostStatus::Pending,
+                ]);
 
-        if ($pollData && ! empty($pollData['question']) && ! empty($pollData['options'])) {
-            (new CreatePollAction)->execute(
-                post: $post,
-                question: $pollData['question'],
-                options: array_filter($pollData['options']),
-                endsAt: isset($pollData['ends_at']) ? Carbon::parse($pollData['ends_at']) : null,
-            );
+                if ($pollData && ! empty($pollData['question']) && ! empty($pollData['options'])) {
+                    (new CreatePollAction)->execute(
+                        post: $post,
+                        question: $pollData['question'],
+                        options: array_filter($pollData['options']),
+                        endsAt: isset($pollData['ends_at']) ? Carbon::parse($pollData['ends_at']) : null,
+                    );
 
-            (new AwardPointsAction)->execute($user, PointEventReason::PollCreated, $post);
+                    (new AwardPointsAction)->execute($user, PointEventReason::PollCreated, $post);
+                }
+
+                (new AwardPointsAction)->execute($user, PointEventReason::PostCreated, $post);
+
+                return $post;
+            });
+        } catch (Throwable $exception) {
+            if ($imagePath) {
+                Storage::disk('public')->delete($imagePath);
+            }
+
+            throw $exception;
         }
-
-        (new AwardPointsAction)->execute($user, PointEventReason::PostCreated, $post);
 
         $this->notifyAdmins($post->title);
 
