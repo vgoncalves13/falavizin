@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Promotion;
 
+use App\Enums\BusinessPlan;
 use App\Livewire\Business\PromotionForm;
 use App\Models\Business;
 use App\Models\Promotion;
@@ -76,6 +77,47 @@ class WeeklyLimitTest extends TestCase
             ->assertSessionHasErrors('title');
 
         $this->assertDatabaseMissing('promotions', ['title' => 'Segunda promoção no prazo']);
+    }
+
+    public function test_livewire_uses_the_same_seven_day_cooldown(): void
+    {
+        $user = User::factory()->create();
+        $business = Business::factory()->create(['user_id' => $user->id]);
+
+        Promotion::factory()->create([
+            'business_id' => $business->id,
+            'created_at' => now()->subDays(3),
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(PromotionForm::class, ['business' => $business])
+            ->set('title', 'Segunda promoção via Livewire')
+            ->call('save')
+            ->assertHasErrors('title');
+
+        $this->assertDatabaseMissing('promotions', ['title' => 'Segunda promoção via Livewire']);
+    }
+
+    public function test_featured_business_bypasses_cooldown_through_livewire(): void
+    {
+        $user = User::factory()->create();
+        $business = Business::factory()->create([
+            'user_id' => $user->id,
+            'plan' => BusinessPlan::Featured,
+        ]);
+
+        Promotion::factory()->create([
+            'business_id' => $business->id,
+            'created_at' => now()->subDay(),
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(PromotionForm::class, ['business' => $business])
+            ->set('title', 'Promoção livre para destaque')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('promotions', ['title' => 'Promoção livre para destaque']);
     }
 
     public function test_business_can_create_promotion_after_7_days(): void

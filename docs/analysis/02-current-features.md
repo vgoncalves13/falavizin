@@ -62,7 +62,7 @@
 | ID | Funcionalidade | Fluxo, regras e envolvidos | Implementação e telas | Rotas | Status/evidência |
 |---|---|---|---|---|---|
 | F26 | Catálogo de promoções | Visitante vê promoções ativas agrupadas por negócio | `PromotionController::index`; `promotions/index.blade.php` | `/promocoes` | **Funcional.** `app/Models/Promotion.php:54-62` |
-| F27 | Gerenciar promoção | Proprietário cria, edita e exclui promoções | `PromotionForm`, Controller, Request, Policy | rotas em `/meu-negocio/*/promocoes` | **Parcial.** B005 corrigiu autorização/escopo; Livewire ainda ignora o limite semanal |
+| F27 | Gerenciar promoção | Proprietário cria, edita e exclui promoções | `PromotionForm`, Controller, Request, Policy | rotas em `/meu-negocio/*/promocoes` | **Funcional.** B005 corrigiu autorização/escopo e B015 centralizou na Action o cooldown de sete dias para HTTP/Livewire, com exceção Featured |
 | F28 | Planos free/featured | Usuário solicita upgrade; admin aprova/rejeita | `BusinessPlanController`; views admin/plans | `/meu-negocio/{business}/plano`, `/admin/planos*` | **Parcial.** Workflow administrativo existe; não há cobrança nem definição forte de entitlement |
 | F29 | Posts patrocinados | Admin alterna um flag de patrocínio | `PostSponsorController`, `SponsoredPostsController` | `/admin/posts/{post}/patrocinar`, `/admin/posts-patrocinados*` | **Parcial/duplicada.** Dois caminhos administrativos sobrepõem responsabilidade; não há vigência |
 
@@ -100,8 +100,8 @@
 
 ## Resumo por status
 
-- **Funcionais no caminho feliz:** F01, F02, F04, F06–F18, F20–F26, F30–F31, F33–F35 (28).
-- **Parciais ou com ressalvas relevantes:** F03, F05, F19, F27–F29, F32, F36 (8).
+- **Funcionais no caminho feliz:** F01, F02, F04, F06–F18, F20–F27, F30–F31, F33–F35 (29).
+- **Parciais ou com ressalvas relevantes:** F03, F05, F19, F28–F29, F32, F36 (7).
 - **Aparentemente abandonadas/não utilizadas:** não contam entre as 36 capacidades; views scaffold e placeholders estão listados em `03-incomplete-features.md`.
 
 Esses números são uma classificação de auditoria, não uma métrica de cobertura ou prontidão comercial.

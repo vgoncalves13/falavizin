@@ -5,9 +5,9 @@
 
 ## Resumo executivo
 
-O Hub do Bairro é hoje um portal hiperlocal demonstrável para um bairro: moradores publicam e interagem em um feed; visitantes descobrem negócios, promoções e eventos; comerciantes mantêm perfis; administradores moderam e importam estabelecimentos. O inventário encontrou **12 módulos e 36 capacidades**, das quais **28 têm caminho feliz funcional** e **8 estão parciais ou possuem ressalvas relevantes**.
+O Hub do Bairro é hoje um portal hiperlocal demonstrável para um bairro: moradores publicam e interagem em um feed; visitantes descobrem negócios, promoções e eventos; comerciantes mantêm perfis; administradores moderam e importam estabelecimentos. O inventário encontrou **12 módulos e 36 capacidades**, das quais **29 têm caminho feliz funcional** e **7 estão parciais ou possuem ressalvas relevantes**.
 
-A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Livewire 4, MySQL, Actions, Policies, migrations e 214 testes compõem uma fundação razoável. Em 20/07/2026, todos os 214 testes/453 assertions e o build frontend passaram; as auditorias Composer e npm também foram zeradas após a B002. Ainda assim, o produto **não deve ir para produção** antes de fechar observabilidade e deploy.
+A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Livewire 4, MySQL, Actions, Policies, migrations e 216 testes compõem uma fundação razoável. Em 20/07/2026, todos os 216 testes/459 assertions e o build frontend passaram; as auditorias Composer e npm também foram zeradas após a B002. Ainda assim, o produto **não deve ir para produção** antes de fechar observabilidade e deploy.
 
 ## O que está utilizável/demonstrável
 
@@ -84,7 +84,7 @@ O backlog completo está em [Backlog priorizado](analysis/09-prioritized-backlog
 
 ## Recomendação para começar hoje
 
-**Próxima tarefa: B015 — centralizar Policy e limite semanal de promoções.** Hoje os caminhos HTTP e Livewire ainda podem aplicar regras diferentes; a próxima correção deve tornar o limite único e testável.
+**Próxima tarefa: B016 — unificar os fluxos de escrita HTTP e Livewire.** A B015 centralizou o cooldown das promoções; agora é preciso reduzir as validações e persistências duplicadas restantes, começando pelo fluxo de negócio.
 
 ## Índice da análise
 
