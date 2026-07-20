@@ -12,6 +12,7 @@
 | ✅ Corrigir escopo Livewire — concluído na B005 | Reautorizar BusinessForm/Promotion e buscar review/comment/poll option pela relação pai | Policies existentes | P0 / M | Quebrar interações legítimas | Seis regressões negativas e suíte completa passam | Integridade/autorização restauradas |
 | ✅ Estabilizar horários — concluído na B007 | Persistir formato único, corrigir seed/dados e períodos noturnos | Schema JSON atual | P0 / M | Saneamento incorreto | Migration aplicada; CRUD e horários noturnos testados | Catálogo confiável |
 | ✅ Substituir claim por aprovação manual — concluído na B006 | Pedido pendente, exclusão mútua, rate limit, decisão admin e notificação | Decisão operacional do responsável | P0 / L | Fricção e carga administrativa | Solicitante não assume negócio sem decisão admin; 8 testes passam | Tomada automática eliminada |
+| ✅ Isolar dados demonstrativos — concluído na B011 | Produção cria apenas categorias; local/testing exigem senha explícita sem default | Decisão de ambientes | P0 / S | Seed local deixa de funcionar sem configuração | Três regressões e suíte completa passam | Credenciais conhecidas eliminadas |
 | Diagnosticar fila de enriquecimento | Inspecionar nove falhas, corrigir causa, retry seguro e registrar runbook | Chave rotacionada e serviço disponível | P1 / M | Quota e duplicação | Zero falhas sem triagem; retry é idempotente; erro gera evidência acionável | Importação operável |
 
 ## Fase 1 — Limpeza e base técnica

@@ -7,7 +7,7 @@
 
 O Hub do Bairro é hoje um portal hiperlocal demonstrável para um bairro: moradores publicam e interagem em um feed; visitantes descobrem negócios, promoções e eventos; comerciantes mantêm perfis; administradores moderam e importam estabelecimentos. O inventário encontrou **12 módulos e 36 capacidades**, das quais **26 têm caminho feliz funcional** e **10 estão parciais ou possuem ressalvas relevantes**.
 
-A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Livewire 4, MySQL, Actions, Policies, migrations e 197 testes compõem uma fundação razoável. Em 20/07/2026, todos os 197 testes/413 assertions e o build frontend passaram; as auditorias Composer e npm também foram zeradas após a B002. Ainda assim, o produto **não deve ir para produção** antes de encerrar os P0 operacionais restantes, especialmente credenciais padrão de seed.
+A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Livewire 4, MySQL, Actions, Policies, migrations e 200 testes compõem uma fundação razoável. Em 20/07/2026, todos os 200 testes/418 assertions e o build frontend passaram; as auditorias Composer e npm também foram zeradas após a B002. Ainda assim, o produto **não deve ir para produção** antes de fechar fila, consistência e operação de deploy.
 
 ## O que está utilizável/demonstrável
 
@@ -29,10 +29,11 @@ A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Li
 4. ✅ Escopo/autorização Livewire: corrigidos na B005 para promoção, review, comentário, enquete e negócio.
 5. ✅ Reivindicação insegura por token: substituída na B006 por solicitação pendente e decisão manual exclusiva do admin.
 6. ✅ Horários manuais e períodos após meia-noite: corrigidos e normalizados na B007.
-7. Pontos não são idempotentes e podem ser acumulados repetidamente.
-8. E-mails são síncronos e operações compostas não são transacionais.
-9. Há nove jobs locais falhos de enriquecimento, sem recuperação operacional clara.
-10. Não há CI, runbook de deploy/backup/worker ou README real do projeto.
+7. ✅ Credenciais padrão de seed: removidas na B011; produção cria apenas categorias e demo exige senha explícita.
+8. Pontos não são idempotentes e podem ser acumulados repetidamente.
+9. E-mails são síncronos e operações compostas não são transacionais.
+10. Há nove jobs locais falhos de enriquecimento, sem recuperação operacional clara.
+11. Não há CI, runbook de deploy/backup/worker ou README real do projeto.
 
 Detalhes, arquivos, severidade e correções: [Auditoria técnica](analysis/04-technical-audit.md).
 
@@ -74,7 +75,7 @@ Ranking, Pulso, patrocínio e planos podem continuar em avaliação/área secund
 | 5 | B005 | ✅ Escopar e reautorizar mutações Livewire — concluída em 20/07/2026 | M |
 | 6 | B007 | ✅ Persistir e normalizar horários de funcionamento — concluída em 20/07/2026 | M |
 | 7 | B006 | ✅ Substituir reivindicação por aprovação manual do admin — concluída em 20/07/2026 | L |
-| 8 | B011 | Remover senhas padrão de seeds operacionais | S |
+| 8 | B011 | ✅ Remover senhas padrão de seeds operacionais — concluída em 20/07/2026 | S |
 | 9 | B009 | Recuperar jobs de enriquecimento falhos | M |
 | 10 | B010 | Consolidar testes de regressão P0 | M |
 
@@ -82,7 +83,7 @@ O backlog completo está em [Backlog priorizado](analysis/09-prioritized-backlog
 
 ## Recomendação para começar hoje
 
-**Próxima tarefa: B011 — remover senhas padrão dos seeds operacionais.** É o P0 restante mais curto e elimina a criação acidental de contas com credenciais conhecidas.
+**Próxima tarefa: B009 — recuperar jobs de enriquecimento falhos.** A fila local registra nove falhas e precisa de diagnóstico, retry seguro e tratamento previsível antes do piloto.
 
 ## Índice da análise
 

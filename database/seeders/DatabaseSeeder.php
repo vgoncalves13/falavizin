@@ -18,6 +18,7 @@ use App\Models\User;
 use App\Models\Vote;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use RuntimeException;
 
 class DatabaseSeeder extends Seeder
 {
@@ -25,10 +26,22 @@ class DatabaseSeeder extends Seeder
     {
         $this->seedCategories();
 
+        if (! app()->environment(['local', 'testing'])) {
+            return;
+        }
+
+        $demoPassword = config('app.demo_user_password');
+
+        if (! is_string($demoPassword) || $demoPassword === '') {
+            throw new RuntimeException('DEMO_USER_PASSWORD must be configured to seed demo users.');
+        }
+
+        $password = Hash::make($demoPassword);
+
         $admin = User::create([
             'name' => 'Admin',
             'email' => 'admin@hudobairro.com.br',
-            'password' => Hash::make('password'),
+            'password' => $password,
             'is_admin' => true,
             'email_verified_at' => now(),
         ]);
@@ -36,7 +49,7 @@ class DatabaseSeeder extends Seeder
         $owner = User::create([
             'name' => 'Carlos Oliveira',
             'email' => 'test@example.com',
-            'password' => Hash::make('password'),
+            'password' => $password,
             'email_verified_at' => now(),
             'neighborhood' => 'Jardim América',
             'points' => 45,
@@ -56,7 +69,7 @@ class DatabaseSeeder extends Seeder
         ])->map(fn ($data) => User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => Hash::make('password'),
+            'password' => $password,
             'email_verified_at' => now(),
             'neighborhood' => 'Jardim América',
             'points' => $data['points'],

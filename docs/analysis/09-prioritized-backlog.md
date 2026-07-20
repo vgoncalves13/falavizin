@@ -14,7 +14,7 @@ Prioridade: P0 bloqueia produção; P1 é necessária ao MVP; P2 é importante; 
 | B008 | Reputação | Tornar premiação de pontos idempotente | Impedir ganho repetido e reconciliar total do usuário | bug | P1 | M | constraint/migração | 1 | mesma origem/razão não premia duas vezes; totals reconciliam |
 | B009 | Integrações | Recuperar jobs de enriquecimento falhos | Diagnosticar, corrigir, aplicar retry/backoff e runbook | infraestrutura | P1 | M | B001 | 0 | nove falhas triadas; retry seguro; alerta documentado |
 | B010 | Testes | Cobrir regressões P0 de segurança e integridade | Testes negativos para B003–B009 | segurança | P0 | M | B003–B009 | 0 | cada falha possui teste que reproduz e prova correção |
-| B011 | Seeds | Remover senhas padrão de seeds operacionais | Separar demo de produção e exigir secret seguro | segurança | P0 | S | decisão de ambientes | 1 | seed de produção não cria credencial conhecida |
+| B011 | Seeds | ✅ Remover senhas padrão de seeds operacionais — concluída em 20/07/2026 | Produção semeia só categorias; demo exige senha explícita | segurança | P0 | S | decisão de ambientes | 1 | três regressões passam; produção cria zero usuários demo |
 | B012 | Notificações | Enfileirar e-mails após commit | Implementar queue, retry/backoff e comportamento de falha | infraestrutura | P1 | M | worker estável | 1 | SMTP fora não reverte/bloqueia request; retry funciona |
 | B013 | Dados | Adicionar transações a operações compostas | Post, claim, pontos e troca de arquivos atômicos | refatoração | P1 | L | testes de falha | 1 | falha injetada não deixa estado parcial |
 | B014 | Banco | Reforçar constraints de polls e fotos | Sanear dados e criar unicidade/integridade | débito técnico | P1 | M | backup; B005 | 1 | banco rejeita relações inválidas |
@@ -47,4 +47,4 @@ Prioridade: P0 bloqueia produção; P1 é necessária ao MVP; P2 é importante; 
 
 ## Ordem imediata
 
-~~B001~~ → ~~B002~~ → ~~B003~~ → ~~B004~~ → ~~B005~~ → ~~B007~~ → ~~B006~~ → **B011** → B009 → B010. B010 acompanha cada correção, embora apareça como item consolidado. B008 vem imediatamente depois desse bloco.
+~~B001~~ → ~~B002~~ → ~~B003~~ → ~~B004~~ → ~~B005~~ → ~~B007~~ → ~~B006~~ → ~~B011~~ → **B009** → B010. B010 acompanha cada correção, embora apareça como item consolidado. B008 vem imediatamente depois desse bloco.

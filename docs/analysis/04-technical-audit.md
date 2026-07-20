@@ -4,7 +4,7 @@
 
 | Verificação em 20/07/2026 | Resultado |
 |---|---|
-| `artisan test --compact` | **197 testes, 413 assertions, todos passando** após B006 |
+| `artisan test --compact` | **200 testes, 418 assertions, todos passando** após B011 |
 | `npm run build` | **Passou**; CSS 103,79 kB (18,75 kB gzip), JS 37,17 kB (14,87 kB gzip) |
 | `composer validate --strict` | **Passou** |
 | `pint --test` | **Falhou** em um arquivo: `tests/Feature/BusinessReviewTest.php` |
@@ -34,7 +34,7 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 | T08 | Pontuação não idempotente: remover e recolocar voto útil pode premiar repetidamente; total desnormalizado pode divergir | `VoteButtons.php:35-63`; `AwardPointsAction.php:12-23`; migration de `point_events` sem chave idempotente | Chave única por razão/origem/beneficiário, transação e comando de reconciliação | M / P1 |
 | T09 | E-mails e notificações são síncronos apesar de usarem `Queueable`; falha externa pode degradar request e deixar operação parcialmente concluída | `NewContentNotification.php:9-20`; `ContentModerationNotification.php:9-22`; `ClaimBusinessController.php:22-25` | Implementar `ShouldQueue`, after-commit, retry/backoff e monitoramento | M / P1 |
 | T10 | Operações multi-etapa não usam transação/compensação: criação com imagem/enquete/pontos/notificação, claim, pontos e troca de foto podem ficar pela metade | `CreatePostAction.php:17-57`; `ClaimBusinessAction.php:13-28`; `AwardPointsAction.php:12-23`; `UpdateBusinessAction.php:34-54` | Delimitar transações de banco e limpar arquivos em falhas; notificar após commit | L / P1 |
-| T11 | Seeder cria administrador e usuários com senha padrão conhecida. Se executado em ambiente compartilhado, gera tomada de conta | `database/seeders/DatabaseSeeder.php:28-62` | Separar dados demo de bootstrap de produção; senha obrigatória via secret ou nenhuma conta | S / P0 |
+| T11 | ✅ **Resolvido em 20/07/2026.** Produção semeia apenas categorias; dados demo ficam restritos a local/testing e exigem `DEMO_USER_PASSWORD` sem default. | `DatabaseSeeder.php`; `config/app.php`; `.env.example`; `DatabaseSeederTest.php` | Provisionar o primeiro admin de produção por procedimento deliberado até automação ser necessária | S / P0 concluída |
 | T12 | Enriquecimento externo tem jobs falhos sem mecanismo visível de recuperação; download de foto aceita URL retornada externamente | `app/Jobs/EnrichBusinessFromGoogle.php:124-137`; tabela local `failed_jobs`; ausência de scheduler em `routes/console.php` | Restringir host/protocolo, timeouts/tamanho, retries/backoff, dashboard/alerta e runbook | M / P1 |
 
 ## Problemas de severidade média
@@ -71,7 +71,7 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 
 - Actions e Policies existem para operações centrais; controllers em geral são pequenos.
 - Models possuem relacionamentos e scopes legíveis; listas principais usam eager loading.
-- A suíte de 197 testes é uma base forte e roda integralmente no MySQL local.
+- A suíte de 200 testes é uma base forte e roda integralmente no MySQL local.
 - Migrations evitam enum nativo do MySQL e incluem índices nas consultas mais óbvias.
 - Uploads são processados e armazenados pelo Laravel Storage.
 
@@ -97,4 +97,4 @@ Formato: localização → corte → substituição mínima.
 
 ## Testes e cobertura
 
-Os testes atuais provam muitos caminhos felizes, Policies e validações. Não há número de cobertura disponível. As maiores lacunas são idempotência de pontos, jobs/retries, cache, limpeza de arquivos e acessibilidade. O claim possui cobertura positiva e negativa dedicada. A aprovação de produção deve exigir testes dos riscos restantes, não apenas manter os 197 atuais verdes.
+Os testes atuais provam muitos caminhos felizes, Policies e validações. Não há número de cobertura disponível. As maiores lacunas são idempotência de pontos, jobs/retries, cache, limpeza de arquivos e acessibilidade. Claim e isolamento dos seeds possuem cobertura positiva e negativa dedicada. A aprovação de produção deve exigir testes dos riscos restantes, não apenas manter os 200 atuais verdes.
