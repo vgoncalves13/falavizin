@@ -14,6 +14,7 @@
 | ✅ Substituir claim por aprovação manual — concluído na B006 | Pedido pendente, exclusão mútua, rate limit, decisão admin e notificação | Decisão operacional do responsável | P0 / L | Fricção e carga administrativa | Solicitante não assume negócio sem decisão admin; 8 testes passam | Tomada automática eliminada |
 | ✅ Isolar dados demonstrativos — concluído na B011 | Produção cria apenas categorias; local/testing exigem senha explícita sem default | Decisão de ambientes | P0 / S | Seed local deixa de funcionar sem configuração | Três regressões e suíte completa passam | Credenciais conhecidas eliminadas |
 | ✅ Recuperar fila de enriquecimento — concluído na B009 | Identificar nove 429, limitar duração, espaçar lote, aplicar backoff e recuperar individualmente | Chave rotacionada e serviço disponível | P1 / M | Quota e duplicação | Zero jobs falhos/pendentes; teste de 429 e runbook registrados | Importação operável |
+| ✅ Consolidar regressões críticas — concluído na B010 | Mapear e executar cobertura B003–B009 | Correções concluídas | P0 / M | Falsa confiança por testes genéricos | Matriz dedicada passa com 94 testes/202 assertions | Baseline crítico verificável |
 
 ## Fase 1 — Limpeza e base técnica
 

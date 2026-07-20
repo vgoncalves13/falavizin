@@ -83,7 +83,7 @@ O backlog completo está em [Backlog priorizado](analysis/09-prioritized-backlog
 
 ## Recomendação para começar hoje
 
-**Próxima tarefa: B010 — consolidar as regressões P0.** As correções B003–B009 agora estão concluídas; falta conferir e registrar a matriz final antes de avançar para notificações e transações.
+**Próxima tarefa: B012 — enfileirar e-mails após commit.** A B010 foi encerrada com 94 testes/202 asserções direcionadas; agora é preciso impedir que indisponibilidade SMTP bloqueie ou deixe requests parcialmente concluídos.
 
 ## Índice da análise
 

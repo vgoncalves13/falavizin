@@ -99,6 +99,20 @@ Formato: localização → corte → substituição mínima.
 
 Os testes atuais provam muitos caminhos felizes, Policies e validações. Não há número de cobertura disponível. As maiores lacunas são falhas prolongadas de integrações, cache, limpeza de arquivos e acessibilidade. Claim, seeds, resposta 429 e idempotência de pontos possuem cobertura dedicada. A aprovação de produção deve exigir testes dos riscos restantes, não apenas manter os 204 atuais verdes.
 
+### Matriz de regressão B010
+
+| Correção | Regressões executadas em 20/07/2026 |
+|---|---|
+| B003 — XSS em mapas | `BusinessTest::test_map_popups_render_business_data_as_text` |
+| B004 — status público | testes de conteúdo pendente em `PostTest` e `BusinessTest` |
+| B005 — escopo Livewire | negócios, promoções, reviews, comentários e opções de enquete de outro pai/usuário |
+| B006 — claim manual | 8 testes de pedido, concorrência, aprovação, rejeição e autorização |
+| B007 — horários | persistência CRUD e período atravessando meia-noite |
+| B008 — pontos | origem repetida, recriação de voto e múltiplos votantes de enquete |
+| B009 — enriquecimento | resposta 429, backoff e espaçamento do lote |
+
+Resultado direcionado: **94 testes e 202 assertions**, todos passando. Resultado completo: **204 testes e 429 assertions**, todos passando.
+
 ## Recuperação do enriquecimento Google Places
 
 1. Execute `php artisan queue:failed` e confirme que a falha pertence a `EnrichBusinessFromGoogle`.

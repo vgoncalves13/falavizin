@@ -13,7 +13,7 @@ Prioridade: P0 bloqueia produção; P1 é necessária ao MVP; P2 é importante; 
 | B007 | Negócios | ✅ Persistir e normalizar horários de funcionamento — concluída em 20/07/2026 | Unificar formato em formulário, Actions, seed e dados | bug | P0 | M | schema JSON atual | 0 | migration aplicada; CRUD e horário noturno testados |
 | B008 | Reputação | ✅ Tornar premiação de pontos idempotente — concluída em 20/07/2026 | Chave única, transação, origem estável e reconciliação | bug | P1 | M | constraint/migração | 1 | mesma origem premia uma vez; zero totais divergentes |
 | B009 | Integrações | ✅ Recuperar jobs de enriquecimento falhos — concluída em 20/07/2026 | 429 diagnosticado; timeout, lote espaçado, backoff e recuperação individual | infraestrutura | P1 | M | B001 | 0 | zero falhos/pendentes; teste e runbook registrados |
-| B010 | Testes | Cobrir regressões P0 de segurança e integridade | Testes negativos para B003–B009 | segurança | P0 | M | B003–B009 | 0 | cada falha possui teste que reproduz e prova correção |
+| B010 | Testes | ✅ Consolidar regressões P0 — concluída em 20/07/2026 | Mapear e executar testes negativos B003–B009 | segurança | P0 | M | B003–B009 | 0 | matriz passa com 94 testes/202 assertions; suíte completa verde |
 | B011 | Seeds | ✅ Remover senhas padrão de seeds operacionais — concluída em 20/07/2026 | Produção semeia só categorias; demo exige senha explícita | segurança | P0 | S | decisão de ambientes | 1 | três regressões passam; produção cria zero usuários demo |
 | B012 | Notificações | Enfileirar e-mails após commit | Implementar queue, retry/backoff e comportamento de falha | infraestrutura | P1 | M | worker estável | 1 | SMTP fora não reverte/bloqueia request; retry funciona |
 | B013 | Dados | Adicionar transações a operações compostas | Post, claim, pontos e troca de arquivos atômicos | refatoração | P1 | L | testes de falha | 1 | falha injetada não deixa estado parcial |
@@ -47,4 +47,4 @@ Prioridade: P0 bloqueia produção; P1 é necessária ao MVP; P2 é importante; 
 
 ## Ordem imediata
 
-~~B001~~ → ~~B002~~ → ~~B003~~ → ~~B004~~ → ~~B005~~ → ~~B007~~ → ~~B006~~ → ~~B011~~ → ~~B009~~ → ~~B008~~ → **B010**. B010 acompanha cada correção e agora pode ser encerrada.
+~~B001~~ → ~~B002~~ → ~~B003~~ → ~~B004~~ → ~~B005~~ → ~~B007~~ → ~~B006~~ → ~~B011~~ → ~~B009~~ → ~~B008~~ → ~~B010~~ → **B012** → B013. O bloco crítico inicial está concluído.
