@@ -1,0 +1,79 @@
+# Roadmap recomendado
+
+**Escala:** XS = poucas horas; S = até 1 dia; M = 2–4 dias; L = ~1 semana; XL = mais de uma semana/deve ser quebrado. Prioridades P0 a P3.
+
+## Fase 0 — Diagnóstico e estabilização
+
+| Item | Objetivo e escopo | Dependências | Pri. / esforço | Riscos | Critério de aceite | Resultado esperado |
+|---|---|---|---|---|---|---|
+| Rotacionar credencial RapidAPI | Revogar a credencial exposta na sessão, criar outra com menor privilégio/quota e verificar secrets | Acesso à conta RapidAPI | P0 / XS | Interromper importação temporariamente | Chave antiga inválida; nova não aparece em logs/config output; chamada controlada passa | Incidente contido |
+| Corrigir vulnerabilidades conhecidas | Atualizar locks dentro de versões compatíveis; revisar Laravel/Symfony/Guzzle/Axios/Vite/transitivas | Backup/branch e suíte atual verde | P0 / M | Regressões de patch | Audits sem itens críticos/altos não aceitos; testes/build passam | Base atualizável e segura |
+| Fechar exposição pública e XSS | Restringir status e construir popups sem HTML inseguro | Testes de status e payload malicioso | P0 / S | Bloquear autor/admin indevidamente | Visitante recebe 404/403 para não aprovado; payload é texto inerte | Conteúdo moderado protegido |
+| Corrigir escopo Livewire | Reautorizar BusinessForm/Promotion e buscar review/comment/poll option pela relação pai | Policies existentes | P0 / M | Quebrar interações legítimas | Testes negativos cruzados falham antes e passam depois | Integridade/autorização restauradas |
+| Estabilizar horários | Persistir formato único, corrigir seed/dados e períodos noturnos | Definir schema JSON | P0 / M | Saneamento incorreto | Criar/editar preserva horário; aberto/fechado passa matriz de testes | Catálogo confiável |
+| Diagnosticar fila de enriquecimento | Inspecionar nove falhas, corrigir causa, retry seguro e registrar runbook | Chave rotacionada e serviço disponível | P1 / M | Quota e duplicação | Zero falhas sem triagem; retry é idempotente; erro gera evidência acionável | Importação operável |
+
+## Fase 1 — Limpeza e base técnica
+
+| Item | Objetivo e escopo | Dependências | Pri. / esforço | Riscos | Critério de aceite | Resultado esperado |
+|---|---|---|---|---|---|---|
+| Reformular claim | E-mail verificado, prova/aprovação, token hash/expiry/unique, rate limit e auditoria | Fase 0, decisão operacional | P0 / L | Fricção e LGPD | Usuário sem evidência não assume negócio; tokens expiram/não reutilizam | Propriedade confiável |
+| Transações e idempotência | Envolver post/claim/pontos/fotos; notificar after-commit; limpar arquivos em falha | Testes de falha | P1 / L | Locks/duplicação | Falha injetada não deixa dados/arquivos parciais; pontos reconciliam | Consistência operacional |
+| Centralizar regras duplicadas | Action/Policy única para negócio e promoção; remover drift HTTP/Livewire | Decisão sobre UI canônica | P1 / L | Refactor amplo | Mesma regra em qualquer entrada e testes compartilhados | Menos código e bugs |
+| Reforçar constraints | Poll/post, opção/poll, capa, claim e checks após saneamento | Backup e queries de diagnóstico | P1 / M | Dados existentes inválidos | Migrations reversíveis e constraints bloqueiam casos inválidos | Integridade no banco |
+| Colocar notificações em fila | `ShouldQueue`, after-commit, retry/backoff e preferências mínimas | Worker confiável | P1 / M | Atraso/duplicata | Request não depende de SMTP; falha é reprocessável | UX resiliente |
+| Paginação/cache/consultas | Paginar coleções, mapa por limite/viewport, remover queries da view e centralizar invalidação | Métricas/query plan | P1 / L | Mudança de UX | Limites explícitos, zero queries em Blade, cache invalida por mutação | Escala básica |
+| Baseline de engenharia | `.env.example`, README, CI, formatter, audit, worker/scheduler/backup | Decisões de deploy | P1 / M | Divergência local/CI | Setup limpo reproduz testes/build; CI verde; runbook testado | Desenvolvimento reproduzível |
+| Baseline de acessibilidade | Teclado, foco, labels, dialogs, reduced motion e teste automatizado inicial | Fluxos estabilizados | P1 / M | Regressão visual | Jornadas essenciais passam teclado e axe sem violações graves | Produto inclusivo |
+| Limpeza Ponytail | Remover views/placeholders/deps/serviços confirmadamente sem uso | `rg`, build e testes | P2 / S | Remover uso indireto | Build/testes verdes e diff reduz artefatos sem rota/import | Menor manutenção |
+
+## Fase 2 — MVP utilizável
+
+| Item | Objetivo e escopo | Dependências | Pri. / esforço | Riscos | Critério de aceite | Resultado esperado |
+|---|---|---|---|---|---|---|
+| Definir bairro piloto | Fonte canônica para nome/coord.; alinhar home, perfil, feed e importação | Modelo decidido | P1 / M | Migração de texto livre | Toda tela usa a mesma configuração; filtros têm resultado previsível | Posicionamento hiperlocal claro |
+| Fechar jornada do conteúdo | Criar → pendente → moderar → notificar → corrigir/republicar | Fases 0–1 | P1 / L | Carga de moderação | Teste E2E cobre aprovação e rejeição com motivo | Feed utilizável em operação real |
+| Fechar jornada comercial | Cadastrar/reivindicar → completar perfil/fotos/horário → publicar promoção | Claim e horários seguros | P1 / L | Dados externos incorretos | Comerciante piloto conclui sem suporte técnico; status é visível | Catálogo sustentável |
+| Simplificar conta e navegação | Paginar/tabs, status, quatro destinos primários e filtros na URL | UX baseline | P1 / M | Descoberta de recursos secundários | Teste com usuários conclui tarefas principais; links são compartilháveis | Menor carga cognitiva |
+| Operação de moderação | Motivo, histórico mínimo, ações em lote confirmadas e SLA | Auditoria | P1 / L | Volume/abuso | Toda decisão registra ator/data/motivo e pode ser consultada | Governança mínima |
+| Piloto controlado | Seed/import real revisado, termos/privacidade, backup, suporte e checklist | Todos os itens P0/P1 essenciais | P0 / M | Conteúdo frio e suporte | 10–30 usuários e 10+ negócios usam por 2 semanas sem incidente P0 | Evidência real de valor |
+
+## Fase 3 — Engajamento
+
+| Item | Objetivo e escopo | Dependências | Pri. / esforço | Riscos | Critério de aceite | Resultado esperado |
+|---|---|---|---|---|---|---|
+| Calendário local | Filtrar eventos futuros, detalhe e exportação/lembrete | Eventos e notifications | P2 / M | Eventos vencidos | Eventos passados saem do padrão; timezone testado | Motivo recorrente de visita |
+| Preferências e digest | Opt-in por categoria/canal/frequência | Fila e bairro canônico | P2 / M | Fadiga/LGPD | Usuário controla entrega; unsubscribe funciona | Retenção sem spam |
+| Pedidos de orçamento | Pedido estruturado e manifestação de negócios verificados | Claim seguro e anti-spam | P2 / L | Marketplace prematuro | Piloto mede pedidos e contatos sem chat/pagamento | Liga demanda e oferta |
+| Pulso verificável | Métricas com janela, fonte e resolução confirmada | Dados e moderação maduros | P2 / L | Manipulação | Cada indicador explica período e amostra; reconcilia com posts | Diferencial cívico |
+| Templates locais | Vagas, pets, doação e alertas como variações leves de post | Taxonomia validada | P3 / M | Fragmentação | Só templates com demanda comprovada entram | Expansão barata do conteúdo |
+
+## Fase 4 — Monetização
+
+| Item | Objetivo e escopo | Dependências | Pri. / esforço | Riscos | Critério de aceite | Resultado esperado |
+|---|---|---|---|---|---|---|
+| Definir proposta Featured | Entitlements, preço, prazo, cancelamento e política, ainda manual | Dados do piloto | P2 / M | Benefício não percebido | Comerciantes aceitam proposta e métricas são definidas | Hipótese comercial validada |
+| Métricas ao comerciante | Impressões/cliques agregados e transparentes | Analytics first-party/consentimento | P2 / L | Privacidade/dados enganosos | Eventos deduplicados e painel reconciliável | Valor mensurável |
+| Patrocínio simples | Unificar workflow, posições, validade, identificação e relatório | Moderação e analytics | P2 / M | Confiança editorial | Todo anúncio é identificado, expira e possui histórico | Receita manual controlada |
+| Cobrança/assinatura | Provedor, webhook idempotente, fiscal, falhas e suporte | Hipótese paga comprovada | P3 / XL | Chargeback/compliance | Ciclo completo sandbox + cancelamento/reconciliação | Receita automatizada |
+| Benefícios/cupons | Código simples e medição de resgate | Negócios verificados | P3 / L | Fraude | Validade e limite aplicados; comerciante confirma resgate | Incentivo de uso local |
+
+## Fase 5 — Escala
+
+| Item | Objetivo e escopo | Dependências | Pri. / esforço | Riscos | Critério de aceite | Resultado esperado |
+|---|---|---|---|---|---|---|
+| Multi-bairro | Modelar localidades, escopo, onboarding e moderação por área | Operação piloto repetível | P3 / XL | Vazamento/cold start | Testes garantem escopo; segundo bairro opera isolado | Expansão geográfica |
+| Observabilidade e SLO | Logs estruturados, erros, métricas, alertas e auditoria | Infra definida | P2 / L | Ruído/custo | SLOs e alertas acionáveis; incidente simulado detectado | Operação previsível |
+| Storage/cache/fila de produção | Object storage/CDN, workers escaláveis, cache adequado | Métricas de carga | P3 / L | Custo/consistência | Teste de carga e restore atendem SLO | Escala técnica |
+| Busca e geo avançados | Full-text/proximidade somente após `LIKE`/viewport saturarem | Dados canônicos e métricas | P3 / XL | Infra prematura | Benchmark prova ganho e fallback existe | Descoberta em maior volume |
+| PWA/push | Instalação e notificações opt-in | Retenção web comprovada | P3 / L | Permissão/fadiga | Instalação e unsubscribe funcionam; uso incremental medido | Canal recorrente |
+
+## Sequência crítica
+
+```text
+segredos/dependências → autorização/status/XSS → horários/claim →
+transações/fila/constraints → jornada moderada + comercial → piloto →
+engajamento medido → monetização → expansão
+```
+
+Não iniciar Fase 3–5 enquanto houver P0 aberto. As fases são gates de risco, não apenas calendário.
