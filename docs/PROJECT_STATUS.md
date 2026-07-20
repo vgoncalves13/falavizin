@@ -7,7 +7,7 @@
 
 O Hub do Bairro é hoje um portal hiperlocal demonstrável para um bairro: moradores publicam e interagem em um feed; visitantes descobrem negócios, promoções e eventos; comerciantes mantêm perfis; administradores moderam e importam estabelecimentos. O inventário encontrou **12 módulos e 36 capacidades**, das quais **20 têm caminho feliz funcional** e **16 estão parciais ou possuem ressalvas relevantes**.
 
-A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Livewire 4, MySQL, Actions, Policies, migrations e 182 testes compõem uma fundação razoável. Em 20/07/2026, todos os 182 testes/383 assertions e o build frontend passaram. Ainda assim, o produto **não deve ir para produção** antes de corrigir dependências vulneráveis, XSS nos mapas, exposição de conteúdo não aprovado, falhas de escopo/autorização Livewire e reivindicação insegura de negócios.
+A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Livewire 4, MySQL, Actions, Policies, migrations e 182 testes compõem uma fundação razoável. Em 20/07/2026, todos os 182 testes/383 assertions e o build frontend passaram; as auditorias Composer e npm também foram zeradas após a B002. Ainda assim, o produto **não deve ir para produção** antes de corrigir XSS nos mapas, exposição de conteúdo não aprovado, falhas de escopo/autorização Livewire e reivindicação insegura de negócios.
 
 ## O que está utilizável/demonstrável
 
@@ -23,7 +23,7 @@ A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Li
 
 ## O que impede produção
 
-1. Auditorias encontraram 20 advisories Composer e 9 npm, sendo 2 npm críticos.
+1. ✅ Dependências vulneráveis: corrigidas na B002; `composer audit` e `npm audit` agora retornam zero.
 2. Popups Leaflet interpolam dados de negócio em HTML, permitindo XSS armazenado.
 3. Posts e negócios pending/rejected podem ser acessados por rota pública direta.
 4. Ações Livewire aceitam IDs fora do recurso e/ou deixam de reautorizar mutações.
@@ -67,8 +67,8 @@ Ranking, Pulso, patrocínio e planos podem continuar em avaliação/área secund
 
 | Ordem | Backlog | Tarefa | Esforço |
 |---|---|---|---|
-| 1 | B001 | Rotacionar a credencial RapidAPI exposta | XS |
-| 2 | B002 | Corrigir advisories Composer e npm bloqueadores | M |
+| 1 | B001 | ✅ Rotacionar a credencial RapidAPI exposta — concluída em 20/07/2026 | XS |
+| 2 | B002 | ✅ Corrigir advisories Composer e npm bloqueadores — concluída em 20/07/2026 | M |
 | 3 | B003 | Neutralizar XSS nos popups Leaflet | S |
 | 4 | B004 | Restringir conteúdo não aprovado nas rotas públicas | S |
 | 5 | B005 | Escopar e reautorizar mutações Livewire | M |
@@ -82,7 +82,7 @@ O backlog completo está em [Backlog priorizado](analysis/09-prioritized-backlog
 
 ## Recomendação para começar hoje
 
-**Começar por B001: rotacionar a credencial RapidAPI**, pois houve exposição durante a inspeção e a contenção leva poucas horas. Logo depois, implementar B003 e B004 como o primeiro lote de código: são correções pequenas, de alto impacto, com critérios de aceite claros e testes de regressão diretos. A atualização de dependências B002 pode ocorrer no mesmo ciclo isolado para facilitar diagnóstico de regressões.
+**Próxima tarefa: B003 — neutralizar o XSS nos popups Leaflet.** É uma correção pequena, crítica e com teste de regressão direto. Depois segue B004, que restringe conteúdo não aprovado nas rotas públicas.
 
 ## Índice da análise
 

@@ -8,8 +8,8 @@
 | `npm run build` | **Passou**; CSS 103,79 kB (18,75 kB gzip), JS 37,17 kB (14,87 kB gzip) |
 | `composer validate --strict` | **Passou** |
 | `pint --test` | **Falhou** em um arquivo: `tests/Feature/BusinessReviewTest.php` |
-| `composer audit` | **20 advisories em 11 pacotes**, incluindo severidades altas |
-| `npm audit` | **9 vulnerabilidades:** 2 críticas, 4 altas, 2 médias e 1 baixa |
+| `composer audit` | **0 advisories após B002**; baseline: 20 em 11 pacotes |
+| `npm audit` | **0 vulnerabilidades após B002**; baseline: 9, incluindo 2 críticas |
 | Migrations | 38 migrations aplicadas no MySQL local |
 | Jobs | 9 jobs falhos, todos `EnrichBusinessFromGoogle`, no banco local |
 
@@ -19,7 +19,7 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 
 | ID | Descrição e impacto | Arquivos/evidência | Recomendação | Esforço / prioridade |
 |---|---|---|---|---|
-| T01 | **Dependências com vulnerabilidades conhecidas.** Pode permitir comprometimento por falhas publicadas em Laravel/Symfony/Guzzle, Axios, Vite e ferramentas transitivas. Bloqueia produção. | `composer.lock`; `package-lock.json`; auditorias acima | Atualizar primeiro dentro das versões compatíveis, revisar breaking changes, repetir testes/build/audits; tratar exceções formalmente | M / P0 |
+| T01 | ✅ **Resolvido em 20/07/2026.** Dependências tinham vulnerabilidades publicadas em Laravel/Symfony/Guzzle, Axios, Vite e transitivas. | `composer.lock`; `package-lock.json`; auditorias acima | Manter audits no CI; Laravel foi atualizado dentro da linha 12 e o npm sem `--force` | M / P0 concluída |
 | T02 | **XSS armazenado nos popups Leaflet.** Nome, categoria e bairro do negócio entram em HTML por interpolação; conteúdo controlado por usuário pode executar script no navegador. | Payload em `app/Http/Controllers/BusinessController.php:24-40`; interpolação em `resources/views/businesses/index.blade.php:78-118` e `show.blade.php:318-351` | Construir nós com `textContent` ou sanitizar/escapar todos os valores; adicionar teste de regressão | S / P0 |
 | T03 | **Conteúdo pendente/rejeitado acessível por URL pública.** Slugs adivinhados expõem conteúdo moderado e permitem interações. | Rotas públicas `routes/web.php:31,33`; ausência de scope em `PostController.php:17-31` e `BusinessController.php:45-55` | Aplicar binding/scope aprovado para visitantes; liberar autor/admin explicitamente | S / P0 |
 | T04 | **Autorização e integridade quebradas em ações Livewire.** IDs não escopados permitem criar promoção em negócio alheio, responder review de outro negócio, ligar resposta a comentário de outro post e votar opção de outra enquete. `BusinessForm::save` também não reautoriza update. | `PromotionForm.php:64-90`; `ReviewSection.php:67-106`; `CommentSection.php:103-122`; `PollVote.php:30-54`; `BusinessForm.php:152-189` | Autorizar em cada ação mutável, buscar recursos pela relação pai e adicionar constraints/testes negativos | M / P0 |

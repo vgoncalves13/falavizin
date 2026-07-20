@@ -34,7 +34,7 @@ Não existe papel separado de moderador nem tabela de papéis. A autorização a
 
 | Camada | Implementação encontrada |
 |---|---|
-| Backend | PHP 8.5.6 no ambiente auditado; Laravel 12.54.1 (`composer.json:10-18`) |
+| Backend | PHP 8.5.6 no ambiente auditado; Laravel 12.64.0 após B002 (`composer.json:10-18`; `composer.lock`) |
 | Frontend | Blade, Livewire 4.2.1, Alpine.js e Tailwind CSS 4 (`composer.json:14`; `package.json:12-18`) |
 | Banco | MySQL no ambiente atual; migrations compatíveis em sua maioria com Laravel (`database/migrations`) |
 | Filas/cache/sessão | Driver `database` no ambiente atual; jobs de enriquecimento assíncrono (`app/Jobs/EnrichBusinessFromGoogle.php`) |
