@@ -30,6 +30,26 @@ class BusinessTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_guest_cannot_view_pending_business(): void
+    {
+        $business = Business::factory()->create(['status' => BusinessStatus::Pending]);
+
+        $this->get(route('businesses.show', $business))->assertForbidden();
+    }
+
+    public function test_owner_and_admin_can_view_pending_business(): void
+    {
+        $owner = User::factory()->create();
+        $admin = User::factory()->create(['is_admin' => true]);
+        $business = Business::factory()->create([
+            'user_id' => $owner->id,
+            'status' => BusinessStatus::Pending,
+        ]);
+
+        $this->actingAs($owner)->get(route('businesses.show', $business))->assertOk();
+        $this->actingAs($admin)->get(route('businesses.show', $business))->assertOk();
+    }
+
     public function test_map_popups_render_business_data_as_text(): void
     {
         $indexView = file_get_contents(resource_path('views/businesses/index.blade.php'));

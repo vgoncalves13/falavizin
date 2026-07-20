@@ -16,6 +16,8 @@ class PostController extends Controller
 
     public function show(Post $post): View
     {
+        Gate::authorize('view', $post);
+
         $post->load(['user', 'category', 'votes', 'poll.options', 'poll.votes']);
 
         $relatedPosts = Post::query()

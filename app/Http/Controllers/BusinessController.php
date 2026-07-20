@@ -44,6 +44,8 @@ class BusinessController extends Controller
 
     public function show(Business $business): View
     {
+        Gate::authorize('view', $business);
+
         $canManage = auth()->user()?->can('update', $business);
 
         $business->load(['user', 'category', 'coverPhoto', 'promotions' => function ($q) use ($canManage) {

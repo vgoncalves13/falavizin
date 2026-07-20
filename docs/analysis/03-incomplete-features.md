@@ -19,7 +19,7 @@
 
 ## Branches conceituais e estados sem ciclo completo
 
-- `PostStatus` e `BusinessStatus` possuem pending/approved/rejected, mas as páginas públicas individuais não bloqueiam pending/rejected (`app/Http/Controllers/PostController.php:17-31`; `BusinessController.php:45-55`).
+- `PostStatus` e `BusinessStatus` possuem pending/approved/rejected. A exposição pública individual foi corrigida na B004; autor/proprietário e admin mantêm acesso via Policies.
 - `Promotion.status` e `Comment.status` são strings, sem enum/cast equivalente aos demais estados (`app/Models/Promotion.php`; `app/Models/Comment.php`).
 - `plan_upgrade_requested_at` representa pedido de plano, mas não há assinatura, pagamento, renovação ou downgrade automático (`database/migrations/2026_03_19_230615_add_plan_upgrade_requested_at_to_businesses_table.php`).
 - `is_sponsored` é apenas um booleano sem vigência; há controllers administrativos sobrepostos e nenhuma cobrança (`database/migrations/2026_03_19_211451_add_is_sponsored_to_posts_table.php`).

@@ -5,9 +5,9 @@ Prioridade: P0 bloqueia produção; P1 é necessária ao MVP; P2 é importante; 
 | ID | Módulo | Título | Descrição | Tipo | Pri. | Esf. | Dependências | Fase | Critério de aceite |
 |---|---|---|---|---|---|---|---|---|---|
 | B001 | Integrações | ✅ Rotacionar a credencial RapidAPI exposta — concluída em 20/07/2026 | Revogar chave observada na auditoria, restringir e instalar substituta sem revelar valor | segurança | P0 | XS | acesso RapidAPI | 0 | chave antiga inválida; nova mascarada e chamada passa |
-| B002 | Dependências | ✅ Corrigir advisories Composer e npm bloqueadores — concluída em 20/07/2026 | Atualizar versões compatíveis e revisar transitivas | segurança | P0 | M | — | 0 | audits zerados; 183 testes e build verdes |
+| B002 | Dependências | ✅ Corrigir advisories Composer e npm bloqueadores — concluída em 20/07/2026 | Atualizar versões compatíveis e revisar transitivas | segurança | P0 | M | — | 0 | audits zerados; 187 testes e build verdes |
 | B003 | Mapas | ✅ Neutralizar XSS nos popups Leaflet — concluída em 20/07/2026 | Substituir interpolação HTML por texto/nós seguros | segurança | P0 | S | — | 0 | payload vira `textContent`; teste de regressão passa |
-| B004 | Moderação | Restringir conteúdo não aprovado nas rotas públicas | Aplicar status scope com exceção explícita para autor/admin | bug | P0 | S | — | visitante não vê/interage com pending/rejected |
+| B004 | Moderação | ✅ Restringir conteúdo não aprovado nas rotas públicas — concluída em 20/07/2026 | Aplicar status scope com exceção explícita para autor/admin | bug | P0 | S | — | 0 | visitante recebe 403; autor/proprietário e admin acessam |
 | B005 | Livewire | Escopar e reautorizar todas as mutações por ID | Corrigir promoção, review, comentário, poll e BusinessForm | segurança | P0 | M | Policies atuais | 0 | testes cruzados retornam 403/validation e não alteram dados |
 | B006 | Negócios | Reformular reivindicação com prova e expiração | Verificação de e-mail, aprovação/evidência, token seguro, rate limit | segurança | P0 | L | decisão operacional | 1 | nenhum solicitante sem prova assume negócio; token expira |
 | B007 | Negócios | Persistir e normalizar horários de funcionamento | Unificar formato em formulário, Actions, seed e dados | bug | P0 | M | definição do schema JSON | 0 | CRUD e aberto agora passam horários diurnos/noturnos |
@@ -47,4 +47,4 @@ Prioridade: P0 bloqueia produção; P1 é necessária ao MVP; P2 é importante; 
 
 ## Ordem imediata
 
-~~B001~~ → ~~B002~~ → ~~B003~~ → **B004** → B005 → B007 → B006 → B011 → B009 → B010. B010 acompanha cada correção, embora apareça como item consolidado. B008 vem imediatamente depois desse bloco.
+~~B001~~ → ~~B002~~ → ~~B003~~ → ~~B004~~ → **B005** → B007 → B006 → B011 → B009 → B010. B010 acompanha cada correção, embora apareça como item consolidado. B008 vem imediatamente depois desse bloco.

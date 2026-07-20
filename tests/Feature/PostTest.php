@@ -31,6 +31,26 @@ class PostTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_guest_cannot_view_pending_post(): void
+    {
+        $post = Post::factory()->create(['status' => PostStatus::Pending]);
+
+        $this->get(route('feed.show', $post))->assertForbidden();
+    }
+
+    public function test_author_and_admin_can_view_pending_post(): void
+    {
+        $author = User::factory()->create();
+        $admin = User::factory()->create(['is_admin' => true]);
+        $post = Post::factory()->create([
+            'user_id' => $author->id,
+            'status' => PostStatus::Pending,
+        ]);
+
+        $this->actingAs($author)->get(route('feed.show', $post))->assertOk();
+        $this->actingAs($admin)->get(route('feed.show', $post))->assertOk();
+    }
+
     public function test_create_post_page_requires_authentication(): void
     {
         $response = $this->get(route('feed.create'));

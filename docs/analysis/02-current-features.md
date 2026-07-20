@@ -24,7 +24,7 @@
 |---|---|---|---|---|---|
 | F07 | Lista do feed | Filtra categoria/bairro e ordena por recente ou tendência | `FeedList`; `feed/index.blade.php`; `post-card` | `/feed` | **Funcional.** Eager loading e paginação em `app/Livewire/Feed/FeedList.php:38-60` |
 | F08 | Criar publicação | Autenticado informa categoria, conteúdo, imagem e variações; limite 5/h; nasce pendente | `CreatePost`, `CreatePostAction`; `feed/create.blade.php` | `/criar-post` | **Funcional.** `app/Livewire/Feed/CreatePost.php:39-125`; `app/Actions/CreatePostAction.php:17-57` |
-| F09 | Ver publicação | Exibe conteúdo, autor, categoria e relacionados | `PostController::show`; `feed/show.blade.php` | `/feed/{post:slug}` | **Com possível erro.** Não restringe status aprovado (`PostController.php:17-31`) |
+| F09 | Ver publicação | Exibe conteúdo, autor, categoria e relacionados | `PostController::show`; `PostPolicy`; `feed/show.blade.php` | `/feed/{post:slug}` | **Funcional.** B004 restringe conteúdo não aprovado a autor/admin |
 | F10 | Editar/excluir publicação | Autor/admin edita ou remove via Policy | `EditPost`, `PostController::destroy`, `PostPolicy` | `/feed/{post}/editar`, DELETE `/feed/{post}` | **Funcional.** `routes/web.php:47-50`; `app/Policies/PostPolicy.php` |
 | F11 | Salvar e compartilhar | Usuário alterna item salvo; compartilhamento usa Web Share/clipboard | `SaveButton`, componente Blade `share-button` | Ações Livewire/Alpine no detalhe/card | **Funcional.** `app/Livewire/Feed/SaveButton.php`; `resources/views/components/share-button.blade.php` |
 
@@ -50,7 +50,7 @@
 | ID | Funcionalidade | Fluxo, regras e envolvidos | Implementação e telas | Rotas | Status/evidência |
 |---|---|---|---|---|---|
 | F19 | Catálogo e filtros | Busca, categoria, destaque, “aberto agora” e lista/mapa | `BusinessList`; `businesses/index.blade.php` | `/servicos` | **Parcial.** Funciona, mas “aberto agora” carrega tudo em memória (`BusinessList.php:52-66`) |
-| F20 | Perfil do negócio | Exibe capa, galeria, contato, endereço, horário, mapa e ofertas | `BusinessController::show`; `businesses/show.blade.php` | `/servicos/{business:slug}` | **Com possível erro.** Status não é filtrado (`BusinessController.php:45-55`); o XSS do popup foi corrigido na B003 |
+| F20 | Perfil do negócio | Exibe capa, galeria, contato, endereço, horário, mapa e ofertas | `BusinessController::show`; `BusinessPolicy`; `businesses/show.blade.php` | `/servicos/{business:slug}` | **Funcional.** B003 corrigiu o popup e B004 restringiu status não aprovado |
 | F21 | Cadastro/edição manual | Proprietário cadastra e edita dados/fotos | `BusinessForm`, Actions e Requests; views create/edit | `/cadastrar-negocio`, `/meu-negocio/{business}/editar` | **Parcial.** Horários digitados não são persistidos (`BusinessForm.php:118-167`; Actions omitem o campo) |
 | F22 | Galeria de fotos | Upload, redimensionamento, capa e ordenação básica | `BusinessPhoto`, `PhotoGallery`, Actions | Perfil/formulário | **Funcional com ressalvas.** Não há constraint de capa única nem limpeza completa de arquivos |
 | F23 | Favoritar negócio | Usuário alterna favorito e consulta na conta | `FavoriteButton`; pivot `business_user_favorites` | Ação Livewire | **Funcional.** `app/Livewire/Business/FavoriteButton.php`; migration da pivot |
@@ -100,8 +100,8 @@
 
 ## Resumo por status
 
-- **Funcionais no caminho feliz:** F01, F02, F04, F06–F08, F10–F11, F15–F16, F18, F22–F23, F26, F30–F31, F34–F35 (20).
-- **Parciais ou com ressalvas relevantes:** F03, F05, F09, F12–F14, F17, F19–F21, F24–F25, F27–F29, F32–F33, F36 (16).
+- **Funcionais no caminho feliz:** F01, F02, F04, F06–F11, F15–F16, F18, F20, F22–F23, F26, F30–F31, F34–F35 (20).
+- **Parciais ou com ressalvas relevantes:** F03, F05, F12–F14, F17, F19, F21, F24–F25, F27–F29, F32–F33, F36 (16).
 - **Aparentemente abandonadas/não utilizadas:** não contam entre as 36 capacidades; views scaffold e placeholders estão listados em `03-incomplete-features.md`.
 
 Esses números são uma classificação de auditoria, não uma métrica de cobertura ou prontidão comercial.

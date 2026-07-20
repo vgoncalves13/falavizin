@@ -4,7 +4,7 @@
 
 | Verificação em 20/07/2026 | Resultado |
 |---|---|
-| `artisan test --compact` | **183 testes, 388 assertions, todos passando** após B003 |
+| `artisan test --compact` | **187 testes, 394 assertions, todos passando** após B004 |
 | `npm run build` | **Passou**; CSS 103,79 kB (18,75 kB gzip), JS 37,17 kB (14,87 kB gzip) |
 | `composer validate --strict` | **Passou** |
 | `pint --test` | **Falhou** em um arquivo: `tests/Feature/BusinessReviewTest.php` |
@@ -21,7 +21,7 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 |---|---|---|---|---|
 | T01 | ✅ **Resolvido em 20/07/2026.** Dependências tinham vulnerabilidades publicadas em Laravel/Symfony/Guzzle, Axios, Vite e transitivas. | `composer.lock`; `package-lock.json`; auditorias acima | Manter audits no CI; Laravel foi atualizado dentro da linha 12 e o npm sem `--force` | M / P0 concluída |
 | T02 | ✅ **Resolvido em 20/07/2026.** Popups Leaflet interpolavam nome, categoria e bairro em HTML. | Correção em `resources/views/businesses/index.blade.php` e `show.blade.php`; regressão em `tests/Feature/BusinessTest.php` | Manter conteúdo dinâmico em nós DOM com `textContent` | S / P0 concluída |
-| T03 | **Conteúdo pendente/rejeitado acessível por URL pública.** Slugs adivinhados expõem conteúdo moderado e permitem interações. | Rotas públicas `routes/web.php:31,33`; ausência de scope em `PostController.php:17-31` e `BusinessController.php:45-55` | Aplicar binding/scope aprovado para visitantes; liberar autor/admin explicitamente | S / P0 |
+| T03 | ✅ **Resolvido em 20/07/2026.** Conteúdo pendente/rejeitado era acessível por URL pública. | `PostPolicy::view`, `BusinessPolicy::view` e autorização nos métodos `show`; regressões em `PostTest`/`BusinessTest` | Manter exceção somente para autor/proprietário e admin | S / P0 concluída |
 | T04 | **Autorização e integridade quebradas em ações Livewire.** IDs não escopados permitem criar promoção em negócio alheio, responder review de outro negócio, ligar resposta a comentário de outro post e votar opção de outra enquete. `BusinessForm::save` também não reautoriza update. | `PromotionForm.php:64-90`; `ReviewSection.php:67-106`; `CommentSection.php:103-122`; `PollVote.php:30-54`; `BusinessForm.php:152-189` | Autorizar em cada ação mutável, buscar recursos pela relação pai e adicionar constraints/testes negativos | M / P0 |
 | T05 | **Credencial externa exposta durante a inspeção do ambiente.** Um valor configurado foi exibido por ferramenta de diagnóstico. O valor não está reproduzido nestes documentos. | Configuração `config/services.php:38-41`; incidente operacional da sessão de auditoria | Revogar/rotacionar a chave RapidAPI imediatamente, revisar uso/quota e garantir mascaramento de diagnósticos | XS / P0 |
 
@@ -71,7 +71,7 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 
 - Actions e Policies existem para operações centrais; controllers em geral são pequenos.
 - Models possuem relacionamentos e scopes legíveis; listas principais usam eager loading.
-- A suíte de 183 testes é uma base forte e roda integralmente no MySQL local.
+- A suíte de 187 testes é uma base forte e roda integralmente no MySQL local.
 - Migrations evitam enum nativo do MySQL e incluem índices nas consultas mais óbvias.
 - Uploads são processados e armazenados pelo Laravel Storage.
 
@@ -97,4 +97,4 @@ Formato: localização → corte → substituição mínima.
 
 ## Testes e cobertura
 
-Os testes atuais provam muitos caminhos felizes, Policies e validações. Não há número de cobertura disponível. As maiores lacunas são testes negativos para IDs cruzados em Livewire, visibilidade por status, idempotência de pontos, persistência de horários, claim, jobs/retries, cache, limpeza de arquivos e acessibilidade. A aprovação de produção deve exigir esses testes, não apenas manter os 183 atuais verdes.
+Os testes atuais provam muitos caminhos felizes, Policies e validações. Não há número de cobertura disponível. As maiores lacunas são testes negativos para IDs cruzados em Livewire, idempotência de pontos, persistência de horários, claim, jobs/retries, cache, limpeza de arquivos e acessibilidade. A aprovação de produção deve exigir esses testes, não apenas manter os 187 atuais verdes.
