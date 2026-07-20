@@ -17,7 +17,6 @@ Estas dúvidas não podem ser resolvidas com segurança apenas pelo repositório
 | Q12 | Quem é o controlador de dados e quais políticas de privacidade/retenção se aplicam? | Telefone, endereço, localização, denúncias e analytics potenciais; não há docs legais | LGPD, piloto e analytics |
 | Q13 | Qual infraestrutura de produção é pretendida? | Não há deploy/CI; Compose traz serviços não usados | Proxy confiável, worker, storage, backup e SLO |
 | Q14 | A alteração local `trustProxies('*')` é intencional e qual proxy ficará à frente da aplicação? | `bootstrap/app.php:18` está modificado fora desta auditoria | Segurança de IP/HTTPS/rate limit |
-| Q15 | Os nove jobs falhos refletem chave/quota, rede, payload ou bug? | Banco local registra falhas de `EnrichBusinessFromGoogle` | Correção de integração e retry |
 | Q16 | O banco local contém dados reais, demo ou importados? Podem ser descartados/saneados? | Há usuários, negócios e interações; origem não é determinável apenas pelo código | Migrações corretivas e privacidade |
 | Q17 | E-mail SMTP está operacional e existe domínio/remetente validado? | Configuração existe; não foi enviado e-mail real nesta auditoria | Reset e notificações |
 | Q18 | É aceitável assumir MySQL exclusivamente? | Código usa SQL MySQL, mas `.env.example` aponta SQLite | CI, desenvolvimento e portabilidade |
@@ -30,6 +29,6 @@ Estas dúvidas não podem ser resolvidas com segurança apenas pelo repositório
 
 ## Decisões recomendadas antes de codificar novas features
 
-**Decisão registrada em 20/07/2026:** Q04 foi respondida pelo responsável: a propriedade será concedida por aprovação manual do administrador. A B006 implementou esse fluxo; evidência, SLA e trilha operacional continuam como refinamentos.
+**Decisões registradas em 20/07/2026:** Q04 foi respondida pelo responsável: a propriedade será concedida por aprovação manual do administrador. A B006 implementou esse fluxo; evidência, SLA e trilha operacional continuam como refinamentos. Q15 foi diagnosticada na B009: todos os nove jobs falharam por HTTP 429; a fila foi recuperada após rotação da chave e correção de timeout/backoff/espaçamento.
 
-Responder primeiro Q01–Q03, Q05, Q11–Q15 e Q20. Elas definem escopo do piloto, segurança, operação e critério de sucesso. Q06–Q10 devem ser decididas com evidência de usuários; Q21–Q24 entram no fechamento operacional.
+Responder primeiro Q01–Q03, Q05, Q11–Q14 e Q20. Elas definem escopo do piloto, segurança, operação e critério de sucesso. Q06–Q10 devem ser decididas com evidência de usuários; Q21–Q24 entram no fechamento operacional.

@@ -12,7 +12,7 @@ class GooglePlacesService
         $key = config('services.rapidapi.key');
         $host = config('services.rapidapi.google_places_host');
 
-        $response = Http::withHeaders([
+        $response = Http::connectTimeout(5)->timeout(20)->withHeaders([
             'x-rapidapi-key' => $key,
             'x-rapidapi-host' => $host,
             'X-Goog-FieldMask' => '*',
@@ -30,7 +30,7 @@ class GooglePlacesService
         $key = config('services.rapidapi.key');
         $host = config('services.rapidapi.google_places_host');
 
-        $response = Http::withHeaders([
+        $response = Http::connectTimeout(5)->timeout(20)->withHeaders([
             'x-rapidapi-key' => $key,
             'x-rapidapi-host' => $host,
         ])->get("https://{$host}/v1/{$photoName}/media", [
@@ -70,7 +70,7 @@ class GooglePlacesService
             $body['includedTypes'] = $includedTypes;
         }
 
-        $response = Http::withHeaders([
+        $response = Http::connectTimeout(5)->timeout(20)->withHeaders([
             'x-rapidapi-key' => $key,
             'x-rapidapi-host' => $host,
             'Content-Type' => 'application/json',

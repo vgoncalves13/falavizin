@@ -17,9 +17,12 @@ class EnrichBusinessFromGoogle implements ShouldQueue
 {
     use Queueable;
 
-    public int $tries = 3;
+    public int $tries = 4;
 
-    public int $backoff = 60;
+    /** @var array<int, int> */
+    public array $backoff = [60, 300, 900];
+
+    public int $timeout = 60;
 
     public function __construct(public readonly int $businessId) {}
 

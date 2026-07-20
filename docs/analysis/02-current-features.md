@@ -96,7 +96,7 @@
 
 | ID | Funcionalidade | Fluxo, regras e envolvidos | Implementação e telas | Rotas | Status/evidência |
 |---|---|---|---|---|---|
-| F36 | Importar Google Places | Admin/CLI pesquisa, evita duplicatas e cria negócios; UI despacha enriquecimento | `GooglePlacesService`, `GooglePlacesImport`, command, `EnrichBusinessFromGoogle` | `/admin/importar-google`; `businesses:import-google` | **Parcial.** CLI e UI divergem; nove jobs locais falharam na observação; faltam timeout/retry adequados |
+| F36 | Importar Google Places | Admin/CLI pesquisa, evita duplicatas e cria negócios; UI despacha enriquecimento | `GooglePlacesService`, `GooglePlacesImport`, command, `EnrichBusinessFromGoogle` | `/admin/importar-google`; `businesses:import-google` | **Parcial.** B009 recuperou os nove 429 e adicionou timeout, espaçamento e backoff; CLI/UI, field mask, fotos e observabilidade ainda divergem |
 
 ## Resumo por status
 

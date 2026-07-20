@@ -7,7 +7,7 @@
 
 O Hub do Bairro é hoje um portal hiperlocal demonstrável para um bairro: moradores publicam e interagem em um feed; visitantes descobrem negócios, promoções e eventos; comerciantes mantêm perfis; administradores moderam e importam estabelecimentos. O inventário encontrou **12 módulos e 36 capacidades**, das quais **26 têm caminho feliz funcional** e **10 estão parciais ou possuem ressalvas relevantes**.
 
-A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Livewire 4, MySQL, Actions, Policies, migrations e 200 testes compõem uma fundação razoável. Em 20/07/2026, todos os 200 testes/418 assertions e o build frontend passaram; as auditorias Composer e npm também foram zeradas após a B002. Ainda assim, o produto **não deve ir para produção** antes de fechar fila, consistência e operação de deploy.
+A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Livewire 4, MySQL, Actions, Policies, migrations e 201 testes compõem uma fundação razoável. Em 20/07/2026, todos os 201 testes/423 assertions e o build frontend passaram; as auditorias Composer e npm também foram zeradas após a B002. Ainda assim, o produto **não deve ir para produção** antes de fechar consistência, observabilidade e operação de deploy.
 
 ## O que está utilizável/demonstrável
 
@@ -32,7 +32,7 @@ A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Li
 7. ✅ Credenciais padrão de seed: removidas na B011; produção cria apenas categorias e demo exige senha explícita.
 8. Pontos não são idempotentes e podem ser acumulados repetidamente.
 9. E-mails são síncronos e operações compostas não são transacionais.
-10. Há nove jobs locais falhos de enriquecimento, sem recuperação operacional clara.
+10. ✅ Nove jobs de enriquecimento falhos: causa 429 identificada, fila recuperada e backoff/timeout corrigidos na B009.
 11. Não há CI, runbook de deploy/backup/worker ou README real do projeto.
 
 Detalhes, arquivos, severidade e correções: [Auditoria técnica](analysis/04-technical-audit.md).
@@ -76,14 +76,14 @@ Ranking, Pulso, patrocínio e planos podem continuar em avaliação/área secund
 | 6 | B007 | ✅ Persistir e normalizar horários de funcionamento — concluída em 20/07/2026 | M |
 | 7 | B006 | ✅ Substituir reivindicação por aprovação manual do admin — concluída em 20/07/2026 | L |
 | 8 | B011 | ✅ Remover senhas padrão de seeds operacionais — concluída em 20/07/2026 | S |
-| 9 | B009 | Recuperar jobs de enriquecimento falhos | M |
+| 9 | B009 | ✅ Recuperar jobs de enriquecimento falhos — concluída em 20/07/2026 | M |
 | 10 | B010 | Consolidar testes de regressão P0 | M |
 
 O backlog completo está em [Backlog priorizado](analysis/09-prioritized-backlog.md).
 
 ## Recomendação para começar hoje
 
-**Próxima tarefa: B009 — recuperar jobs de enriquecimento falhos.** A fila local registra nove falhas e precisa de diagnóstico, retry seguro e tratamento previsível antes do piloto.
+**Próxima tarefa: B010 — consolidar as regressões P0.** As correções já possuem testes dedicados; falta conferir a matriz B003–B009 e registrar qualquer lacuna antes de avançar para idempotência de pontos.
 
 ## Índice da análise
 

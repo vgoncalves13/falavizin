@@ -4,14 +4,14 @@
 
 | Verificação em 20/07/2026 | Resultado |
 |---|---|
-| `artisan test --compact` | **200 testes, 418 assertions, todos passando** após B011 |
+| `artisan test --compact` | **201 testes, 423 assertions, todos passando** após B009 |
 | `npm run build` | **Passou**; CSS 103,79 kB (18,75 kB gzip), JS 37,17 kB (14,87 kB gzip) |
 | `composer validate --strict` | **Passou** |
 | `pint --test` | **Falhou** em um arquivo: `tests/Feature/BusinessReviewTest.php` |
 | `composer audit` | **0 advisories após B002**; baseline: 20 em 11 pacotes |
 | `npm audit` | **0 vulnerabilidades após B002**; baseline: 9, incluindo 2 críticas |
 | Migrations | 38 migrations aplicadas no MySQL local |
-| Jobs | 9 jobs falhos, todos `EnrichBusinessFromGoogle`, no banco local |
+| Jobs | **0 falhos e 0 pendentes** após recuperação controlada dos 9 erros HTTP 429 na B009 |
 
 Esses resultados são observações reproduzíveis do ambiente auditado. As versões diretas estão em `composer.json:10-18` e `package.json:12-18`; resoluções transitivas estão nos lockfiles.
 
@@ -35,7 +35,7 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 | T09 | E-mails e notificações são síncronos apesar de usarem `Queueable`; falha externa pode degradar request e deixar operação parcialmente concluída | `NewContentNotification.php:9-20`; `ContentModerationNotification.php:9-22`; `ClaimBusinessController.php:22-25` | Implementar `ShouldQueue`, after-commit, retry/backoff e monitoramento | M / P1 |
 | T10 | Operações multi-etapa não usam transação/compensação: criação com imagem/enquete/pontos/notificação, claim, pontos e troca de foto podem ficar pela metade | `CreatePostAction.php:17-57`; `ClaimBusinessAction.php:13-28`; `AwardPointsAction.php:12-23`; `UpdateBusinessAction.php:34-54` | Delimitar transações de banco e limpar arquivos em falhas; notificar após commit | L / P1 |
 | T11 | ✅ **Resolvido em 20/07/2026.** Produção semeia apenas categorias; dados demo ficam restritos a local/testing e exigem `DEMO_USER_PASSWORD` sem default. | `DatabaseSeeder.php`; `config/app.php`; `.env.example`; `DatabaseSeederTest.php` | Provisionar o primeiro admin de produção por procedimento deliberado até automação ser necessária | S / P0 concluída |
-| T12 | Enriquecimento externo tem jobs falhos sem mecanismo visível de recuperação; download de foto aceita URL retornada externamente | `app/Jobs/EnrichBusinessFromGoogle.php:124-137`; tabela local `failed_jobs`; ausência de scheduler em `routes/console.php` | Restringir host/protocolo, timeouts/tamanho, retries/backoff, dashboard/alerta e runbook | M / P1 |
+| T12 | ⚠️ **Incidente operacional resolvido na B009:** nove 429 foram recuperados; job agora tem timeout/backoff progressivo e a UI espaça o lote. Permanece o risco de download de URL/tamanho não validado e falta alerta proativo. | `EnrichBusinessFromGoogle.php`; `GooglePlacesService.php`; `GooglePlacesImport.php`; `EnrichBusinessFromGoogleTest.php` | Restringir host/protocolo/tamanho da foto; adicionar alerta quando a infraestrutura de produção existir | M / P1 parcial |
 
 ## Problemas de severidade média
 
@@ -47,7 +47,7 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 | T16 | Configuração de exemplo contradiz aplicação e ambiente: nome Laravel, locale inglês, SQLite, disco local e mail log | `.env.example:1,7-9,23,30,37-40,50-57`; intenção em `CLAUDE.md` | Tornar `.env.example` executável e seguro para o MVP; documentar variantes | S / P1 |
 | T17 | Integridade de banco insuficiente: poll 1:1 sem unique; voto aceita opção de outra poll; capa de foto não é única; rating não tem check | migrations `create_polls`, `create_poll_votes`, `create_business_photos`, `create_reviews` | Adicionar constraints após saneamento; manter validação de aplicação | M / P1 |
 | T18 | Estados fixos são inconsistentes: `Promotion` e `Comment` usam strings onde outros models usam enums/casts | `app/Models/Promotion.php`; `app/Models/Comment.php`; projeto usa enums em `app/Enums` | Criar enums/casts e validar em uma camada central | S / P2 |
-| T19 | Serviço Google pede field mask `*`, sem timeout/retry consistente; UI enriquece e CLI não, produzindo resultados diferentes | `GooglePlacesService.php:15-25,73-96`; `GooglePlacesImport.php:111-121`; `ImportBusinessesFromGoogle.php:82-92` | Pedir só campos usados; padronizar pipeline, timeout, retry e quota | M / P1 |
+| T19 | Serviço Google ainda pede field mask `*`; UI enriquece e CLI não, e a busca interativa não possui retry, produzindo custo e resultados diferentes | `GooglePlacesService.php`; `GooglePlacesImport.php`; `ImportBusinessesFromGoogle.php` | Pedir só campos usados; padronizar pipeline e tratamento de quota | M / P1 |
 | T20 | Não há trilha de auditoria para moderação, plano, patrocínio, configurações ou claim; notifications não substituem histórico imutável | Controllers em `app/Http/Controllers/Admin`; `ClaimBusinessAction.php` | Registrar ator, ação, alvo, antes/depois e motivo | M / P2 |
 | T21 | Rate limits cobrem posts/comentários/votos/denúncias e claims, mas não reviews, respostas, favoritos, salvos ou upgrades | componentes Livewire correspondentes; rota `businesses.claim.request` | Limitar operações de abuso por usuário/IP e testar | S / P1 |
 | T22 | Verificação de e-mail é uma promessa de UI não aplicada ao model | `routes/auth.php:38-48`; `User.php:5,13-16` | Decidir e alinhar contrato, middleware, UI e testes | S / P1 |
@@ -71,7 +71,7 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 
 - Actions e Policies existem para operações centrais; controllers em geral são pequenos.
 - Models possuem relacionamentos e scopes legíveis; listas principais usam eager loading.
-- A suíte de 200 testes é uma base forte e roda integralmente no MySQL local.
+- A suíte de 201 testes é uma base forte e roda integralmente no MySQL local.
 - Migrations evitam enum nativo do MySQL e incluem índices nas consultas mais óbvias.
 - Uploads são processados e armazenados pelo Laravel Storage.
 
@@ -97,4 +97,11 @@ Formato: localização → corte → substituição mínima.
 
 ## Testes e cobertura
 
-Os testes atuais provam muitos caminhos felizes, Policies e validações. Não há número de cobertura disponível. As maiores lacunas são idempotência de pontos, jobs/retries, cache, limpeza de arquivos e acessibilidade. Claim e isolamento dos seeds possuem cobertura positiva e negativa dedicada. A aprovação de produção deve exigir testes dos riscos restantes, não apenas manter os 200 atuais verdes.
+Os testes atuais provam muitos caminhos felizes, Policies e validações. Não há número de cobertura disponível. As maiores lacunas são idempotência de pontos, falhas prolongadas de integrações, cache, limpeza de arquivos e acessibilidade. Claim, isolamento dos seeds e resposta 429 possuem cobertura dedicada. A aprovação de produção deve exigir testes dos riscos restantes, não apenas manter os 201 atuais verdes.
+
+## Recuperação do enriquecimento Google Places
+
+1. Execute `php artisan queue:failed` e confirme que a falha pertence a `EnrichBusinessFromGoogle`.
+2. Corrija chave/quota e valide um único negócio com `php artisan businesses:enrich-google --id=<id> --sync`.
+3. Reenvie cada UUID com `php artisan queue:retry <uuid>` e processe com worker ativo, mantendo intervalo entre registros.
+4. Confirme `queue:failed` vazio e ausência de jobs pendentes. Não use `queue:retry all` enquanto a causa do 429 estiver ativa e nunca exponha payloads/headers em diagnóstico compartilhado.

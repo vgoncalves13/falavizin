@@ -14,7 +14,7 @@
 | Pontos e ranking | `point_events`, total no usuário, ranking e várias premiações existem (`AwardPointsAction.php`; `RankingController.php`) | Idempotência, regra antifraude, reconciliação e decisão sobre conteúdo pendente | M | **Reformular** antes de promover o recurso |
 | Pulso do Bairro | Página e componente agregador existem (`PulseController.php`; `NeighborhoodPulse.php`) | Definir métrica útil, janela temporal, bairro correto, fonte/qualidade e critérios de resolução | M | **Validar com usuários**, não expandir às cegas |
 | Eventos | Campos de data e apresentação em posts existem | Calendário, timezone/validação, eventos passados e filtros próprios | M | **Finalizar após o MVP estável** |
-| Google Places | Serviço, UI, command e job existem (`GooglePlacesService.php`; `ImportBusinessesFromGoogle.php`; `EnrichBusinessFromGoogle.php`) | Harmonizar UI/CLI, timeout/retry, observabilidade, tratamento de quota/licença e recuperação de jobs | M | **Finalizar**, pois acelera o catálogo inicial |
+| Google Places | Serviço, UI, command e job existem; B009 identificou 429, recuperou os nove jobs e adicionou timeout, lote espaçado e backoff progressivo | Harmonizar UI/CLI, reduzir field mask, validar URL/tamanho de fotos e adicionar observabilidade de produção | M | **Manter operacional no piloto** e fechar riscos restantes antes de escalar |
 | Moderação fase 2 | Status pendente, fila, denúncia e notificações existem | SLA, motivo estruturado, histórico de decisões, recurso e permissões de moderador | L | **Finalizar o mínimo** antes do piloto aberto |
 
 ## Branches conceituais e estados sem ciclo completo
@@ -46,6 +46,6 @@ O histórico Git mostra ondas de implementação por funcionalidade, mas não su
 
 ## Síntese de esforço
 
-- **Concluir antes de piloto:** jobs e operação básica: aproximadamente 2–4 dias, incluindo testes. Dependências, status público, escopo Livewire, claim e horários já foram corrigidos nas B002–B007.
+- **Concluir antes de piloto:** operação de deploy/worker e consistência: aproximadamente 1–2 semanas, incluindo testes. Dependências, status público, escopo Livewire, claim, horários, seeds e recuperação dos jobs já foram corrigidos nas B002–B011.
 - **Completar engajamento atual:** reputação, eventos, notificações e moderação: mais 2–4 semanas.
 - **Monetização completa:** só após validação; cobrança e ciclo de assinatura são XL e precisam ser quebrados.

@@ -176,6 +176,12 @@ class GooglePlacesImportTest extends TestCase
 
         $this->assertDatabaseCount('businesses', 2);
         Queue::assertPushed(EnrichBusinessFromGoogle::class, 2);
+        Queue::assertPushed(EnrichBusinessFromGoogle::class, function (EnrichBusinessFromGoogle $job): bool {
+            $secondBusiness = Business::where('google_place_id', 'ChIJ_place_002')->firstOrFail();
+
+            return $job->businessId === $secondBusiness->id
+                && $job->delay?->isAfter(now()->addSecond());
+        });
     }
 
     public function test_import_does_not_duplicate_existing_businesses(): void

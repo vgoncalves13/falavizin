@@ -116,8 +116,9 @@ class GooglePlacesImport extends Component
             $business = $action->execute($place, $this->neighborhood, $categoryId);
 
             if ($business !== null) {
+                EnrichBusinessFromGoogle::dispatch($business->id)
+                    ->delay(now()->addSeconds($imported * 3));
                 $imported++;
-                EnrichBusinessFromGoogle::dispatch($business->id);
             }
         }
 
