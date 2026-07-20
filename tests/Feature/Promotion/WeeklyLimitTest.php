@@ -2,15 +2,43 @@
 
 namespace Tests\Feature\Promotion;
 
+use App\Livewire\Business\PromotionForm;
 use App\Models\Business;
 use App\Models\Promotion;
 use App\Models\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class WeeklyLimitTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_non_owner_cannot_create_promotion_through_livewire(): void
+    {
+        $business = Business::factory()->create();
+
+        Livewire::actingAs(User::factory()->create())
+            ->test(PromotionForm::class, ['business' => $business])
+            ->call('save')
+            ->assertForbidden();
+
+        $this->assertDatabaseCount('promotions', 0);
+    }
+
+    public function test_owner_cannot_edit_promotion_from_another_business(): void
+    {
+        $owner = User::factory()->create();
+        $business = Business::factory()->create(['user_id' => $owner->id]);
+        $otherPromotion = Promotion::factory()->create();
+
+        $this->expectException(ModelNotFoundException::class);
+
+        Livewire::actingAs($owner)
+            ->test(PromotionForm::class, ['business' => $business])
+            ->call('startEdit', $otherPromotion->id);
+    }
 
     public function test_business_can_create_first_promotion(): void
     {

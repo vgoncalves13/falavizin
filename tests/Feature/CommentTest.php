@@ -6,6 +6,7 @@ use App\Livewire\Feed\CommentSection;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -64,6 +65,21 @@ class CommentTest extends TestCase
             ->set('body', 'a')
             ->call('addComment')
             ->assertHasErrors(['body' => 'min']);
+    }
+
+    public function test_user_cannot_reply_to_comment_from_another_post(): void
+    {
+        $user = User::factory()->create();
+        $post = Post::factory()->create();
+        $otherComment = Comment::factory()->create();
+
+        $this->expectException(ModelNotFoundException::class);
+
+        Livewire::actingAs($user)
+            ->test(CommentSection::class, ['post' => $post])
+            ->set('replyingTo', $otherComment->id)
+            ->set('replyBody', 'Resposta fora do post.')
+            ->call('addReply');
     }
 
     public function test_owner_can_edit_their_comment(): void

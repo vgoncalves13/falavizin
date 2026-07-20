@@ -89,7 +89,9 @@ class CommentSection extends Component
             return;
         }
 
-        $this->replyingTo = $commentId;
+        $comment = $this->post->comments()->findOrFail($commentId);
+
+        $this->replyingTo = $comment->id;
         $this->replyBody = '';
         $this->editingId = null;
     }
@@ -112,7 +114,7 @@ class CommentSection extends Component
             'replyBody' => ['required', 'string', 'min:3', 'max:1000'],
         ]);
 
-        $parent = Comment::findOrFail($this->replyingTo);
+        $parent = $this->post->comments()->findOrFail($this->replyingTo);
 
         $reply = $this->post->comments()->create([
             'parent_id' => $parent->id,
@@ -132,7 +134,7 @@ class CommentSection extends Component
 
     public function startEdit(int $commentId): void
     {
-        $comment = Comment::findOrFail($commentId);
+        $comment = $this->post->comments()->findOrFail($commentId);
 
         Gate::authorize('update', $comment);
 
@@ -142,7 +144,7 @@ class CommentSection extends Component
 
     public function saveEdit(): void
     {
-        $comment = Comment::findOrFail($this->editingId);
+        $comment = $this->post->comments()->findOrFail($this->editingId);
 
         Gate::authorize('update', $comment);
 
@@ -164,7 +166,7 @@ class CommentSection extends Component
 
     public function deleteComment(int $commentId): void
     {
-        $comment = Comment::findOrFail($commentId);
+        $comment = $this->post->comments()->findOrFail($commentId);
 
         Gate::authorize('delete', $comment);
 
@@ -179,9 +181,11 @@ class CommentSection extends Component
             return;
         }
 
+        $comment = $this->post->comments()->with('user')->findOrFail($commentId);
+
         $existing = Vote::where('user_id', auth()->id())
             ->where('votable_type', Comment::class)
-            ->where('votable_id', $commentId)
+            ->where('votable_id', $comment->id)
             ->first();
 
         if ($existing) {
@@ -193,11 +197,9 @@ class CommentSection extends Component
         Vote::create([
             'user_id' => auth()->id(),
             'votable_type' => Comment::class,
-            'votable_id' => $commentId,
+            'votable_id' => $comment->id,
             'type' => VoteType::Helpful,
         ]);
-
-        $comment = Comment::with('post')->findOrFail($commentId);
 
         if ($comment->user_id !== auth()->id()) {
             $comment->user->notify(new CommentVoteNotification($comment, auth()->user()));

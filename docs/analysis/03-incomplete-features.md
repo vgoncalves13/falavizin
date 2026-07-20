@@ -47,6 +47,6 @@ O histórico Git mostra ondas de implementação por funcionalidade, mas não su
 
 ## Síntese de esforço
 
-- **Concluir antes de piloto:** status público, autorização/escopo Livewire, claim, horários, dependências e jobs: aproximadamente 2–3 semanas de uma pessoa, incluindo testes.
+- **Concluir antes de piloto:** claim, horários e jobs: aproximadamente 1–2 semanas de uma pessoa, incluindo testes. Dependências, status público e escopo Livewire já foram corrigidos nas B002–B005.
 - **Completar engajamento atual:** reputação, eventos, notificações e moderação: mais 2–4 semanas.
 - **Monetização completa:** só após validação; cobrança e ciclo de assinatura são XL e precisam ser quebrados.

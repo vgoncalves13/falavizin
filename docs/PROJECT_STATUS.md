@@ -5,9 +5,9 @@
 
 ## Resumo executivo
 
-O Hub do Bairro é hoje um portal hiperlocal demonstrável para um bairro: moradores publicam e interagem em um feed; visitantes descobrem negócios, promoções e eventos; comerciantes mantêm perfis; administradores moderam e importam estabelecimentos. O inventário encontrou **12 módulos e 36 capacidades**, das quais **20 têm caminho feliz funcional** e **16 estão parciais ou possuem ressalvas relevantes**.
+O Hub do Bairro é hoje um portal hiperlocal demonstrável para um bairro: moradores publicam e interagem em um feed; visitantes descobrem negócios, promoções e eventos; comerciantes mantêm perfis; administradores moderam e importam estabelecimentos. O inventário encontrou **12 módulos e 36 capacidades**, das quais **24 têm caminho feliz funcional** e **12 estão parciais ou possuem ressalvas relevantes**.
 
-A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Livewire 4, MySQL, Actions, Policies, migrations e 187 testes compõem uma fundação razoável. Em 20/07/2026, todos os 187 testes/394 assertions e o build frontend passaram; as auditorias Composer e npm também foram zeradas após a B002. Ainda assim, o produto **não deve ir para produção** antes de corrigir falhas de escopo/autorização Livewire e reivindicação insegura de negócios.
+A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Livewire 4, MySQL, Actions, Policies, migrations e 193 testes compõem uma fundação razoável. Em 20/07/2026, todos os 193 testes/402 assertions e o build frontend passaram; as auditorias Composer e npm também foram zeradas após a B002. Ainda assim, o produto **não deve ir para produção** antes de corrigir a reivindicação insegura de negócios e os demais P0 abertos.
 
 ## O que está utilizável/demonstrável
 
@@ -26,7 +26,7 @@ A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Li
 1. ✅ Dependências vulneráveis: corrigidas na B002; `composer audit` e `npm audit` agora retornam zero.
 2. ✅ XSS nos popups Leaflet: corrigido na B003 com nós DOM e `textContent`.
 3. ✅ Conteúdo não aprovado em rotas públicas: corrigido na B004; somente autor/proprietário e admin mantêm acesso.
-4. Ações Livewire aceitam IDs fora do recurso e/ou deixam de reautorizar mutações.
+4. ✅ Escopo/autorização Livewire: corrigidos na B005 para promoção, review, comentário, enquete e negócio.
 5. Claim não comprova propriedade, não expira e não exige e-mail verificado.
 6. Horários manuais não são persistidos, afetando “aberto agora”.
 7. Pontos não são idempotentes e podem ser acumulados repetidamente.
@@ -53,7 +53,7 @@ Ranking, Pulso, patrocínio e planos podem continuar em avaliação/área secund
 
 **Mais maduras:** schema central, autenticação básica, feed no caminho feliz, catálogo/perfil comercial, componentes visuais, moderação básica e suíte de testes.
 
-**Precisam de correção profunda:** claim, autorização Livewire por recurso, pontuação/idempotência, horários e pipeline de integração. **Precisam de definição de produto:** Pulso, ranking, planos Featured e patrocinados.
+**Precisam de correção profunda:** claim, pontuação/idempotência, horários e pipeline de integração. **Precisam de definição de produto:** Pulso, ranking, planos Featured e patrocinados.
 
 ## Cinco maiores oportunidades
 
@@ -71,7 +71,7 @@ Ranking, Pulso, patrocínio e planos podem continuar em avaliação/área secund
 | 2 | B002 | ✅ Corrigir advisories Composer e npm bloqueadores — concluída em 20/07/2026 | M |
 | 3 | B003 | ✅ Neutralizar XSS nos popups Leaflet — concluída em 20/07/2026 | S |
 | 4 | B004 | ✅ Restringir conteúdo não aprovado nas rotas públicas — concluída em 20/07/2026 | S |
-| 5 | B005 | Escopar e reautorizar mutações Livewire | M |
+| 5 | B005 | ✅ Escopar e reautorizar mutações Livewire — concluída em 20/07/2026 | M |
 | 6 | B007 | Persistir e normalizar horários de funcionamento | M |
 | 7 | B006 | Reformular a reivindicação de negócio | L |
 | 8 | B009 | Recuperar jobs de enriquecimento falhos | M |
@@ -82,7 +82,7 @@ O backlog completo está em [Backlog priorizado](analysis/09-prioritized-backlog
 
 ## Recomendação para começar hoje
 
-**Próxima tarefa: B005 — escopar e reautorizar mutações Livewire.** Corrigir promoção, review, comentário, opção de enquete e `BusinessForm` com buscas pela relação pai e Policies existentes.
+**Próxima tarefa: B007 — persistir e normalizar horários de funcionamento.** O formulário já monta o JSON; falta a Action salvar esse campo e alinhar seed/dados com o formato consumido por `Business::isOpenNow()`.
 
 ## Índice da análise
 

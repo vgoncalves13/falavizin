@@ -32,9 +32,9 @@
 
 | ID | Funcionalidade | Fluxo, regras e envolvidos | Implementação e telas | Rotas | Status/evidência |
 |---|---|---|---|---|---|
-| F12 | Comentários e respostas | Autenticado comenta, responde, edita e exclui; 15 comentários/h | `CommentSection`; `comment-section.blade.php` | Ações Livewire no post | **Funcional com falha de integridade.** `CommentSection.php:46-151`; pai não é escopado ao post (`:103-122`) |
+| F12 | Comentários e respostas | Autenticado comenta, responde, edita e exclui; 15 comentários/h | `CommentSection`; `comment-section.blade.php` | Ações Livewire no post | **Funcional.** IDs são escopados aos comentários do post desde a B005 |
 | F13 | Votos em posts | Único voto por usuário/alvo; alterna útil/não útil | `VoteButtons`; model polimórfico `Vote` | Ação Livewire | **Funcional com possível abuso.** `VoteButtons.php:35-63`; pontos podem ser ganhos repetidamente |
-| F14 | Votos em comentários | Usuário marca comentário útil | `CommentSection::vote` | Ação Livewire | **Funcional com ressalva.** Aceita ID arbitrário (`CommentSection.php:174-203`) |
+| F14 | Votos em comentários | Usuário marca comentário útil | `CommentSection::vote` | Ação Livewire | **Funcional.** O comentário é resolvido pela relação do post desde a B005 |
 | F15 | Denúncias | Usuário informa motivo; item recebe `reported_at/by/reason`; limite 5/dia | `ReportModal`; `ReportContentAction` | Ação Livewire | **Funcional.** `app/Livewire/Shared/ReportModal.php`; `app/Actions/ReportContentAction.php` |
 
 ## 5. Eventos, enquetes e resolução
@@ -42,7 +42,7 @@
 | ID | Funcionalidade | Fluxo, regras e envolvidos | Implementação e telas | Rotas | Status/evidência |
 |---|---|---|---|---|---|
 | F16 | Publicação de evento | Post pode receber datas inicial/final | `CreatePost`, campos em `posts` | `/criar-post` | **Funcional básico.** `database/migrations/2026_02_06_163344_add_event_fields_to_posts_table.php` |
-| F17 | Enquetes | Autor cria opções e término; usuário vota uma vez | `PollVote`, `Poll`, `PollOption`, `PollVote` model | Ação Livewire no post | **Funcional com erro possível.** Opção não é validada contra a enquete (`app/Livewire/Feed/PollVote.php:30-54`) |
+| F17 | Enquetes | Autor cria opções e término; usuário vota uma vez | `PollVote`, `Poll`, `PollOption`, `PollVote` model | Ação Livewire no post | **Funcional.** Opção é validada pela relação da enquete desde a B005 |
 | F18 | Resolução de problemas | Autor/admin altera status de resolução | `ResolutionStatus`; `PostResolutionStatus` | Ação Livewire | **Funcional.** `app/Livewire/Feed/ResolutionStatus.php`; migration `add_resolution_fields_to_posts_table.php` |
 
 ## 6. Negócios e serviços locais
@@ -54,7 +54,7 @@
 | F21 | Cadastro/edição manual | Proprietário cadastra e edita dados/fotos | `BusinessForm`, Actions e Requests; views create/edit | `/cadastrar-negocio`, `/meu-negocio/{business}/editar` | **Parcial.** Horários digitados não são persistidos (`BusinessForm.php:118-167`; Actions omitem o campo) |
 | F22 | Galeria de fotos | Upload, redimensionamento, capa e ordenação básica | `BusinessPhoto`, `PhotoGallery`, Actions | Perfil/formulário | **Funcional com ressalvas.** Não há constraint de capa única nem limpeza completa de arquivos |
 | F23 | Favoritar negócio | Usuário alterna favorito e consulta na conta | `FavoriteButton`; pivot `business_user_favorites` | Ação Livewire | **Funcional.** `app/Livewire/Business/FavoriteButton.php`; migration da pivot |
-| F24 | Avaliações e resposta | Uma avaliação por usuário/negócio; proprietário responde | `ReviewSection`; `Review`, Policy | Ação Livewire | **Funcional com vulnerabilidade.** Resposta busca review fora do negócio corrente (`ReviewSection.php:67-106`) |
+| F24 | Avaliações e resposta | Uma avaliação por usuário/negócio; proprietário responde | `ReviewSection`; `Review`, Policy | Ação Livewire | **Funcional.** Reviews são resolvidos pela relação do negócio desde a B005 |
 | F25 | Reivindicação | Usuário pede token por e-mail e confirma propriedade | `ClaimBusinessController`, `ClaimBusinessAction`, mail | POST `/servicos/{business}/reivindicar`, GET `/reivindicar/{token}` | **Incompleta/insegura.** Prova o e-mail do solicitante, não vínculo com o negócio; sem expiração (`ClaimBusinessController.php:15-41`) |
 
 ## 7. Promoções e comercial
@@ -62,7 +62,7 @@
 | ID | Funcionalidade | Fluxo, regras e envolvidos | Implementação e telas | Rotas | Status/evidência |
 |---|---|---|---|---|---|
 | F26 | Catálogo de promoções | Visitante vê promoções ativas agrupadas por negócio | `PromotionController::index`; `promotions/index.blade.php` | `/promocoes` | **Funcional.** `app/Models/Promotion.php:54-62` |
-| F27 | Gerenciar promoção | Proprietário cria, edita e exclui promoções | `PromotionForm`, Controller, Request, Policy | rotas em `/meu-negocio/*/promocoes` | **Parcial/vulnerável.** Livewire ignora limite semanal e não autoriza o negócio na criação (`PromotionForm.php:64-90`) |
+| F27 | Gerenciar promoção | Proprietário cria, edita e exclui promoções | `PromotionForm`, Controller, Request, Policy | rotas em `/meu-negocio/*/promocoes` | **Parcial.** B005 corrigiu autorização/escopo; Livewire ainda ignora o limite semanal |
 | F28 | Planos free/featured | Usuário solicita upgrade; admin aprova/rejeita | `BusinessPlanController`; views admin/plans | `/meu-negocio/{business}/plano`, `/admin/planos*` | **Parcial.** Workflow administrativo existe; não há cobrança nem definição forte de entitlement |
 | F29 | Posts patrocinados | Admin alterna um flag de patrocínio | `PostSponsorController`, `SponsoredPostsController` | `/admin/posts/{post}/patrocinar`, `/admin/posts-patrocinados*` | **Parcial/duplicada.** Dois caminhos administrativos sobrepõem responsabilidade; não há vigência |
 
@@ -100,8 +100,8 @@
 
 ## Resumo por status
 
-- **Funcionais no caminho feliz:** F01, F02, F04, F06–F11, F15–F16, F18, F20, F22–F23, F26, F30–F31, F34–F35 (20).
-- **Parciais ou com ressalvas relevantes:** F03, F05, F12–F14, F17, F19, F21, F24–F25, F27–F29, F32–F33, F36 (16).
+- **Funcionais no caminho feliz:** F01, F02, F04, F06–F12, F14–F18, F20, F22–F24, F26, F30–F31, F34–F35 (24).
+- **Parciais ou com ressalvas relevantes:** F03, F05, F13, F19, F21, F25, F27–F29, F32–F33, F36 (12).
 - **Aparentemente abandonadas/não utilizadas:** não contam entre as 36 capacidades; views scaffold e placeholders estão listados em `03-incomplete-features.md`.
 
 Esses números são uma classificação de auditoria, não uma métrica de cobertura ou prontidão comercial.

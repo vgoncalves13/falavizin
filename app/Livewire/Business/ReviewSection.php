@@ -68,7 +68,7 @@ class ReviewSection extends Component
     {
         Gate::authorize('update', $this->business);
 
-        $review = Review::findOrFail($reviewId);
+        $review = $this->business->reviews()->findOrFail($reviewId);
         $this->replyingToId = $reviewId;
         $this->replyText = $review->owner_reply ?? '';
     }
@@ -87,7 +87,7 @@ class ReviewSection extends Component
             'replyText' => ['required', 'string', 'max:1000'],
         ]);
 
-        Review::findOrFail($this->replyingToId)->update([
+        $this->business->reviews()->findOrFail($this->replyingToId)->update([
             'owner_reply' => $this->replyText,
             'owner_replied_at' => now(),
         ]);
@@ -100,7 +100,7 @@ class ReviewSection extends Component
     {
         Gate::authorize('update', $this->business);
 
-        Review::findOrFail($reviewId)->update([
+        $this->business->reviews()->findOrFail($reviewId)->update([
             'owner_reply' => null,
             'owner_replied_at' => null,
         ]);
@@ -108,7 +108,7 @@ class ReviewSection extends Component
 
     public function deleteReview(int $reviewId): void
     {
-        $review = Review::findOrFail($reviewId);
+        $review = $this->business->reviews()->findOrFail($reviewId);
 
         Gate::authorize('delete', $review);
 

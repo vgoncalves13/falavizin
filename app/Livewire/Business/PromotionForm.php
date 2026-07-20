@@ -4,7 +4,6 @@ namespace App\Livewire\Business;
 
 use App\Actions\CreatePromotionAction;
 use App\Models\Business;
-use App\Models\Promotion;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -45,9 +44,8 @@ class PromotionForm extends Component
     #[On('edit-promotion')]
     public function startEdit(int $id): void
     {
-        $promotion = Promotion::findOrFail($id);
-
-        Gate::authorize('update', $promotion->business);
+        Gate::authorize('update', $this->business);
+        $promotion = $this->business->promotions()->findOrFail($id);
 
         $this->editingId = $promotion->id;
         $this->title = $promotion->title;
@@ -69,11 +67,12 @@ class PromotionForm extends Component
             return;
         }
 
+        Gate::authorize('update', $this->business);
+
         $this->validate();
 
         if ($this->editingId) {
-            $promotion = Promotion::findOrFail($this->editingId);
-            Gate::authorize('update', $promotion->business);
+            $promotion = $this->business->promotions()->findOrFail($this->editingId);
 
             $promotion->update([
                 'title' => $this->title,

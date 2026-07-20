@@ -3,11 +3,13 @@
 namespace Tests\Feature;
 
 use App\Enums\BusinessStatus;
+use App\Livewire\Business\BusinessForm;
 use App\Models\Business;
 use App\Models\Category;
 use App\Models\Promotion;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class BusinessTest extends TestCase
@@ -138,6 +140,19 @@ class BusinessTest extends TestCase
         $response = $this->actingAs($user)->get(route('businesses.edit', $business));
 
         $response->assertForbidden();
+    }
+
+    public function test_non_owner_cannot_update_business_through_livewire(): void
+    {
+        $business = Business::factory()->create();
+
+        Livewire::actingAs(User::factory()->create())
+            ->test(BusinessForm::class, ['business' => $business])
+            ->set('name', 'Alteração indevida')
+            ->call('save')
+            ->assertForbidden();
+
+        $this->assertNotSame('Alteração indevida', $business->fresh()->name);
     }
 
     public function test_owner_can_update_business(): void

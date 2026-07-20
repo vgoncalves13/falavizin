@@ -39,6 +39,8 @@ class PollVote extends Component
             return;
         }
 
+        $option = $this->poll->options()->findOrFail($optionId);
+
         $alreadyVoted = PollVoteModel::where('poll_id', $this->poll->id)
             ->where('user_id', auth()->id())
             ->exists();
@@ -49,11 +51,11 @@ class PollVote extends Component
 
         PollVoteModel::create([
             'poll_id' => $this->poll->id,
-            'poll_option_id' => $optionId,
+            'poll_option_id' => $option->id,
             'user_id' => auth()->id(),
         ]);
 
-        $this->selectedOption = $optionId;
+        $this->selectedOption = $option->id;
 
         $postAuthor = $this->poll->post?->user;
         if ($postAuthor && $postAuthor->id !== auth()->id()) {

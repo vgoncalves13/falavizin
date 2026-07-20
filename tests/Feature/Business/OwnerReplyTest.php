@@ -6,6 +6,7 @@ use App\Livewire\Business\ReviewSection;
 use App\Models\Business;
 use App\Models\Review;
 use App\Models\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -39,6 +40,23 @@ class OwnerReplyTest extends TestCase
         ]);
 
         $this->assertNotNull($review->fresh()->owner_replied_at);
+    }
+
+    public function test_owner_cannot_reply_to_review_from_another_business(): void
+    {
+        $owner = User::factory()->create();
+        $business = Business::factory()->claimed()->create(['user_id' => $owner->id]);
+        $otherReview = Review::create([
+            'user_id' => User::factory()->create()->id,
+            'business_id' => Business::factory()->create()->id,
+            'rating' => 5,
+        ]);
+
+        $this->expectException(ModelNotFoundException::class);
+
+        Livewire::actingAs($owner)
+            ->test(ReviewSection::class, ['business' => $business])
+            ->call('startReply', $otherReview->id);
     }
 
     public function test_owner_can_edit_an_existing_reply(): void

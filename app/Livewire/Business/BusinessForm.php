@@ -7,6 +7,7 @@ use App\Actions\UpdateBusinessAction;
 use App\Models\Business;
 use App\Models\Category;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -151,6 +152,10 @@ class BusinessForm extends Component
 
     public function save(): void
     {
+        if ($this->business?->exists) {
+            Gate::authorize('update', $this->business);
+        }
+
         $this->validate();
 
         $data = [
