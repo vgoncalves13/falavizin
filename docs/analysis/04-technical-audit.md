@@ -4,10 +4,10 @@
 
 | Verificação em 20/07/2026 | Resultado |
 |---|---|
-| `artisan test --compact` | **225 testes, 494 assertions, todos passando** após B019 |
+| `artisan test --compact` | **225 testes, 494 assertions, todos passando** após B021 |
 | `npm run build` | **Passou**; CSS 103,79 kB (18,75 kB gzip), JS 46,16 kB (17,79 kB gzip) |
 | `composer validate --strict` | **Passou** |
-| `pint --test` | **Falhou** em um arquivo: `tests/Feature/BusinessReviewTest.php` |
+| `pint --test` | **Passou em 212 arquivos** |
 | `composer audit` | **0 advisories após B002**; baseline: 20 em 11 pacotes |
 | `npm audit` | **0 vulnerabilidades após B002**; baseline: 9, incluindo 2 críticas |
 | Migrations | 42 migrations aplicadas no MySQL local |
@@ -60,10 +60,10 @@ Esses resultados são observações reproduzíveis do ambiente auditado. As vers
 | ID | Descrição e impacto | Evidência | Recomendação | Esforço / prioridade |
 |---|---|---|---|---|
 | T26 | README é o padrão Laravel; onboarding e operação dependem de conhecimento tribal | `README.md:1-59` | Substituir por instruções do projeto, arquitetura, comandos e runbook | S / P1 |
-| T27 | Um arquivo viola o formatter | `tests/Feature/BusinessReviewTest.php`; resultado do Pint | Executar Pint somente no arquivo após mudança funcional aprovada | XS / P2 |
+| T27 | ✅ **Resolvido até a B021.** Pint passa nos 212 arquivos PHP e é obrigatório no CI. | `pint --test`; `.github/workflows/ci.yml` | Manter formatter no pipeline | XS / P2 concluída |
 | T28 | Nome de teste contradiz sua assertion: diz pending, espera Approved | `tests/Feature/Admin/GooglePlacesImportTest.php:141-178` | Renomear ou corrigir regra esperada | XS / P2 |
 | T29 | Permanecem testes/views exemplo e assets scaffold não utilizados | `tests/Feature/ExampleTest.php`; `tests/Unit/ExampleTest.php`; views listadas em `03-incomplete-features.md` | Remover ruído depois da estabilização | XS / P3 |
-| T30 | Não há CI, roteiro de deploy, healthcheck de fila ou cobertura publicada | ausência de `.github/workflows`; README padrão | Pipeline de test/build/audit e runbook de worker/scheduler/backup | M / P1 |
+| T30 | ⚠️ **Parcialmente resolvido na B021.** CI cobre Composer, Pint, PHPUnit/MySQL, build e audits. Ainda faltam runbook, healthcheck de fila e cobertura publicada. | `.github/workflows/ci.yml`; README padrão | Entregar operação e restore na B022; cobertura só se orientar decisão | M / P1 parcial |
 
 ## Arquitetura e qualidade
 

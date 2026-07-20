@@ -34,7 +34,8 @@ A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Li
 9. ✅ E-mails e operações compostas: fila após commit na B012; transações e compensação de arquivos na B013.
 10. ✅ Nove jobs de enriquecimento falhos: causa 429 identificada, fila recuperada e backoff/timeout corrigidos na B009.
 11. ✅ Integridade de enquetes e capas: B014 adicionou unicidade, chave composta e índice funcional após diagnóstico/saneamento.
-12. Não há CI, runbook de deploy/backup/worker ou README real do projeto.
+12. ✅ CI: B021 adicionou MySQL 8, PHP 8.5, Pint, 225 testes, build e audits em push/PR.
+13. Ainda não há runbook de deploy/backup/worker ou README real do projeto.
 
 Detalhes, arquivos, severidade e correções: [Auditoria técnica](analysis/04-technical-audit.md).
 
@@ -84,7 +85,7 @@ O backlog completo está em [Backlog priorizado](analysis/09-prioritized-backlog
 
 ## Recomendação para começar hoje
 
-**Próxima tarefa: B021 — criar CI de testes, build, Pint e audits.** O `.env.example` agora representa o stack real; falta tornar as verificações executadas nesta estabilização obrigatórias em cada mudança.
+**Próxima tarefa: B022 — documentar setup, deploy, worker, backup e restore.** O CI agora impede regressões básicas; falta permitir que outra pessoa suba e opere o projeto sem conhecimento tribal.
 
 ## Índice da análise
 
