@@ -19,7 +19,7 @@ Estas dúvidas não podem ser resolvidas com segurança apenas pelo repositório
 | Q14 | A alteração local `trustProxies('*')` é intencional e qual proxy ficará à frente da aplicação? | `bootstrap/app.php:18` está modificado fora desta auditoria | Segurança de IP/HTTPS/rate limit |
 | Q16 | O banco local contém dados reais, demo ou importados? Podem ser descartados/saneados? | Há usuários, negócios e interações; origem não é determinável apenas pelo código | Migrações corretivas e privacidade |
 | Q17 | E-mail SMTP está operacional e existe domínio/remetente validado? | Configuração existe; não foi enviado e-mail real nesta auditoria | Reset e notificações |
-| Q18 | É aceitável assumir MySQL exclusivamente? | Código usa SQL MySQL, mas `.env.example` aponta SQLite | CI, desenvolvimento e portabilidade |
+| Q18 | ✅ Resolvida em 20/07/2026: MySQL 8 é obrigatório no MVP | B020 alinhou `.env.example` e a suíte já roda no MySQL | Manter essa premissa no CI/deploy |
 | Q19 | Há meta de acessibilidade, navegadores e aparelhos suportados? | Interface é responsiva, mas não há matriz/testes documentados | Critério de aceite UX |
 | Q20 | Quais métricas definem sucesso do piloto? | Nenhum plano analítico/objetivo mensurável no repositório | Priorização de engajamento/monetização |
 | Q21 | Deve existir recurso formal contra rejeição/banimento? | Moderação aprova/rejeita sem workflow de recurso | Governança comunitária |

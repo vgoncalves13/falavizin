@@ -84,7 +84,7 @@ O backlog completo está em [Backlog priorizado](analysis/09-prioritized-backlog
 
 ## Recomendação para começar hoje
 
-**Próxima tarefa: B020 — alinhar `.env.example` ao MVP.** Com cache e invalidação centralizados na B019, o próximo ganho rápido é tornar a configuração de um clone novo coerente com MySQL, fila, storage, locale e e-mail do projeto.
+**Próxima tarefa: B021 — criar CI de testes, build, Pint e audits.** O `.env.example` agora representa o stack real; falta tornar as verificações executadas nesta estabilização obrigatórias em cada mudança.
 
 ## Índice da análise
 
