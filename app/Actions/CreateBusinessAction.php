@@ -26,7 +26,7 @@ class CreateBusinessAction
         try {
             $business = DB::transaction(function () use ($user, $data, $preparedCover, &$storedPath): Business {
                 $business = $user->businesses()->create([
-                    'category_id' => $data['category_id'],
+                    'category_id' => $data['category_ids'][0],
                     'name' => $data['name'],
                     'description' => $data['description'] ?? null,
                     'phone' => $data['phone'] ?? null,
@@ -40,6 +40,8 @@ class CreateBusinessAction
                     'claimed' => true,
                     'claimed_at' => now(),
                 ]);
+
+                $business->categories()->sync($data['category_ids']);
 
                 if ($preparedCover) {
                     $storedPath = 'businesses/'.$business->id.'/cover.'.$preparedCover['extension'];

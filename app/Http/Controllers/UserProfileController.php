@@ -12,7 +12,7 @@ class UserProfileController extends Controller
     public function show(User $user): View
     {
         $posts = $user->posts()
-            ->with(['category', 'user'])
+            ->with(['category', 'user', 'serviceCategory'])
             ->withCount(['comments', 'votes'])
             ->where('status', PostStatus::Approved)
             ->latest()

@@ -123,7 +123,7 @@ class BusinessTest extends TestCase
 
         $response = $this->actingAs($user)->post(route('businesses.store'), [
             'name' => 'Padaria do João',
-            'category_id' => $category->id,
+            'category_ids' => [$category->id],
             'neighborhood' => 'Centro',
             'description' => 'A melhor padaria do bairro.',
             'phone' => '(21) 3333-4444',
@@ -147,7 +147,7 @@ class BusinessTest extends TestCase
         Livewire::actingAs($user)
             ->test(BusinessForm::class)
             ->set('name', 'Mercado 24 Horas')
-            ->set('categoryId', $category->id)
+            ->set('categoryIds', [$category->id])
             ->set('neighborhood', 'Centro')
             ->set('whatsapp', '(21) 9 9999-9999')
             ->call('save');
@@ -175,7 +175,7 @@ class BusinessTest extends TestCase
         $response = $this->post(route('businesses.store'), [
             'name' => 'Padaria do João',
             'neighborhood' => 'Centro',
-            'category_id' => 1,
+            'category_ids' => [1],
         ]);
 
         $response->assertRedirect(route('login'));
@@ -187,7 +187,7 @@ class BusinessTest extends TestCase
 
         $response = $this->actingAs($user)->post(route('businesses.store'), []);
 
-        $response->assertSessionHasErrors(['name', 'category_id', 'neighborhood']);
+        $response->assertSessionHasErrors(['name', 'category_ids', 'neighborhood']);
     }
 
     public function test_owner_can_edit_business(): void
@@ -232,7 +232,7 @@ class BusinessTest extends TestCase
 
         $response = $this->actingAs($user)->put(route('businesses.update', $business), [
             'name' => 'Padaria do João Atualizada',
-            'category_id' => $category->id,
+            'category_ids' => [$category->id],
             'neighborhood' => 'Vila Nova',
         ]);
 
@@ -248,7 +248,7 @@ class BusinessTest extends TestCase
 
         $response = $this->actingAs($admin)->put(route('businesses.update', $business), [
             'name' => 'Editado pelo Admin',
-            'category_id' => $category->id,
+            'category_ids' => [$category->id],
             'neighborhood' => 'Centro',
         ]);
 

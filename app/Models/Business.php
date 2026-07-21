@@ -90,6 +90,14 @@ class Business extends Model
         return $this->belongsTo(Category::class);
     }
 
+    /**
+     * @return BelongsToMany<Category>
+     */
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(Category::class, 'business_categories')->withTimestamps();
+    }
+
     public function photos(): HasMany
     {
         return $this->hasMany(BusinessPhoto::class);

@@ -35,6 +35,7 @@ class CreatePostAction
             $post = DB::transaction(function () use ($user, $data, $imagePath, $eventStartsAt, $eventEndsAt, $pollData): Post {
                 $post = $user->posts()->create([
                     'category_id' => $data['category_id'],
+                    'service_category_id' => $data['service_category_id'] ?? null,
                     'title' => $data['title'],
                     'body' => $data['body'],
                     'location' => $data['location'] ?? null,

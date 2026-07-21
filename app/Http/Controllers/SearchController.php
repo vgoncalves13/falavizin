@@ -24,7 +24,7 @@ class SearchController extends Controller
                     ->where('title', 'like', "%{$query}%")
                     ->orWhere('body', 'like', "%{$query}%")
                 )
-                ->with(['user', 'category'])
+                ->with(['user', 'category', 'serviceCategory'])
                 ->latest()
                 ->limit(15)
                 ->get();

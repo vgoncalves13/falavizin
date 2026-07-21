@@ -18,13 +18,13 @@ class PostController extends Controller
     {
         Gate::authorize('view', $post);
 
-        $post->load(['user', 'category', 'votes', 'poll.options', 'poll.votes']);
+        $post->load(['user', 'category', 'serviceCategory', 'votes', 'poll.options', 'poll.votes']);
 
         $relatedPosts = Post::query()
             ->approved()
             ->where('category_id', $post->category_id)
             ->where('id', '!=', $post->id)
-            ->with(['user', 'category'])
+            ->with(['user', 'category', 'serviceCategory'])
             ->withCount(['comments', 'votes'])
             ->latest()
             ->limit(3)

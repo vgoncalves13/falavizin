@@ -24,7 +24,7 @@ class UpdateBusinessAction
         try {
             DB::transaction(function () use ($business, $data, $preparedCover, $existingCover, &$newPath): void {
                 $business->update([
-                    'category_id' => $data['category_id'],
+                    'category_id' => $data['category_ids'][0],
                     'name' => $data['name'],
                     'description' => $data['description'] ?? null,
                     'phone' => $data['phone'] ?? null,
@@ -35,6 +35,8 @@ class UpdateBusinessAction
                     'opening_hours' => $data['opening_hours'] ?? null,
                     'website' => $data['website'] ?? null,
                 ]);
+
+                $business->categories()->sync($data['category_ids']);
 
                 if ($preparedCover) {
                     $newPath = 'businesses/'.$business->id.'/cover_'.Str::uuid().'.'.$preparedCover['extension'];

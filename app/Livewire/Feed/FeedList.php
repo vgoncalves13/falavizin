@@ -47,7 +47,7 @@ class FeedList extends Component
             ->approved()
             ->when($this->categoryId, fn ($q) => $q->where('category_id', $this->categoryId))
             ->when($this->neighborhoodOnly && $userNeighborhood, fn ($q) => $q->whereHas('user', fn ($u) => $u->where('neighborhood', $userNeighborhood)))
-            ->with(['user', 'category', 'poll.options', 'poll.votes'])
+            ->with(['user', 'category', 'serviceCategory', 'poll.options', 'poll.votes'])
             ->withCount(['comments', 'votes'])
             ->orderByDesc('is_sponsored')
             ->when($this->sortBy === 'trending', fn ($q) => $q->orderByRaw(

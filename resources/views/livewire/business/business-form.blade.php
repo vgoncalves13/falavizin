@@ -15,22 +15,29 @@
             @error('name') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
         </div>
 
-        {{-- Categoria --}}
+        {{-- Categorias --}}
         <div>
-            <label for="categoryId" class="block text-sm font-medium text-stone-700 mb-1.5">
-                Categoria <span class="text-red-500">*</span>
+            <label class="block text-sm font-medium text-stone-700 mb-1.5">
+                Categorias <span class="text-red-500">*</span>
             </label>
-            <select
-                id="categoryId"
-                wire:model="categoryId"
-                class="w-full rounded-lg border-stone-300 text-stone-900 text-sm focus:ring-amber-500 focus:border-amber-500"
-            >
-                <option value="">Selecione uma categoria...</option>
+            <p class="text-xs text-stone-500 mb-2">Selecione todas que se aplicam ao seu negócio</p>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 @foreach($categories as $category)
-                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                    <label
+                        class="flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-colors duration-150 {{ in_array($category->id, $categoryIds) ? 'border-amber-400 bg-amber-50' : 'border-stone-200 bg-white hover:bg-stone-50' }}"
+                    >
+                        <input
+                            type="checkbox"
+                            value="{{ $category->id }}"
+                            wire:model="categoryIds"
+                            class="rounded border-stone-300 text-amber-600 focus:ring-amber-500"
+                        />
+                        <span class="text-sm text-stone-700">{{ $category->name }}</span>
+                    </label>
                 @endforeach
-            </select>
-            @error('categoryId') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+            </div>
+            @error('categoryIds') <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p> @enderror
+            @error('categoryIds.*') <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p> @enderror
         </div>
 
         {{-- Bairro --}}

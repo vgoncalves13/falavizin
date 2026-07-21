@@ -77,6 +77,12 @@
                         </span>
                     @endif
                     <x-category-badge :category="$post->category" />
+                    @if($post->serviceCategory)
+                        <span class="inline-flex items-center gap-1.5 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
+                            <x-heroicon-o-wrench-screwdriver class="w-3.5 h-3.5" />
+                            Procura: {{ $post->serviceCategory->name }}
+                        </span>
+                    @endif
                     @if($post->is_sponsored)
                         <span class="inline-flex items-center gap-0.5 text-xs font-medium text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded-full">
                             <x-heroicon-s-bolt class="w-3 h-3" />

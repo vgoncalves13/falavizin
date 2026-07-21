@@ -21,6 +21,8 @@ class CreatePost extends Component
 
     public ?int $categoryId = null;
 
+    public ?int $serviceCategoryId = null;
+
     public $image = null;
 
     public string $eventStartsAt = '';
@@ -42,6 +44,7 @@ class CreatePost extends Component
             'title' => ['required', 'string', 'min:5', 'max:255'],
             'body' => ['required', 'string', 'min:10'],
             'categoryId' => ['required', 'integer', 'exists:categories,id'],
+            'serviceCategoryId' => ['nullable', 'integer', 'exists:categories,id'],
             'location' => ['nullable', 'string', 'max:255'],
             'image' => ['nullable', 'image', 'max:2048', 'mimes:jpg,jpeg,png,webp'],
             'eventStartsAt' => ['nullable', 'date'],
@@ -113,6 +116,7 @@ class CreatePost extends Component
                 'title' => $this->title,
                 'body' => $this->body,
                 'category_id' => $this->categoryId,
+                'service_category_id' => $this->serviceCategoryId,
                 'location' => $this->location ?: null,
             ],
             image: $this->image,
@@ -132,6 +136,11 @@ class CreatePost extends Component
             ->orderBy('sort_order')
             ->get();
 
-        return view('livewire.feed.create-post', compact('categories'));
+        $serviceCategories = Category::query()
+            ->whereIn('type', ['business', 'both'])
+            ->orderBy('sort_order')
+            ->get();
+
+        return view('livewire.feed.create-post', compact('categories', 'serviceCategories'));
     }
 }

@@ -20,7 +20,8 @@ class BusinessForm extends Component
 
     public string $name = '';
 
-    public ?int $categoryId = null;
+    /** @var array<int, int> */
+    public array $categoryIds = [];
 
     public string $description = '';
 
@@ -52,7 +53,7 @@ class BusinessForm extends Component
         if ($business?->exists) {
             $this->business = $business;
             $this->name = $business->name;
-            $this->categoryId = $business->category_id;
+            $this->categoryIds = $business->categories->pluck('id')->toArray();
             $this->description = $business->description ?? '';
             $this->phones = $business->phone ?: [''];
             $this->whatsapp = $business->whatsapp ?? '';
@@ -89,7 +90,8 @@ class BusinessForm extends Component
     {
         $rules = [
             'name' => ['required', 'string', 'min:3', 'max:255'],
-            'categoryId' => ['required', 'integer', 'exists:categories,id'],
+            'categoryIds' => ['required', 'array', 'min:1'],
+            'categoryIds.*' => ['integer', 'exists:categories,id'],
             'description' => ['nullable', 'string', 'max:2000'],
             'whatsapp' => ['nullable', 'string', 'max:20'],
             'neighborhood' => ['required', 'string', 'max:255'],
@@ -113,7 +115,8 @@ class BusinessForm extends Component
         return [
             'name.required' => 'Informe o nome do negócio.',
             'name.min' => 'O nome deve ter pelo menos 3 caracteres.',
-            'categoryId.required' => 'Selecione uma categoria.',
+            'categoryIds.required' => 'Selecione ao menos uma categoria.',
+            'categoryIds.min' => 'Selecione ao menos uma categoria.',
             'neighborhood.required' => 'Informe o bairro.',
             'coverPhoto.image' => 'O arquivo deve ser uma imagem.',
             'coverPhoto.max' => 'A imagem não pode ter mais de 5MB.',
@@ -164,7 +167,7 @@ class BusinessForm extends Component
 
         $data = [
             'name' => $this->name,
-            'category_id' => $this->categoryId,
+            'category_ids' => $this->categoryIds,
             'description' => $this->description ?: null,
             'whatsapp' => $this->whatsapp ?: null,
             'neighborhood' => $this->neighborhood,

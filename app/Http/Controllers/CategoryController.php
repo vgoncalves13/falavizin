@@ -16,7 +16,7 @@ class CategoryController extends Controller
             CategoryType::Post, CategoryType::Both => Post::query()
                 ->approved()
                 ->where('category_id', $category->id)
-                ->with(['user', 'category'])
+                ->with(['user', 'category', 'serviceCategory'])
                 ->withCount(['comments', 'votes'])
                 ->latest()
                 ->paginate(10),

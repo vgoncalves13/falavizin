@@ -67,7 +67,7 @@ class ModerationTest extends TestCase
 
         $this->actingAs($user)->post(route('businesses.store'), [
             'name' => 'Padaria do João',
-            'category_id' => $category->id,
+            'category_ids' => [$category->id],
             'neighborhood' => 'Centro',
         ]);
 

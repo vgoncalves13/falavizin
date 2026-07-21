@@ -17,14 +17,15 @@ class StoreBusinessRequest extends FormRequest
     }
 
     public static function rulesFor(
-        string $category = 'category_id',
+        string $category = 'category_ids',
         string $phones = 'phone',
         string $openingHours = 'opening_hours',
         string $coverPhoto = 'cover_photo',
     ): array {
         return [
             'name' => ['required', 'string', 'min:3', 'max:255'],
-            $category => ['required', 'integer', 'exists:categories,id'],
+            $category => ['required', 'array', 'min:1'],
+            $category.'.*' => ['integer', 'exists:categories,id'],
             'description' => ['nullable', 'string', 'max:2000'],
             $phones => ['nullable', 'array', 'max:5'],
             $phones.'.*' => ['nullable', 'string', 'max:20'],
@@ -48,13 +49,14 @@ class StoreBusinessRequest extends FormRequest
     }
 
     public static function messagesFor(
-        string $category = 'category_id',
+        string $category = 'category_ids',
         string $coverPhoto = 'cover_photo',
     ): array {
         return [
             'name.required' => 'O nome do negócio é obrigatório.',
             'name.min' => 'O nome deve ter pelo menos 3 caracteres.',
-            $category.'.required' => 'Selecione uma categoria.',
+            $category.'.required' => 'Selecione ao menos uma categoria.',
+            $category.'.min' => 'Selecione ao menos uma categoria.',
             'neighborhood.required' => 'O bairro é obrigatório.',
             $coverPhoto.'.image' => 'O arquivo deve ser uma imagem.',
             $coverPhoto.'.max' => 'A imagem não pode ter mais de 5MB.',

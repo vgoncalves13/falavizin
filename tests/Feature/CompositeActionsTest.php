@@ -56,7 +56,7 @@ class CompositeActionsTest extends TestCase
         ]);
         $invalidImage = UploadedFile::fake()->create('invalid.jpg', 10, 'image/jpeg');
         $data = [
-            'category_id' => $category->id,
+            'category_ids' => [$category->id],
             'name' => 'Nome alterado',
             'neighborhood' => 'Centro',
         ];
@@ -84,7 +84,7 @@ class CompositeActionsTest extends TestCase
         $user = User::factory()->create();
         $category = Category::factory()->create(['type' => 'business']);
         $data = [
-            'category_id' => $category->id,
+            'category_ids' => [$category->id],
             'name' => 'Padaria segura',
             'neighborhood' => 'Centro',
         ];

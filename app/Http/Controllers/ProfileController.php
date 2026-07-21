@@ -21,7 +21,7 @@ class ProfileController extends Controller
             'savedPosts',
         ]);
 
-        $posts = $user->posts()->with('category')->latest()
+        $posts = $user->posts()->with(['category', 'serviceCategory'])->latest()
             ->paginate(10, ['*'], 'posts_page')->appends(['tab' => 'posts']);
         $businesses = $user->businesses()->with('category')->latest()
             ->paginate(10, ['*'], 'businesses_page')->appends(['tab' => 'businesses']);
@@ -29,7 +29,7 @@ class ProfileController extends Controller
             ->paginate(10, ['*'], 'comments_page')->appends(['tab' => 'comments']);
         $favorites = $user->favorites()->with(['category', 'coverPhoto'])
             ->paginate(10, ['*'], 'favorites_page')->appends(['tab' => 'favorites']);
-        $savedPosts = $user->savedPosts()->with(['category', 'user'])
+        $savedPosts = $user->savedPosts()->with(['category', 'user', 'serviceCategory'])
             ->paginate(10, ['*'], 'saved_page')->appends(['tab' => 'saved']);
         $requestedTab = $request->string('tab')->value();
         $activeTab = in_array($requestedTab, ['posts', 'businesses', 'comments', 'favorites', 'saved'], true)

@@ -25,6 +25,7 @@ class Post extends Model
     protected $fillable = [
         'user_id',
         'category_id',
+        'service_category_id',
         'title',
         'slug',
         'body',
@@ -75,6 +76,11 @@ class Post extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function serviceCategory(): BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'service_category_id');
     }
 
     public function comments(): HasMany

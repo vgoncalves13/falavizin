@@ -42,7 +42,11 @@
                                 </span>
                             @endif
                         </div>
-                        <x-category-badge :category="$business->category" />
+                        <div class="flex flex-wrap gap-1.5 mt-1">
+                            @foreach($business->categories as $category)
+                                <x-category-badge :category="$category" />
+                            @endforeach
+                        </div>
 
                         {{-- Confiança local --}}
                         @php $positiveReviews = $business->positiveReviewsCount(); @endphp

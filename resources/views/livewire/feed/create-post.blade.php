@@ -18,6 +18,24 @@
             </select>
             @error('categoryId') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
 
+            {{-- Categoria de serviço (visível apenas para categoria "pedido") --}}
+            <div x-show="categorySlug === 'pedido'" x-transition class="mt-4">
+                <label for="serviceCategory" class="block text-sm font-medium text-stone-700 mb-1.5">
+                    Tipo de serviço procurado <span class="text-stone-400 font-normal">(opcional)</span>
+                </label>
+                <select
+                    id="serviceCategory"
+                    wire:model="serviceCategoryId"
+                    class="w-full rounded-lg border-stone-300 text-stone-900 text-sm focus:ring-amber-500 focus:border-amber-500"
+                >
+                    <option value="">Qualquer categoria...</option>
+                    @foreach($serviceCategories as $category)
+                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                    @endforeach
+                </select>
+                <p class="mt-1 text-xs text-stone-400">Ajuda comerciantes da área a encontrarem seu pedido</p>
+            </div>
+
             {{-- Campos de evento (visível apenas para categoria "evento") --}}
             <div x-show="categorySlug === 'evento'" x-transition class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg space-y-3">
                 <p class="text-xs font-medium text-amber-700 flex items-center gap-1.5">

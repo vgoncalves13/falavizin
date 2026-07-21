@@ -22,7 +22,7 @@ class ModerationController extends Controller
     {
         $pendingPosts = Post::query()
             ->where('status', PostStatus::Pending)
-            ->with(['user', 'category'])
+            ->with(['user', 'category', 'serviceCategory'])
             ->latest()
             ->paginate(15, ['*'], 'pending_posts');
 
@@ -41,7 +41,7 @@ class ModerationController extends Controller
         $reportedPosts = Post::query()
             ->whereNotNull('reported_at')
             ->where('status', PostStatus::Approved)
-            ->with(['user', 'category'])
+            ->with(['user', 'category', 'serviceCategory'])
             ->latest('reported_at')
             ->paginate(15, ['*'], 'reported_posts');
 

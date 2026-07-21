@@ -38,7 +38,14 @@
         </div>
 
         <div class="flex items-center justify-between gap-2 mt-1">
-            <x-category-badge :category="$business->category" />
+            <div class="flex flex-wrap gap-1">
+                @foreach($business->categories->take(3) as $category)
+                    <x-category-badge :category="$category" />
+                @endforeach
+                @if($business->categories->count() > 3)
+                    <span class="inline-flex items-center text-xs text-stone-500 px-1">+{{ $business->categories->count() - 3 }}</span>
+                @endif
+            </div>
             @php
                 $avg = $business->averageRating();
                 $positiveReviews = $business->positiveReviewsCount();
