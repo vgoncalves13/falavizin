@@ -36,6 +36,7 @@ Route::get('/categoria/{category:slug}', [CategoryController::class, 'show'])->n
 Route::get('/promocoes', [PromotionController::class, 'index'])->name('promotions.index');
 Route::get('/ranking', [RankingController::class, 'index'])->name('ranking.index');
 Route::get('/pulso', [PulsoController::class, 'index'])->name('pulso.index');
+Route::get('/eventos', fn () => view('events.index'))->name('events.index');
 
 // Autenticadas
 Route::middleware('auth')->group(function () {

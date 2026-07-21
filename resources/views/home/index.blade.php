@@ -512,6 +512,11 @@
                 @endif
             </div>
 
+            {{-- Calendário de Eventos --}}
+            <div data-reveal data-reveal-d2>
+                <livewire:events.event-calendar />
+            </div>
+
             {{-- Promoções --}}
             @if($recentPromotions->isNotEmpty())
                 <div data-reveal data-reveal-d3>
