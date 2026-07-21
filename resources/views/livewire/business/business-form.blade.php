@@ -209,7 +209,7 @@
 
                                     <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
                                         <input type="checkbox"
-                                               wire:model="openingHours.{{ $i }}.closed"
+                                               wire:model.live="openingHours.{{ $i }}.closed"
                                                class="rounded border-stone-300 text-amber-600 focus:ring-amber-500" />
                                         <span class="text-xs text-stone-500">Fechado</span>
                                     </label>
