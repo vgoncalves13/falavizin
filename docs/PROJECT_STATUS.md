@@ -85,7 +85,7 @@ O backlog completo está em [Backlog priorizado](analysis/09-prioritized-backlog
 
 ## Recomendação para começar hoje
 
-**Próxima tarefa: B030 — criar calendário de eventos futuros.** O checklist do piloto está pronto; agora é hora de implementar o filtro e calendário de eventos.
+**Próxima tarefa: B031 — adicionar preferências e digest de notificações.** O calendário de eventos está pronto; agora é hora de implementar preferências de notificação opt-in.
 
 ## Índice da análise
 
