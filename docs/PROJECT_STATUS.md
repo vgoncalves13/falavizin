@@ -85,7 +85,7 @@ O backlog completo está em [Backlog priorizado](analysis/09-prioritized-backlog
 
 ## Recomendação para começar hoje
 
-**Próxima tarefa: B027 — persistir filtros na URL.** O autor agora entende o estado do conteúdo; agora é hora de tornar filtros compartilháveis e navegáveis.
+**Próxima tarefa: B028 — simplificar cadastro de negócio.** Os filtros agora são compartilháveis; agora é hora de simplificar o fluxo de cadastro para comerciantes.
 
 ## Índice da análise
 
