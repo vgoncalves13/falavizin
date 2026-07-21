@@ -85,7 +85,7 @@ O backlog completo está em [Backlog priorizado](analysis/09-prioritized-backlog
 
 ## Recomendação para começar hoje
 
-**Próxima tarefa: B024 — definir entidade/configuração canônica do bairro piloto.** A acessibilidade está em nível aceitável; agora é hora de remover hardcodes e alinhar filtros/importação.
+**Próxima tarefa: B025 — registrar motivo e trilha de decisões de moderação.** O bairro piloto agora é configurável; agora é hora de criar o schema de auditoria para moderação.
 
 ## Índice da análise
 
