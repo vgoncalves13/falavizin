@@ -85,7 +85,7 @@ O backlog completo está em [Backlog priorizado](analysis/09-prioritized-backlog
 
 ## Recomendação para começar hoje
 
-**Próxima tarefa: B029 — executar piloto controlado do bairro.** O cadastro de negócio está simplificado; agora é hora de preparar o checklist e métricas para o piloto.
+**Próxima tarefa: B030 — criar calendário de eventos futuros.** O checklist do piloto está pronto; agora é hora de implementar o filtro e calendário de eventos.
 
 ## Índice da análise
 
