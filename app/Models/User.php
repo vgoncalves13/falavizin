@@ -29,6 +29,7 @@ class User extends Authenticatable
         'neighborhood',
         'is_admin',
         'points',
+        'notification_preferences',
     ];
 
     /**
@@ -53,7 +54,15 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_admin' => 'boolean',
             'points' => 'integer',
+            'notification_preferences' => 'array',
         ];
+    }
+
+    public function wantsEmailNotification(string $type): bool
+    {
+        $preferences = $this->notification_preferences ?? [];
+
+        return $preferences[$type] ?? true;
     }
 
     public function sendPasswordResetNotification($token): void

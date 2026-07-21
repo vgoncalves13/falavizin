@@ -99,6 +99,14 @@
                     Salvos
                     <span class="text-xs opacity-75">({{ $user->saved_posts_count }})</span>
                 </button>
+                <button
+                    @click="tab = 'notifications'"
+                    :class="tab === 'notifications' ? 'bg-amber-600 text-white shadow-sm' : 'text-stone-600 hover:bg-stone-100'"
+                    class="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-150 whitespace-nowrap"
+                >
+                    <x-heroicon-o-bell class="w-4 h-4" />
+                    Notificações
+                </button>
             </div>
 
             {{-- Posts --}}
@@ -284,6 +292,13 @@
                     </div>
                     {{ $savedPosts->links() }}
                 @endif
+            </div>
+
+            {{-- Notificações --}}
+            <div x-show="tab === 'notifications'" style="display: none;">
+                <div class="bg-white rounded-xl border border-stone-200 p-6">
+                    <livewire:profile.notification-settings />
+                </div>
             </div>
         </div>
     </div>

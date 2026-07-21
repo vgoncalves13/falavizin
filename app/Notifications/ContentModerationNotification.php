@@ -20,7 +20,13 @@ class ContentModerationNotification extends Notification implements ShouldQueueA
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        $channels = ['database'];
+
+        if ($notifiable->wantsEmailNotification('moderation')) {
+            $channels[] = 'mail';
+        }
+
+        return $channels;
     }
 
     /** @return array<string, mixed> */

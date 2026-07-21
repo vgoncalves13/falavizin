@@ -18,7 +18,13 @@ class NewContentNotification extends Notification implements ShouldQueueAfterCom
 
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        $channels = ['database'];
+
+        if ($notifiable->wantsEmailNotification('new_content')) {
+            $channels[] = 'mail';
+        }
+
+        return $channels;
     }
 
     public function toDatabase(object $notifiable): array
