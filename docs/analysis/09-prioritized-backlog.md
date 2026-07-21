@@ -25,7 +25,7 @@ Prioridade: P0 bloqueia produção; P1 é necessária ao MVP; P2 é importante; 
 | B019 | Cache | ✅ Centralizar cache e invalidação da home — concluída em 20/07/2026 | Serviço com dez chaves, stats no controller e observer pós-commit | refatoração | P1 | M | eventos de domínio | 1 | zero Model na Blade; regressão comprova invalidação pós-commit |
 | B020 | Ambiente | ✅ Alinhar `.env.example` ao MVP — concluída em 20/07/2026 | MySQL/Sail, pt_BR, nome, Mailpit, storage e defaults seguros | documentação | P1 | XS | stack obrigatório | 1 | exemplo reflete Compose/aplicação sem credenciais reais |
 | B021 | Engenharia | ✅ Criar CI de test, build, Pint e audits — concluída em 20/07/2026 | GitHub Actions com PHP 8.5, MySQL 8.4, Node 22 e seis gates | infraestrutura | P1 | M | B002/B020 | 1 | comandos passam localmente; workflow executa em push/PR |
-| B022 | Operação | Documentar setup, deploy, worker, backup e restore | Substituir README padrão e criar runbook | documentação | P1 | S | ambiente/infra definidos | 1 | outra pessoa sobe e restaura ambiente seguindo docs |
+| B022 | Operação | ✅ Documentar setup, deploy, worker, backup e restore — concluída em 21/07/2026 | Substituir README padrão e criar runbook | documentação | P1 | S | ambiente/infra definidos | 1 | outra pessoa sobe e restaura ambiente seguindo docs |
 | B023 | Acessibilidade | Corrigir foco, dialogs, labels e reduced motion | Baseline nas jornadas principais | melhoria | P1 | M | UI estável | 1 | teclado e axe sem violações graves nos fluxos críticos |
 | B024 | Localização | Definir entidade/configuração canônica do bairro piloto | Remover hardcode e alinhar filtros/importação | refatoração | P1 | M | decisão de produto | 2 | toda tela usa bairro único configurado |
 | B025 | Moderação | Registrar motivo e trilha de decisões | Ator, alvo, antes/depois, motivo e data | nova funcionalidade | P1 | L | schema de auditoria | 2 | toda ação admin é consultável e atribuível |
@@ -47,4 +47,4 @@ Prioridade: P0 bloqueia produção; P1 é necessária ao MVP; P2 é importante; 
 
 ## Ordem imediata
 
-~~B001~~ → ~~B002~~ → ~~B003~~ → ~~B004~~ → ~~B005~~ → ~~B007~~ → ~~B006~~ → ~~B011~~ → ~~B009~~ → ~~B008~~ → ~~B010~~ → ~~B012~~ → ~~B013~~ → ~~B014~~ → ~~B015~~ → ~~B016~~ → ~~B017~~ → ~~B018~~ → ~~B019~~ → ~~B020~~ → ~~B021~~ → **B022**. O bloco crítico inicial está concluído.
+~~B001~~ → ~~B002~~ → ~~B003~~ → ~~B004~~ → ~~B005~~ → ~~B007~~ → ~~B006~~ → ~~B011~~ → ~~B009~~ → ~~B008~~ → ~~B010~~ → ~~B012~~ → ~~B013~~ → ~~B014~~ → ~~B015~~ → ~~B016~~ → ~~B017~~ → ~~B018~~ → ~~B019~~ → ~~B020~~ → ~~B021~~ → ~~B022~~ → **B023**. O bloco crítico inicial está concluído.
