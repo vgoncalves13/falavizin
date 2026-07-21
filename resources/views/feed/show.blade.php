@@ -11,6 +11,42 @@
             </div>
         @endsession
 
+        {{-- Status banner for author --}}
+        @auth
+            @if(auth()->id() === $post->user_id && $post->status->value !== 'approved')
+                @if($post->status->value === 'pending')
+                    <div class="mb-4 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg">
+                        <div class="flex items-start gap-3">
+                            <x-heroicon-o-clock class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                            <div>
+                                <p class="text-sm font-medium text-amber-800">Aguardando aprovação</p>
+                                <p class="text-xs text-amber-600 mt-0.5">
+                                    Seu post está na fila de moderação. Ele ficará visível no feed após aprovação do administrador.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @elseif($post->status->value === 'rejected')
+                    <div class="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg">
+                        <div class="flex items-start gap-3">
+                            <x-heroicon-o-x-circle class="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-red-800">Post rejeitado</p>
+                                <p class="text-xs text-red-600 mt-0.5">
+                                    Seu post não foi aprovado pelo administrador. Você pode editar e reenviar para moderação.
+                                </p>
+                                <a href="{{ route('feed.edit', $post) }}"
+                                   class="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-medium rounded-lg transition-colors">
+                                    <x-heroicon-o-pencil-square class="w-3.5 h-3.5" />
+                                    Editar e reenviar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            @endif
+        @endauth
+
         <article class="bg-white rounded-xl border {{ $post->is_sponsored ? 'border-amber-300' : 'border-stone-200' }} mb-6 overflow-hidden">
             {{-- Post image --}}
             @if($post->image)

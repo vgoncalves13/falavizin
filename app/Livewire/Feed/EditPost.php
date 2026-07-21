@@ -2,9 +2,11 @@
 
 namespace App\Livewire\Feed;
 
+use App\Enums\PostStatus;
 use App\Models\Category;
 use App\Models\Post;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -56,6 +58,8 @@ class EditPost extends Component
 
         $this->validate();
 
+        $wasRejected = $this->post->status === PostStatus::Rejected;
+
         $this->post->update([
             'title' => $this->title,
             'body' => $this->body,
@@ -65,8 +69,21 @@ class EditPost extends Component
             'event_ends_at' => $this->eventEndsAt ? Carbon::parse($this->eventEndsAt) : null,
         ]);
 
+        if ($wasRejected) {
+            $this->post->update([
+                'status' => PostStatus::Pending,
+                'approved_at' => null,
+            ]);
+
+            Cache::forget('admin:moderation_count');
+
+            $message = 'Post atualizado e reenviado para moderação!';
+        } else {
+            $message = 'Post atualizado com sucesso!';
+        }
+
         $this->redirect(route('feed.show', $this->post), navigate: false);
-        session()->flash('success', 'Post atualizado com sucesso!');
+        session()->flash('success', $message);
     }
 
     public function render(): View

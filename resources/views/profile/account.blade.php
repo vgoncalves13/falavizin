@@ -125,6 +125,10 @@
                                             <span class="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">Aguardando aprovação</span>
                                         @elseif($post->status->value === 'rejected')
                                             <span class="text-xs font-medium text-red-600 bg-red-50 px-2 py-0.5 rounded-full">Rejeitado</span>
+                                            <a href="{{ route('feed.edit', $post) }}"
+                                               class="text-xs font-medium text-red-700 bg-red-100 hover:bg-red-200 px-2 py-0.5 rounded-full transition-colors">
+                                                Editar e reenviar
+                                            </a>
                                         @endif
                                     </div>
                                     <a href="{{ route('feed.show', $post) }}"
