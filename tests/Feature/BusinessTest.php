@@ -139,7 +139,7 @@ class BusinessTest extends TestCase
         $this->assertSame(['(21) 3333-4444'], Business::where('name', 'Padaria do João')->firstOrFail()->phone);
     }
 
-    public function test_business_form_persists_opening_hours_on_create_and_update(): void
+    public function test_business_form_creates_business_with_essential_fields_only(): void
     {
         $user = User::factory()->create();
         $category = Category::factory()->create(['type' => 'business']);
@@ -149,20 +149,12 @@ class BusinessTest extends TestCase
             ->set('name', 'Mercado 24 Horas')
             ->set('categoryId', $category->id)
             ->set('neighborhood', 'Centro')
-            ->set('openingHours.0.closed', false)
-            ->set('openingHours.0.open', '08:00')
-            ->set('openingHours.0.close', '18:00')
+            ->set('whatsapp', '(21) 9 9999-9999')
             ->call('save');
 
         $business = Business::where('name', 'Mercado 24 Horas')->firstOrFail();
-        $this->assertSame('18:00', $business->opening_hours[0]['close']);
-
-        Livewire::actingAs($user)
-            ->test(BusinessForm::class, ['business' => $business])
-            ->set('openingHours.0.close', '20:00')
-            ->call('save');
-
-        $this->assertSame('20:00', $business->fresh()->opening_hours[0]['close']);
+        $this->assertSame('Centro', $business->neighborhood);
+        $this->assertSame('(21) 9 9999-9999', $business->whatsapp);
     }
 
     public function test_business_is_open_after_midnight_when_previous_day_closes_later(): void
