@@ -13,8 +13,9 @@
         type="button"
         @click="open = true"
         {{ $attributes->merge(['class' => $triggerClass]) }}
+        aria-haspopup="dialog"
     >
-        <x-heroicon-o-flag class="w-4 h-4" />
+        <x-heroicon-o-flag class="w-4 h-4" aria-hidden="true" />
         {{ $triggerLabel }}
     </button>
 
@@ -25,6 +26,7 @@
         class="fixed inset-0 z-40 bg-stone-900/50"
         @click="open = false"
         style="display: none;"
+        aria-hidden="true"
     ></div>
 
     {{-- Modal --}}
@@ -38,15 +40,20 @@
         x-transition:leave-end="opacity-0 scale-95"
         class="fixed inset-0 z-50 flex items-center justify-center p-4"
         style="display: none;"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="report-modal-title"
+        x-init="$watch('open', value => { if(value) $nextTick(() => $el.querySelector('select').focus()) })"
     >
         <div class="w-full max-w-md rounded-xl bg-white shadow-xl ring-1 ring-stone-200">
             <div class="flex items-center justify-between border-b border-stone-100 px-6 py-4">
                 <div class="flex items-center gap-2 text-stone-900">
-                    <x-heroicon-o-flag class="w-5 h-5 text-amber-600" />
-                    <h3 class="font-semibold">Reportar conteúdo</h3>
+                    <x-heroicon-o-flag class="w-5 h-5 text-amber-600" aria-hidden="true" />
+                    <h3 id="report-modal-title" class="font-semibold">Reportar conteúdo</h3>
                 </div>
-                <button type="button" @click="open = false" class="text-stone-400 hover:text-stone-600 transition-colors">
-                    <x-heroicon-o-x-mark class="w-5 h-5" />
+                <button type="button" @click="open = false" class="text-stone-400 hover:text-stone-600 transition-colors"
+                        aria-label="Fechar modal de report">
+                    <x-heroicon-o-x-mark class="w-5 h-5" aria-hidden="true" />
                 </button>
             </div>
 

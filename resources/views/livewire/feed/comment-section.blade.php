@@ -11,7 +11,9 @@
                     <span class="text-xs font-bold text-amber-700">{{ substr(auth()->user()->name, 0, 1) }}</span>
                 </div>
                 <div class="flex-1">
+                    <label for="comment-body" class="sr-only">Escreva um comentário</label>
                     <textarea
+                        id="comment-body"
                         wire:model="body"
                         rows="2"
                         placeholder="Escreva um comentário..."
@@ -57,14 +59,16 @@
                                 <span class="text-xs text-stone-400">{{ $comment->created_at->diffForHumans() }}</span>
                                 @can('update', $comment)
                                     <button wire:click="startEdit({{ $comment->id }})"
-                                            class="text-stone-400 hover:text-amber-600 transition-colors" title="Editar comentário">
+                                            class="text-stone-400 hover:text-amber-600 transition-colors"
+                                            aria-label="Editar comentário de {{ $comment->user->name }}">
                                         <x-heroicon-o-pencil-square class="w-3.5 h-3.5" />
                                     </button>
                                 @endcan
                                 @can('delete', $comment)
                                     <button wire:click="deleteComment({{ $comment->id }})"
                                             wire:confirm="Remover este comentário?"
-                                            class="text-stone-400 hover:text-red-500 transition-colors" title="Excluir comentário">
+                                            class="text-stone-400 hover:text-red-500 transition-colors"
+                                            aria-label="Excluir comentário de {{ $comment->user->name }}">
                                         <x-heroicon-o-trash class="w-3.5 h-3.5" />
                                     </button>
                                 @endcan
@@ -72,7 +76,8 @@
                         </div>
 
                         @if($editingId === $comment->id)
-                            <textarea wire:model="editBody" rows="2"
+                            <label for="edit-comment-{{ $comment->id }}" class="sr-only">Editar comentário</label>
+                            <textarea id="edit-comment-{{ $comment->id }}" wire:model="editBody" rows="2"
                                       class="w-full rounded-lg border-stone-300 text-stone-900 text-sm focus:ring-amber-500 focus:border-amber-500 resize-none mt-1"></textarea>
                             @error('editBody') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                             <div class="mt-2 flex gap-2 justify-end">
@@ -97,7 +102,7 @@
                         <button
                             wire:click="voteComment({{ $comment->id }})"
                             class="inline-flex items-center gap-1 text-xs transition-colors {{ $commentVoted ? 'text-amber-600' : 'text-stone-400 hover:text-amber-600' }}"
-                            title="{{ $commentVoted ? 'Remover voto' : 'Útil' }}"
+                            aria-label="{{ $commentVoted ? 'Remover voto do comentário' : 'Votar como útil' }}"
                         >
                             @if($commentVoted)
                                 <x-heroicon-s-hand-thumb-up class="w-3.5 h-3.5" />
@@ -129,7 +134,8 @@
                                 <span class="text-xs font-bold text-amber-700">{{ substr(auth()->user()->name, 0, 1) }}</span>
                             </div>
                             <div class="flex-1">
-                                <textarea wire:model="replyBody" rows="2"
+                                <label for="reply-body-{{ $comment->id }}" class="sr-only">Respondendo a {{ $comment->user->name }}</label>
+                                <textarea id="reply-body-{{ $comment->id }}" wire:model="replyBody" rows="2"
                                           placeholder="Respondendo a {{ $comment->user->name }}..."
                                           class="w-full rounded-lg border-stone-300 text-stone-900 text-sm focus:ring-amber-500 focus:border-amber-500 resize-none"
                                           autofocus></textarea>
@@ -166,14 +172,16 @@
                                                     <span class="text-xs text-stone-400">{{ $reply->created_at->diffForHumans() }}</span>
                                                     @can('update', $reply)
                                                         <button wire:click="startEdit({{ $reply->id }})"
-                                                                class="text-stone-400 hover:text-amber-600 transition-colors" title="Editar">
+                                                                class="text-stone-400 hover:text-amber-600 transition-colors"
+                                                                aria-label="Editar resposta de {{ $reply->user->name }}">
                                                             <x-heroicon-o-pencil-square class="w-3 h-3" />
                                                         </button>
                                                     @endcan
                                                     @can('delete', $reply)
                                                         <button wire:click="deleteComment({{ $reply->id }})"
                                                                 wire:confirm="Remover esta resposta?"
-                                                                class="text-stone-400 hover:text-red-500 transition-colors" title="Excluir">
+                                                                class="text-stone-400 hover:text-red-500 transition-colors"
+                                                                aria-label="Excluir resposta de {{ $reply->user->name }}">
                                                             <x-heroicon-o-trash class="w-3 h-3" />
                                                         </button>
                                                     @endcan
@@ -181,7 +189,8 @@
                                             </div>
 
                                             @if($editingId === $reply->id)
-                                                <textarea wire:model="editBody" rows="2"
+                                                <label for="edit-reply-{{ $reply->id }}" class="sr-only">Editar resposta</label>
+                                                <textarea id="edit-reply-{{ $reply->id }}" wire:model="editBody" rows="2"
                                                           class="w-full rounded-lg border-stone-300 text-stone-900 text-sm focus:ring-amber-500 focus:border-amber-500 resize-none mt-1"></textarea>
                                                 @error('editBody') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                                 <div class="mt-2 flex gap-2 justify-end">
@@ -206,7 +215,7 @@
                                             <button
                                                 wire:click="voteComment({{ $reply->id }})"
                                                 class="inline-flex items-center gap-1 text-xs transition-colors {{ $replyVoted ? 'text-amber-600' : 'text-stone-400 hover:text-amber-600' }}"
-                                                title="{{ $replyVoted ? 'Remover voto' : 'Útil' }}"
+                                                aria-label="{{ $replyVoted ? 'Remover voto da resposta' : 'Votar como útil' }}"
                                             >
                                                 @if($replyVoted)
                                                     <x-heroicon-s-hand-thumb-up class="w-3 h-3" />

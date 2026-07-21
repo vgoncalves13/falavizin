@@ -2,10 +2,14 @@
 
     {{-- Botão do sino --}}
     <button @click="open = !open"
-            class="relative inline-flex items-center justify-center w-9 h-9 rounded-lg text-stone-500 hover:bg-stone-100 hover:text-stone-700 transition-colors duration-150">
-        <x-heroicon-o-bell class="w-5 h-5" />
+            class="relative inline-flex items-center justify-center w-9 h-9 rounded-lg text-stone-500 hover:bg-stone-100 hover:text-stone-700 transition-colors duration-150"
+            aria-label="Notificações{{ $unreadCount > 0 ? ", {$unreadCount} não lidas" : '' }}"
+            aria-expanded="false"
+            :aria-expanded="open.toString()"
+            aria-haspopup="true">
+        <x-heroicon-o-bell class="w-5 h-5" aria-hidden="true" />
         @if($unreadCount > 0)
-            <span class="absolute top-1 right-1 inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-amber-600 rounded-full">
+            <span class="absolute top-1 right-1 inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-amber-600 rounded-full" aria-hidden="true">
                 {{ $unreadCount > 9 ? '9+' : $unreadCount }}
             </span>
         @endif
@@ -20,7 +24,9 @@
          x-transition:leave-start="opacity-100 scale-100"
          x-transition:leave-end="opacity-0 scale-95"
          class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-stone-200 z-50 overflow-hidden"
-         style="display: none;">
+         style="display: none;"
+         role="menu"
+         aria-label="Menu de notificações">
 
         <div class="flex items-center justify-between px-4 py-3 border-b border-stone-100">
             <h3 class="text-sm font-semibold text-stone-900">Notificações</h3>

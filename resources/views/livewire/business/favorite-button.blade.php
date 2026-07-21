@@ -5,13 +5,14 @@
         {{ $isFavorited
             ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100'
             : 'bg-white border-stone-200 text-stone-500 hover:bg-stone-50 hover:text-red-500 hover:border-red-200' }}"
-    title="{{ $isFavorited ? 'Remover dos favoritos' : 'Salvar nos favoritos' }}"
+    aria-label="{{ $isFavorited ? 'Remover dos favoritos' : 'Salvar nos favoritos' }}"
+    aria-pressed="{{ $isFavorited ? 'true' : 'false' }}"
 >
     @if($isFavorited)
-        <x-heroicon-s-heart class="w-4 h-4" />
+        <x-heroicon-s-heart class="w-4 h-4" aria-hidden="true" />
         Favoritado
     @else
-        <x-heroicon-o-heart class="w-4 h-4" />
+        <x-heroicon-o-heart class="w-4 h-4" aria-hidden="true" />
         Favoritar
     @endif
 </button>

@@ -39,7 +39,9 @@
                         @mouseenter="hovered = i"
                         @mouseleave="hovered = 0"
                         @click="$wire.set('rating', i)"
-                        class="transition-transform hover:scale-110 focus:outline-none"
+                        class="transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 rounded-sm"
+                        :aria-label="['', '1 estrela - Péssimo', '2 estrelas - Ruim', '3 estrelas - Regular', '4 estrelas - Bom', '5 estrelas - Excelente'][i]"
+                        :aria-pressed="$wire.rating === i ? 'true' : 'false'"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-7 h-7 transition-colors"
                              :fill="active >= i ? '#fbbf24' : 'none'"
@@ -56,7 +58,9 @@
             </div>
             @error('rating') <p class="mb-2 text-xs text-red-600">{{ $message }}</p> @enderror
 
+            <label for="review-body" class="sr-only">Conte sua experiência</label>
             <textarea
+                id="review-body"
                 wire:model="body"
                 rows="2"
                 placeholder="Conte sua experiência (opcional)..."

@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-stone-200 sticky top-0 z-50">
+<nav x-data="{ open: false }" class="bg-white border-b border-stone-200 sticky top-0 z-50" aria-label="Navegação principal">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <!-- Logo + Nav Links -->
@@ -38,10 +38,12 @@
             </div>
 
             <!-- Search -->
-            <form action="{{ route('search.index') }}" method="GET" class="hidden sm:flex items-center">
+            <form action="{{ route('search.index') }}" method="GET" class="hidden sm:flex items-center" role="search">
                 <div class="relative">
-                    <x-heroicon-o-magnifying-glass class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" />
+                    <label for="search-desktop" class="sr-only">Buscar no Hub do Bairro</label>
+                    <x-heroicon-o-magnifying-glass class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" aria-hidden="true" />
                     <input
+                        id="search-desktop"
                         type="search"
                         name="q"
                         value="{{ request('q') }}"
@@ -130,7 +132,10 @@
             <!-- Hamburger -->
             <div class="flex items-center sm:hidden">
                 <button @click="open = !open"
-                    class="inline-flex items-center justify-center p-2 rounded-md text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition duration-150">
+                    class="inline-flex items-center justify-center p-2 rounded-md text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition duration-150"
+                    :aria-expanded="open.toString()"
+                    aria-controls="mobile-menu"
+                    aria-label="Menu de navegação">
                     <x-heroicon-o-bars-3 x-show="!open" class="h-6 w-6" />
                     <x-heroicon-o-x-mark x-show="open" class="h-6 w-6" />
                 </button>
@@ -139,12 +144,14 @@
     </div>
 
     <!-- Mobile Menu -->
-    <div x-show="open" x-transition class="sm:hidden border-t border-stone-200">
+    <div x-show="open" x-transition id="mobile-menu" class="sm:hidden border-t border-stone-200">
         <div class="px-4 pt-3 pb-2">
-            <form action="{{ route('search.index') }}" method="GET">
+            <form action="{{ route('search.index') }}" method="GET" role="search">
                 <div class="relative">
-                    <x-heroicon-o-magnifying-glass class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" />
+                    <label for="search-mobile" class="sr-only">Buscar no Hub do Bairro</label>
+                    <x-heroicon-o-magnifying-glass class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" aria-hidden="true" />
                     <input
+                        id="search-mobile"
                         type="search"
                         name="q"
                         value="{{ request('q') }}"

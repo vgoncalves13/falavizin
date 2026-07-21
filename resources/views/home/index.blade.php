@@ -108,7 +108,7 @@
             {{-- Eyebrow --}}
             <div class="h-up1 flex items-center gap-3 mb-5">
                 <span style="display:inline-block;width:28px;height:2px;background:#d97706;border-radius:2px;flex-shrink:0;"></span>
-                <span style="font-size:.6875rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(251,191,36,.75);">Jardim América · Hub do Bairro</span>
+                <span style="font-size:.6875rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#fbbf24;">Jardim América · Hub do Bairro</span>
             </div>
 
             {{-- Headline --}}
@@ -117,7 +117,7 @@
                 <span style="color:#fbbf24;font-style:italic;">Você faz parte disso.</span>
             </h1>
 
-            <p class="h-up3" style="font-size:1.0625rem;color:rgba(255,255,255,.58);line-height:1.72;margin:0 0 2.25rem;max-width:500px;">
+            <p class="h-up3" style="font-size:1.0625rem;color:rgba(255,255,255,.72);line-height:1.72;margin:0 0 2.25rem;max-width:500px;">
                 Serviços locais, avisos de vizinhos, eventos e pedidos de ajuda — tudo em um só lugar, feito pela sua comunidade.
             </p>
 
@@ -143,17 +143,17 @@
             <div class="h-up4 flex items-center gap-5 flex-wrap" style="padding-top:1.5rem;border-top:1px solid rgba(255,255,255,.08);">
                 <div>
                     <div style="font-family:var(--font-display);font-size:1.625rem;font-weight:800;color:#fbbf24;line-height:1;">{{ $heroStats['posts'] }}</div>
-                    <div style="font-size:.6875rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;margin-top:.2rem;">publicações</div>
+                    <div style="font-size:.6875rem;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.08em;margin-top:.2rem;">publicações</div>
                 </div>
                 <div style="width:1px;height:38px;background:rgba(255,255,255,.1);"></div>
                 <div>
                     <div style="font-family:var(--font-display);font-size:1.625rem;font-weight:800;color:#fbbf24;line-height:1;">{{ $heroStats['businesses'] }}</div>
-                    <div style="font-size:.6875rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;margin-top:.2rem;">negócios locais</div>
+                    <div style="font-size:.6875rem;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.08em;margin-top:.2rem;">negócios locais</div>
                 </div>
                 <div style="width:1px;height:38px;background:rgba(255,255,255,.1);"></div>
                 <div>
                     <div style="font-family:var(--font-display);font-size:1.625rem;font-weight:800;color:#fbbf24;line-height:1;">{{ $heroStats['users'] }}</div>
-                    <div style="font-size:.6875rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;margin-top:.2rem;">vizinhos</div>
+                    <div style="font-size:.6875rem;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.08em;margin-top:.2rem;">vizinhos</div>
                 </div>
             </div>
 
