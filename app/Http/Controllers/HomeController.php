@@ -7,6 +7,7 @@ use App\Models\Business;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\Promotion;
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\HomeCache;
 use Illuminate\View\View;
@@ -15,6 +16,8 @@ class HomeController extends Controller
 {
     public function index(): View
     {
+        $neighborhoodName = Setting::get('neighborhood_name', 'nosso bairro');
+
         $categories = HomeCache::remember(HomeCache::CATEGORIES, fn () => Category::query()
             ->orderBy('sort_order')
             ->get()
@@ -96,6 +99,7 @@ class HomeController extends Controller
         ]);
 
         return view('home.index', compact(
+            'neighborhoodName',
             'categories',
             'featuredBusinesses',
             'recentPromotions',

@@ -25,8 +25,8 @@ class BusinessController extends Controller
     public function index(): View
     {
         $mapCenter = [
-            'lat' => (float) Setting::get('neighborhood_lat', -15.7801),
-            'lng' => (float) Setting::get('neighborhood_lng', -47.9292),
+            'lat' => (float) Setting::get('neighborhood_lat'),
+            'lng' => (float) Setting::get('neighborhood_lng'),
         ];
 
         return view('businesses.index', compact('mapCenter'));

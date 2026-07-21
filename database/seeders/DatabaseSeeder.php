@@ -22,6 +22,8 @@ use RuntimeException;
 
 class DatabaseSeeder extends Seeder
 {
+    private const NEIGHBORHOOD = 'Jardim América';
+
     public function run(): void
     {
         $this->seedCategories();
@@ -51,7 +53,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
             'password' => $password,
             'email_verified_at' => now(),
-            'neighborhood' => 'Jardim América',
+            'neighborhood' => self::NEIGHBORHOOD,
         ]);
 
         $moradores = collect([
@@ -70,7 +72,7 @@ class DatabaseSeeder extends Seeder
             'email' => $data['email'],
             'password' => $password,
             'email_verified_at' => now(),
-            'neighborhood' => 'Jardim América',
+            'neighborhood' => self::NEIGHBORHOOD,
         ]));
 
         $allUsers = $moradores->prepend($owner);
@@ -101,7 +103,7 @@ class DatabaseSeeder extends Seeder
             'phone' => ['(11) 3456-7890'],
             'whatsapp' => '(11) 94567-8901',
             'address' => 'Rua das Flores, 142',
-            'neighborhood' => 'Jardim América',
+            'neighborhood' => self::NEIGHBORHOOD,
             'city' => 'São Paulo',
             'lat' => -23.5648,
             'lng' => -46.6601,
@@ -121,7 +123,7 @@ class DatabaseSeeder extends Seeder
             'phone' => ['(11) 3456-1234'],
             'whatsapp' => '(11) 99876-5432',
             'address' => 'Av. Central, 890',
-            'neighborhood' => 'Jardim América',
+            'neighborhood' => self::NEIGHBORHOOD,
             'city' => 'São Paulo',
             'lat' => -23.5671,
             'lng' => -46.6583,
@@ -141,7 +143,7 @@ class DatabaseSeeder extends Seeder
             'phone' => ['(11) 3456-9876'],
             'whatsapp' => '(11) 98765-4321',
             'address' => 'Rua dos Pássaros, 55',
-            'neighborhood' => 'Jardim América',
+            'neighborhood' => self::NEIGHBORHOOD,
             'city' => 'São Paulo',
             'lat' => -23.5635,
             'lng' => -46.6627,
@@ -161,7 +163,7 @@ class DatabaseSeeder extends Seeder
             'phone' => ['(11) 99123-4567'],
             'whatsapp' => '(11) 99123-4567',
             'address' => 'Rua Ipê Amarelo, 23',
-            'neighborhood' => 'Jardim América',
+            'neighborhood' => self::NEIGHBORHOOD,
             'city' => 'São Paulo',
             'lat' => -23.5660,
             'lng' => -46.6640,
@@ -180,7 +182,7 @@ class DatabaseSeeder extends Seeder
             'description' => 'Supermercado completo com açougue, padaria, hortifruti e adega. Delivery disponível via WhatsApp.',
             'phone' => ['(11) 3456-0011'],
             'address' => 'Av. Principal, 200',
-            'neighborhood' => 'Jardim América',
+            'neighborhood' => self::NEIGHBORHOOD,
             'city' => 'São Paulo',
             'lat' => -23.5643,
             'lng' => -46.6558,
@@ -198,7 +200,7 @@ class DatabaseSeeder extends Seeder
             'phone' => ['(11) 97654-3210'],
             'whatsapp' => '(11) 97654-3210',
             'address' => 'Rua das Acácias, 78',
-            'neighborhood' => 'Jardim América',
+            'neighborhood' => self::NEIGHBORHOOD,
             'city' => 'São Paulo',
             'lat' => -23.5682,
             'lng' => -46.6612,
@@ -218,7 +220,7 @@ class DatabaseSeeder extends Seeder
             'phone' => ['(11) 3456-5555'],
             'whatsapp' => '(11) 95555-4444',
             'address' => 'Rua do Esporte, 100',
-            'neighborhood' => 'Jardim América',
+            'neighborhood' => self::NEIGHBORHOOD,
             'city' => 'São Paulo',
             'lat' => -23.5655,
             'lng' => -46.6570,
@@ -237,7 +239,7 @@ class DatabaseSeeder extends Seeder
             'description' => 'Cursos de inglês, espanhol e francês para todas as idades. Turmas presenciais e online. Resultado garantido em 6 meses ou devolvemos o dinheiro.',
             'phone' => ['(11) 3456-7777'],
             'address' => 'Rua da Educação, 45',
-            'neighborhood' => 'Jardim América',
+            'neighborhood' => self::NEIGHBORHOOD,
             'city' => 'São Paulo',
             'plan' => BusinessPlan::Free,
             'status' => BusinessStatus::Approved,

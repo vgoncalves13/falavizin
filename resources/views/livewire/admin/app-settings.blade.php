@@ -128,7 +128,7 @@ function neighborhoodSettings(lat, lng) {
         init() {
             const initLat = parseFloat(this.lat) || -15.7801;
             const initLng = parseFloat(this.lng) || -47.9292;
-            const zoom = this.lat ? 13 : 4;
+            const zoom = (this.lat && this.lng) ? 13 : 4;
 
             this.map = L.map('settings-map').setView([initLat, initLng], zoom);
 

@@ -19,9 +19,9 @@ class GooglePlacesImport extends Component
         'administrative_area_level_3', 'country', 'colloquial_area',
     ];
 
-    public float $lat = -15.7801;
+    public float $lat = 0;
 
-    public float $lng = -47.9292;
+    public float $lng = 0;
 
     public int $radius = 1000;
 
@@ -33,8 +33,8 @@ class GooglePlacesImport extends Component
 
     public function mount(): void
     {
-        $this->lat = (float) Setting::get('neighborhood_lat', -15.7801);
-        $this->lng = (float) Setting::get('neighborhood_lng', -47.9292);
+        $this->lat = (float) Setting::get('neighborhood_lat', 0);
+        $this->lng = (float) Setting::get('neighborhood_lng', 0);
         $this->neighborhood = Setting::get('neighborhood_name', '');
     }
 
