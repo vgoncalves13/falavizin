@@ -58,9 +58,9 @@
                                 {{ $event->event_starts_at->isoFormat('dddd') }}
                             </div>
                             <div class="text-xs text-stone-500">
-                                {{ $event->event_starts_at->format('H:mm') }}
+                                {{ $event->event_starts_at->format('H:i') }}
                                 @if($event->event_ends_at)
-                                    – {{ $event->event_ends_at->format('H:mm') }}
+                                    – {{ $event->event_ends_at->format('H:i') }}
                                 @endif
                             </div>
                         </div>
