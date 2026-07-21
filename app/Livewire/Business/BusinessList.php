@@ -5,6 +5,7 @@ namespace App\Livewire\Business;
 use App\Models\Business;
 use App\Models\Category;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -12,10 +13,13 @@ class BusinessList extends Component
 {
     use WithPagination;
 
+    #[Url]
     public string $search = '';
 
+    #[Url]
     public ?int $categoryId = null;
 
+    #[Url]
     public bool $openNow = false;
 
     public function setCategory(?int $categoryId): void

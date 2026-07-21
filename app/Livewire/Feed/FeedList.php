@@ -4,6 +4,7 @@ namespace App\Livewire\Feed;
 
 use App\Models\Category;
 use App\Models\Post;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -11,10 +12,13 @@ class FeedList extends Component
 {
     use WithPagination;
 
+    #[Url]
     public ?int $categoryId = null;
 
+    #[Url]
     public bool $neighborhoodOnly = false;
 
+    #[Url]
     public string $sortBy = 'latest';
 
     public function setCategory(?int $categoryId): void
