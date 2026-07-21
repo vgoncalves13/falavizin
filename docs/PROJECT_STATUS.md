@@ -85,7 +85,7 @@ O backlog completo está em [Backlog priorizado](analysis/09-prioritized-backlog
 
 ## Recomendação para começar hoje
 
-**Próxima tarefa: B023 — corrigir foco, dialogs, labels e reduced motion.** O runbook está pronto; agora é hora de melhorar a acessibilidade nas jornadas principais.
+**Próxima tarefa: B024 — definir entidade/configuração canônica do bairro piloto.** A acessibilidade está em nível aceitável; agora é hora de remover hardcodes e alinhar filtros/importação.
 
 ## Índice da análise
 
