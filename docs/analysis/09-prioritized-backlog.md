@@ -29,7 +29,7 @@ Prioridade: P0 bloqueia produção; P1 é necessária ao MVP; P2 é importante; 
 | B023 | Acessibilidade | ✅ Corrigir foco, dialogs, labels e reduced motion — concluída em 21/07/2026 | Baseline nas jornadas principais | melhoria | P1 | M | UI estável | 1 | teclado e axe sem violações graves nos fluxos críticos |
 | B024 | Localização | ✅ Definir entidade/configuração canônica do bairro piloto — concluída em 21/07/2026 | Remover hardcode e alinhar filtros/importação | refatoração | P1 | M | decisão de produto | 2 | toda tela usa bairro único configurado |
 | B025 | Moderação | ✅ Registrar motivo e trilha de decisões — concluída em 21/07/2026 | Ator, alvo, antes/depois, motivo e data | nova funcionalidade | P1 | L | schema de auditoria | 2 | toda ação admin é consultável e atribuível |
-| B026 | Conteúdo | Exibir status e correção de publicação | Conta mostra pendência/rejeição e permite corrigir | melhoria | P1 | M | B004/B025 | 2 | autor entende estado e próximo passo |
+| B026 | Conteúdo | ✅ Exibir status e correção de publicação — concluída em 21/07/2026 | Conta mostra pendência/rejeição e permite corrigir | melhoria | P1 | M | B004/B025 | 2 | autor entende estado e próximo passo |
 | B027 | Busca | Persistir filtros na URL | Feed/catálogo compartilháveis e navegáveis | melhoria | P2 | S | componentes estabilizados | 2 | recarregar/voltar preserva filtro e ordem |
 | B028 | Comercial | Simplificar cadastro de negócio | Etapas essenciais e enriquecimento posterior | melhoria | P1 | M | B007/B024 | 2 | comerciante piloto conclui sem ajuda técnica |
 | B029 | Operação | Executar piloto controlado do bairro | Checklist, conteúdo inicial, suporte e métricas | infraestrutura | P0 | M | B001–B028 essenciais | 2 | 2 semanas sem P0, 10–30 usuários e 10+ negócios ativos |
@@ -47,4 +47,4 @@ Prioridade: P0 bloqueia produção; P1 é necessária ao MVP; P2 é importante; 
 
 ## Ordem imediata
 
-~~B001~~ → ~~B002~~ → ~~B003~~ → ~~B004~~ → ~~B005~~ → ~~B007~~ → ~~B006~~ → ~~B011~~ → ~~B009~~ → ~~B008~~ → ~~B010~~ → ~~B012~~ → ~~B013~~ → ~~B014~~ → ~~B015~~ → ~~B016~~ → ~~B017~~ → ~~B018~~ → ~~B019~~ → ~~B020~~ → ~~B021~~ → ~~B022~~ → ~~B023~~ → ~~B024~~ → ~~B025~~ → **B026**. O bloco crítico inicial está concluído.
+~~B001~~ → ~~B002~~ → ~~B003~~ → ~~B004~~ → ~~B005~~ → ~~B007~~ → ~~B006~~ → ~~B011~~ → ~~B009~~ → ~~B008~~ → ~~B010~~ → ~~B012~~ → ~~B013~~ → ~~B014~~ → ~~B015~~ → ~~B016~~ → ~~B017~~ → ~~B018~~ → ~~B019~~ → ~~B020~~ → ~~B021~~ → ~~B022~~ → ~~B023~~ → ~~B024~~ → ~~B025~~ → ~~B026~~ → **B027**. O bloco crítico inicial está concluído.

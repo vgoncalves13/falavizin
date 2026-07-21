@@ -85,7 +85,7 @@ O backlog completo está em [Backlog priorizado](analysis/09-prioritized-backlog
 
 ## Recomendação para começar hoje
 
-**Próxima tarefa: B026 — exibir status e correção de publicação.** O audit trail de moderação está pronto; agora é hora de mostrar ao autor o estado do conteúdo e permitir correções.
+**Próxima tarefa: B027 — persistir filtros na URL.** O autor agora entende o estado do conteúdo; agora é hora de tornar filtros compartilháveis e navegáveis.
 
 ## Índice da análise
 
