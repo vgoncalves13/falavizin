@@ -85,7 +85,7 @@ O backlog completo está em [Backlog priorizado](analysis/09-prioritized-backlog
 
 ## Recomendação para começar hoje
 
-**Próxima tarefa: B031 — adicionar preferências e digest de notificações.** O calendário de eventos está pronto; agora é hora de implementar preferências de notificação opt-in.
+**Próxima tarefa: B032 — estruturar pedido de orçamento.** As preferências de notificação estão prontas; agora é hora de implementar o sistema de pedidos de orçamento entre moradores e comerciantes.
 
 ## Índice da análise
 
