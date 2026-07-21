@@ -7,6 +7,7 @@ use App\Enums\BusinessStatus;
 use App\Enums\PostStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Business;
+use App\Models\ModerationLog;
 use App\Models\Post;
 use App\Models\Promotion;
 use App\Notifications\ContentModerationNotification;
@@ -70,6 +71,12 @@ class ModerationController extends Controller
             ->oldest('claim_requested_at')
             ->get();
 
+        $recentLogs = ModerationLog::query()
+            ->with(['performer'])
+            ->latest()
+            ->limit(20)
+            ->get();
+
         return view('admin.moderation.index', compact(
             'pendingPosts',
             'pendingBusinesses',
@@ -79,12 +86,25 @@ class ModerationController extends Controller
             'reportedPromotions',
             'pendingUpgrades',
             'pendingClaims',
+            'recentLogs',
         ));
     }
 
     public function approveClaim(Business $business, ClaimBusinessAction $action): RedirectResponse
     {
+        $previousStatus = $business->claimed ? 'approved' : 'pending';
         $action->execute($business, approved: true);
+
+        ModerationLog::create([
+            'moderatable_type' => Business::class,
+            'moderatable_id' => $business->id,
+            'performed_by' => auth()->id(),
+            'action' => 'claim_approved',
+            'previous_status' => $previousStatus,
+            'new_status' => 'claimed',
+            'reason' => null,
+        ]);
+
         $this->clearModerationCache();
 
         return redirect()->route('admin.moderation.index')
@@ -93,7 +113,19 @@ class ModerationController extends Controller
 
     public function rejectClaim(Business $business, ClaimBusinessAction $action): RedirectResponse
     {
+        $previousStatus = $business->claimed ? 'approved' : 'pending';
         $action->execute($business, approved: false);
+
+        ModerationLog::create([
+            'moderatable_type' => Business::class,
+            'moderatable_id' => $business->id,
+            'performed_by' => auth()->id(),
+            'action' => 'claim_rejected',
+            'previous_status' => $previousStatus,
+            'new_status' => 'rejected',
+            'reason' => null,
+        ]);
+
         $this->clearModerationCache();
 
         return redirect()->route('admin.moderation.index')
@@ -107,11 +139,34 @@ class ModerationController extends Controller
             'type' => ['required', 'in:post,business,promotion'],
             'ids' => ['required', 'array', 'min:1'],
             'ids.*' => ['integer'],
+            'reason' => ['nullable', 'string', 'max:500'],
         ]);
 
         $action = $validated['action'];
         $type = $validated['type'];
         $ids = $validated['ids'];
+        $reason = $validated['reason'] ?? null;
+        $newStatus = $action === 'approve' ? 'approved' : 'rejected';
+
+        $models = match ($type) {
+            'post' => Post::whereIn('id', $ids)->get(),
+            'business' => Business::whereIn('id', $ids)->get(),
+            'promotion' => Promotion::whereIn('id', $ids)->get(),
+        };
+
+        foreach ($models as $model) {
+            $previousStatus = $model->status instanceof \BackedEnum ? $model->status->value : $model->status;
+
+            ModerationLog::create([
+                'moderatable_type' => $model::class,
+                'moderatable_id' => $model->id,
+                'performed_by' => auth()->id(),
+                'action' => $action === 'approve' ? 'approved' : 'rejected',
+                'previous_status' => $previousStatus,
+                'new_status' => $newStatus,
+                'reason' => $reason,
+            ]);
+        }
 
         match ($type) {
             'post' => match ($action) {
@@ -156,6 +211,21 @@ class ModerationController extends Controller
             default => abort(404),
         };
 
+        $previousStatus = $model->getOriginal('status');
+        if ($previousStatus instanceof \BackedEnum) {
+            $previousStatus = $previousStatus->value;
+        }
+
+        ModerationLog::create([
+            'moderatable_type' => $model::class,
+            'moderatable_id' => $model->id,
+            'performed_by' => auth()->id(),
+            'action' => 'approved',
+            'previous_status' => $previousStatus,
+            'new_status' => 'approved',
+            'reason' => request('reason'),
+        ]);
+
         $this->notifyAuthor($model, $type, 'approved');
         $this->clearModerationCache();
 
@@ -180,6 +250,21 @@ class ModerationController extends Controller
             ]),
             default => abort(404),
         };
+
+        $previousStatus = $model->getOriginal('status');
+        if ($previousStatus instanceof \BackedEnum) {
+            $previousStatus = $previousStatus->value;
+        }
+
+        ModerationLog::create([
+            'moderatable_type' => $model::class,
+            'moderatable_id' => $model->id,
+            'performed_by' => auth()->id(),
+            'action' => 'rejected',
+            'previous_status' => $previousStatus,
+            'new_status' => 'rejected',
+            'reason' => request('reason'),
+        ]);
 
         $this->notifyAuthor($model, $type, 'rejected');
         $this->clearModerationCache();

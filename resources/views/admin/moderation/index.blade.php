@@ -494,5 +494,77 @@
                 @endif
             </div>
         @endif
+
+        {{-- Histórico de moderação --}}
+        @if($recentLogs->isNotEmpty())
+            <div class="mt-10">
+                <h2 class="text-base font-semibold text-amber-600 uppercase tracking-wide mb-4">
+                    Histórico recente
+                </h2>
+                <div class="bg-white rounded-xl border border-stone-200 overflow-hidden">
+                    <table class="min-w-full divide-y divide-stone-200">
+                        <thead class="bg-stone-50">
+                            <tr>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wide">Data</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wide">Ação</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wide">Alvo</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wide">Moderador</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wide">Motivo</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-stone-100">
+                            @foreach($recentLogs as $log)
+                                <tr class="hover:bg-stone-50">
+                                    <td class="px-4 py-3 text-xs text-stone-500 whitespace-nowrap">
+                                        {{ $log->created_at->format('d/m/Y H:i') }}
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        @php
+                                            $actionColors = [
+                                                'approved' => 'bg-green-100 text-green-700',
+                                                'rejected' => 'bg-red-100 text-red-700',
+                                                'claim_approved' => 'bg-blue-100 text-blue-700',
+                                                'claim_rejected' => 'bg-orange-100 text-orange-700',
+                                                'reported' => 'bg-yellow-100 text-yellow-700',
+                                            ];
+                                            $actionLabels = [
+                                                'approved' => 'Aprovado',
+                                                'rejected' => 'Rejeitado',
+                                                'claim_approved' => 'Reivindicação aprovada',
+                                                'claim_rejected' => 'Reivindicação rejeitada',
+                                                'reported' => 'Reportado',
+                                            ];
+                                            $color = $actionColors[$log->action] ?? 'bg-stone-100 text-stone-700';
+                                            $label = $actionLabels[$log->action] ?? $log->action;
+                                        @endphp
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $color }}">
+                                            {{ $label }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-xs text-stone-700">
+                                        @php
+                                            $typeLabels = [
+                                                'App\Models\Post' => 'Post',
+                                                'App\Models\Business' => 'Negócio',
+                                                'App\Models\Promotion' => 'Promoção',
+                                            ];
+                                            $typeLabel = $typeLabels[$log->moderatable_type] ?? class_basename($log->moderatable_type);
+                                        @endphp
+                                        <span class="font-medium">{{ $typeLabel }}</span>
+                                        <span class="text-stone-400">#{{ $log->moderatable_id }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-xs text-stone-600">
+                                        {{ $log->performer->name ?? 'Sistema' }}
+                                    </td>
+                                    <td class="px-4 py-3 text-xs text-stone-500 max-w-xs truncate">
+                                        {{ $log->reason ?? '—' }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
     </div>
 </x-app-layout>
