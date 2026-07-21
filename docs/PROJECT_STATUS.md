@@ -85,7 +85,7 @@ O backlog completo está em [Backlog priorizado](analysis/09-prioritized-backlog
 
 ## Recomendação para começar hoje
 
-**Próxima tarefa: B028 — simplificar cadastro de negócio.** Os filtros agora são compartilháveis; agora é hora de simplificar o fluxo de cadastro para comerciantes.
+**Próxima tarefa: B029 — executar piloto controlado do bairro.** O cadastro de negócio está simplificado; agora é hora de preparar o checklist e métricas para o piloto.
 
 ## Índice da análise
 
