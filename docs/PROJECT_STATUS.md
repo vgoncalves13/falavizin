@@ -1,7 +1,7 @@
 # Estado do projeto — Hub do Bairro
 
-**Atualizado em:** 20/07/2026  
-**Revisão de base analisada:** `eec07a1`, com estabilizações concluídas até a B014 e preservando uma alteração local preexistente em `bootstrap/app.php`.
+**Atualizado em:** 21/07/2026  
+**Revisão de base analisada:** `eec07a1`, com estabilizações concluídas até a B022 e preservando uma alteração local preexistente em `bootstrap/app.php`.
 
 ## Resumo executivo
 
@@ -35,7 +35,7 @@ A base é maior e mais madura do que o roadmap histórico sugere. Laravel 12, Li
 10. ✅ Nove jobs de enriquecimento falhos: causa 429 identificada, fila recuperada e backoff/timeout corrigidos na B009.
 11. ✅ Integridade de enquetes e capas: B014 adicionou unicidade, chave composta e índice funcional após diagnóstico/saneamento.
 12. ✅ CI: B021 adicionou MySQL 8, PHP 8.5, Pint, 225 testes, build e audits em push/PR.
-13. Ainda não há runbook de deploy/backup/worker ou README real do projeto.
+13. ✅ Runbook de deploy/backup/worker e README: B022 criou documentação completa com procedimentos operacionais e scripts automatizados.
 
 Detalhes, arquivos, severidade e correções: [Auditoria técnica](analysis/04-technical-audit.md).
 
@@ -85,7 +85,7 @@ O backlog completo está em [Backlog priorizado](analysis/09-prioritized-backlog
 
 ## Recomendação para começar hoje
 
-**Próxima tarefa: B022 — documentar setup, deploy, worker, backup e restore.** O CI agora impede regressões básicas; falta permitir que outra pessoa suba e opere o projeto sem conhecimento tribal.
+**Próxima tarefa: B023 — corrigir foco, dialogs, labels e reduced motion.** O runbook está pronto; agora é hora de melhorar a acessibilidade nas jornadas principais.
 
 ## Índice da análise
 
