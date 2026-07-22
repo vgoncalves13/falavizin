@@ -77,7 +77,7 @@
                             <x-dropdown-link :href="route('profile.edit')">
                                 Editar perfil
                             </x-dropdown-link>
-                            @if(Auth::user()->is_admin)
+                            @if(Auth::user()->is_admin || Auth::user()->isModerator())
                                 @php
                                     $pendingCount = \Illuminate\Support\Facades\Cache::remember('admin:moderation_count', 120, fn () =>
                                         \App\Models\Post::where('status', 'pending')->count() +
@@ -99,15 +99,17 @@
                                         @endif
                                     </span>
                                 </x-dropdown-link>
-                                <x-dropdown-link :href="route('admin.stats')">
-                                    Estatísticas
-                                </x-dropdown-link>
-                                <x-dropdown-link :href="route('admin.google-places-import')">
-                                    Importar Google Places
-                                </x-dropdown-link>
-                                <x-dropdown-link :href="route('admin.settings')">
-                                    Configurações
-                                </x-dropdown-link>
+                                @if(Auth::user()->is_admin)
+                                    <x-dropdown-link :href="route('admin.stats')">
+                                        Estatísticas
+                                    </x-dropdown-link>
+                                    <x-dropdown-link :href="route('admin.google-places-import')">
+                                        Importar Google Places
+                                    </x-dropdown-link>
+                                    <x-dropdown-link :href="route('admin.settings')">
+                                        Configurações
+                                    </x-dropdown-link>
+                                @endif
                             @endif
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
@@ -213,7 +215,7 @@
                    class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">
                     Editar perfil
                 </a>
-                @if(Auth::user()->is_admin)
+                @if(Auth::user()->is_admin || Auth::user()->isModerator())
                     <a href="{{ route('admin.moderation.index') }}"
                        class="flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">
                         <span class="flex items-center gap-2">
@@ -226,19 +228,21 @@
                             </span>
                         @endif
                     </a>
-                    <a href="{{ route('admin.stats') }}"
-                       class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">
-                        <x-heroicon-o-chart-bar class="w-4 h-4" />
-                        Estatísticas
-                    </a>
-                    <a href="{{ route('admin.google-places-import') }}"
-                       class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">
-                        Importar Google Places
-                    </a>
-                    <a href="{{ route('admin.settings') }}"
-                       class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">
-                        Configurações
-                    </a>
+                    @if(Auth::user()->is_admin)
+                        <a href="{{ route('admin.stats') }}"
+                           class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">
+                            <x-heroicon-o-chart-bar class="w-4 h-4" />
+                            Estatísticas
+                        </a>
+                        <a href="{{ route('admin.google-places-import') }}"
+                           class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">
+                            Importar Google Places
+                        </a>
+                        <a href="{{ route('admin.settings') }}"
+                           class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">
+                            Configurações
+                        </a>
+                    @endif
                 @endif
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf

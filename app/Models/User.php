@@ -72,7 +72,7 @@ class User extends Authenticatable
             return true;
         }
 
-        return $this->role?->canModerate() ?? $this->is_admin;
+        return $this->role?->canModerate() ?? false;
     }
 
     public function wantsEmailNotification(string $type): bool
