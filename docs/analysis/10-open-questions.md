@@ -1,34 +1,46 @@
 # Questões em aberto
 
-Estas dúvidas não podem ser resolvidas com segurança apenas pelo repositório. A coluna “impacto” mostra qual decisão elas desbloqueiam.
+Estas dúvidas não podem ser resolvidas com segurança apenas pelo repositório. A coluna "impacto" mostra qual decisão elas desbloqueiam.
 
-| ID | Pergunta | Por que está aberta/evidência | Impacto |
+| ID | Pergunta | Resposta | Status |
 |---|---|---|---|
-| Q01 | Qual bairro será o piloto e quem pode alterar essa definição? | Home fixa Jardim América (`home/index.blade.php:111`), mas settings e textos livres coexistem | Modelo de localização, conteúdo inicial e importação |
-| Q02 | Conteúdo deve nascer pendente ou autoaprovado? | Código usa pending (`CreatePostAction.php:39`); documentação histórica descreve autoaprovação (`CLAUDE.md`) | SLA, UX e equipe de moderação |
-| Q03 | Quem operará a moderação e em qual prazo? | Há apenas `is_admin`, sem papel/SLA/auditoria | Permissões, notificações e piloto |
-| Q05 | A verificação de e-mail deve ser obrigatória para todos ou só para ações sensíveis? | Scaffold existe, contrato não (`User.php:5`) | Auth e abuso |
-| Q06 | Quais benefícios concretos o plano Featured oferece? | Ordenação/badge e pedido administrativo existem; cobrança não | Proposta comercial e entitlements |
-| Q07 | Posts patrocinados fazem parte do MVP? Quem paga e como são identificados? | Campos e dois controllers existem sem ciclo financeiro | Simplificação e confiança editorial |
-| Q08 | Pontos/ranking têm objetivo validado ou são experimento? | Implementados, mas não idempotentes e com pouco dado local | Corrigir, ocultar ou remover |
-| Q09 | O Pulso será informação comunitária, métrica interna ou produto cívico? | Agregador existe sem definição pública de metodologia | UX, confiança e roadmap |
-| Q10 | Que tipos de post serão prioritários no piloto? | Categorias incluem avisos/problemas/eventos/pedidos e variações | Navegação, formulário e moderação |
-| Q11 | A importação Google Places e exibição de fotos cumprem termos/licença e atribuição exigidos? | API via RapidAPI e armazenamento local de fotos (`EnrichBusinessFromGoogle.php`) | Risco jurídico e arquitetura de dados |
-| Q12 | Quem é o controlador de dados e quais políticas de privacidade/retenção se aplicam? | Telefone, endereço, localização, denúncias e analytics potenciais; não há docs legais | LGPD, piloto e analytics |
-| Q13 | Qual infraestrutura de produção é pretendida? | Não há deploy/CI; Compose traz serviços não usados | Proxy confiável, worker, storage, backup e SLO |
-| Q14 | A alteração local `trustProxies('*')` é intencional e qual proxy ficará à frente da aplicação? | `bootstrap/app.php:18` está modificado fora desta auditoria | Segurança de IP/HTTPS/rate limit |
-| Q16 | O banco local contém dados reais, demo ou importados? Podem ser descartados/saneados? | Há usuários, negócios e interações; origem não é determinável apenas pelo código | Migrações corretivas e privacidade |
-| Q17 | E-mail SMTP está operacional e existe domínio/remetente validado? | Configuração existe; não foi enviado e-mail real nesta auditoria | Reset e notificações |
-| Q18 | ✅ Resolvida em 20/07/2026: MySQL 8 é obrigatório no MVP | B020 alinhou `.env.example` e a suíte já roda no MySQL | Manter essa premissa no CI/deploy |
-| Q19 | Há meta de acessibilidade, navegadores e aparelhos suportados? | Interface é responsiva, mas não há matriz/testes documentados | Critério de aceite UX |
-| Q20 | Quais métricas definem sucesso do piloto? | Nenhum plano analítico/objetivo mensurável no repositório | Priorização de engajamento/monetização |
-| Q21 | Deve existir recurso formal contra rejeição/banimento? | Moderação aprova/rejeita sem workflow de recurso | Governança comunitária |
-| Q22 | Respostas a pedido de orçamento devem ocorrer por WhatsApp ou dentro do portal? | WhatsApp já existe; chat está explicitamente fora do MVP histórico | Complexidade do módulo de pedidos |
-| Q23 | Redis, Meilisearch e Selenium foram adicionados por intenção futura ou scaffold? | Serviços estão no Compose, sem consumo atual | Limpeza do ambiente e custo |
-| Q24 | Existe backup testado e política de retenção de imagens/soft deletes? | Não há runbook; arquivos podem sobreviver a exclusões | Operação, custo e LGPD |
+| Q01 | Qual bairro será o piloto e quem pode alterar essa definição? | **Engenho da Rainha, Rio de Janeiro.** Apenas admin pode alterar. | ✅ Respondida em 21/07/2026 |
+| Q02 | Conteúdo deve nascer pendente ou autoaprovado? | **Autoaprovado no piloto.** Futuramente IA para reprovar maliciosos e avisar moderação. | ✅ Respondida em 21/07/2026 |
+| Q03 | Quem operará a moderação e em qual prazo? | **Adicionar usuários com role de moderação.** | ✅ Respondida em 21/07/2026 |
+| Q04 | Reivindicação: token automático ou aprovação manual? | Aprovação manual do admin. | ✅ Resolvida em 20/07/2026 (B006) |
+| Q05 | Verificação de e-mail obrigatória ou só para ações sensíveis? | **Só para ações sensíveis.** | ✅ Respondida em 21/07/2026 |
+| Q06 | Quais benefícios concretos o plano Featured oferece? | Aparecer primeiro nas buscas, badge "Destaque", aparecer na Home, mais promoções (semanal vs mensal). | ✅ Respondida em 21/07/2026 |
+| Q07 | Posts patrocinados fazem parte do MVP? Quem paga? | **Sim.** Operador entra em contato com negócio, recebe pagamento e patrocina manualmente no admin. | ✅ Respondida em 21/07/2026 |
+| Q08 | Pontos/ranking têm objetivo validado ou são experimento? | **Continuam no MVP** para gerar engajamento. | ✅ Respondida em 21/07/2026 |
+| Q09 | O Pulso será informação comunitária, métrica interna ou produto cívico? | **Informação comunitária.** | ✅ Respondida em 21/07/2026 |
+| Q10 | Que tipos de post serão prioritários no piloto? | **Avisos, problemas e pedidos.** | ✅ Respondida em 21/07/2026 |
+| Q11 | Importação Google Places cumpre termos/licença? | **Não verificado ainda.** | ⏳ Pendente |
+| Q12 | Quem é o controlador de dados e políticas de privacidade? | **Não definido ainda.** | ⏳ Pendente |
+| Q13 | Qual infraestrutura de produção é pretendida? | **Contabo VPS, 8GB RAM, CPU partilhada.** Suficiente para piloto. | ✅ Respondida em 21/07/2026 |
+| Q14 | Alteração `trustProxies('*')` é intencional? | **Irrelevante** — alteração já foi excluída. | ✅ Resolvida em 21/07/2026 |
+| Q15 | Jobs de enriquecimento falhos? | Causa 429 identificada; fila recuperada na B009. | ✅ Resolvida em 20/07/2026 (B009) |
+| Q16 | Banco local contém dados reais, demo ou importados? | **Dados demo e importados.** Podem ser excluídos. | ✅ Respondida em 21/07/2026 |
+| Q17 | E-mail SMTP está operacional? | **Não.** Precisa comprar domínio ainda. | ⏳ Pendente |
+| Q18 | MySQL 8 é obrigatório no MVP? | Sim. | ✅ Resolvida em 20/07/2026 (B020) |
+| Q19 | Há meta de acessibilidade, navegadores e aparelhos? | **Sem meta definida.** | ✅ Respondida em 21/07/2026 |
+| Q20 | Quais métricas definem sucesso do piloto? | Definidas no [PILOT_CHECKLIST.md](PILOT_CHECKLIST.md): 10-30 usuários, 10+ negócios, 30+ posts, 0 P0, >99% uptime. | ✅ Respondida em 21/07/2026 |
+| Q21 | Deve existir recurso formal contra rejeição/banimento? | **Não para o piloto.** Considerar pós-piloto. | ✅ Respondida em 21/07/2026 |
+| Q22 | Respostas a pedidos por WhatsApp ou dentro do portal? | **Comerciante demonstra interesse na plataforma**, depois morador pega WhatsApp e entra em contato. | ✅ Respondida em 21/07/2026 |
+| Q23 | Redis, Meilisearch e Selenium: intenção futura ou scaffold? | Redis fica para Laravel Horizon. Meilisearch e Selenium removidos na B040. | ✅ Resolvida em 21/07/2026 (B040) |
+| Q24 | Existe backup testado e política de retenção? | **Sim.** Runbook definido com backup diário, retenção de 30 dias. | ✅ Respondida em 21/07/2026 |
 
-## Decisões recomendadas antes de codificar novas features
+## Resumo
 
-**Decisões registradas em 20/07/2026:** Q04 foi respondida pelo responsável: a propriedade será concedida por aprovação manual do administrador. A B006 implementou esse fluxo; evidência, SLA e trilha operacional continuam como refinamentos. Q15 foi diagnosticada na B009: todos os nove jobs falharam por HTTP 429; a fila foi recuperada após rotação da chave e correção de timeout/backoff/espaçamento.
+- **Respondidas:** 19
+- **Resolvidas (implementadas):** 5
+- **Pendentes:** 2 (Q11 termos Google Places, Q12 LGPD/privacidade)
+- **Pendente (infra):** 1 (Q17 domínio/SMTP)
 
-Responder primeiro Q01–Q03, Q05, Q11–Q14 e Q20. Elas definem escopo do piloto, segurança, operação e critério de sucesso. Q06–Q10 devem ser decididas com evidência de usuários; Q21–Q24 entram no fechamento operacional.
+## Ações pendentes
+
+| Prioridade | Ação | Responsável |
+|---|---|---|
+| Alta | Comprar domínio e configurar SMTP | Operador |
+| Alta | Verificar termos do Google Places/RapidAPI | Operador |
+| Média | Definir controlador de dados e política de privacidade (LGPD) | Operador |
+| Baixa | Implementar role de moderação (Q03) | Desenvolvimento |
