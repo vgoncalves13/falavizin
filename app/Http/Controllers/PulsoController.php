@@ -14,6 +14,7 @@ class PulsoController extends Controller
     public function index(): View
     {
         $weekStart = now()->startOfWeek();
+        $weekEnd = now()->endOfWeek();
 
         $postsByCategory = Cache::remember('pulso:posts_by_category', 300, function () use ($weekStart) {
             return Post::query()
@@ -59,6 +60,22 @@ class PulsoController extends Controller
             ->count()
         );
 
+        $totalProblems = $openProblems + Post::query()
+            ->approved()
+            ->whereHas('category', fn ($q) => $q->where('slug', 'problema'))
+            ->where('resolution_status', PostResolutionStatus::Resolvido->value)
+            ->count();
+
+        $resolutionRate = $totalProblems > 0
+            ? round(($totalProblems - $openProblems) / $totalProblems * 100)
+            : 0;
+
+        $inProgressCount = Post::query()
+            ->approved()
+            ->whereHas('category', fn ($q) => $q->where('slug', 'problema'))
+            ->where('resolution_status', PostResolutionStatus::EmAndamento->value)
+            ->count();
+
         $topBusiness = Cache::remember('pulso:top_business', 300, fn () => Business::query()
             ->where('status', BusinessStatus::Approved->value)
             ->withCount(['reviews as positive_reviews_count' => fn ($q) => $q->where('rating', '>=', 4)])
@@ -85,14 +102,31 @@ class PulsoController extends Controller
             ->get()
         );
 
+        $requestsCount = Post::query()
+            ->approved()
+            ->whereHas('category', fn ($q) => $q->where('slug', 'pedido'))
+            ->where('created_at', '>=', $weekStart)
+            ->count();
+
+        $activeBusinesses = Business::query()
+            ->where('status', BusinessStatus::Approved->value)
+            ->count();
+
         return view('pulso.index', compact(
             'postsByCategory',
             'topProblems',
             'resolvedThisWeek',
             'openProblems',
+            'totalProblems',
+            'resolutionRate',
+            'inProgressCount',
             'topBusiness',
             'postsThisWeek',
             'activeRequests',
+            'requestsCount',
+            'activeBusinesses',
+            'weekStart',
+            'weekEnd',
         ));
     }
 }

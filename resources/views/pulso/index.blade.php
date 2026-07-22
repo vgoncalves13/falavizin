@@ -7,32 +7,77 @@
                 <x-heroicon-o-signal class="w-8 h-8 text-amber-600" />
                 Pulso do Bairro
             </h1>
-            <p class="text-stone-500 mt-1">O que está acontecendo esta semana — em números.</p>
+            <p class="text-stone-500 mt-1">
+                Semana de {{ $weekStart->format('d/m') }} a {{ $weekEnd->format('d/m/Y') }}
+            </p>
         </div>
 
         {{-- Métricas principais --}}
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-            <div class="bg-white rounded-xl border border-stone-200 p-5 text-center">
+            {{-- Posts esta semana --}}
+            <div class="bg-white rounded-xl border border-stone-200 p-5 text-center relative group">
                 <p class="text-3xl font-bold text-amber-600" style="font-family: var(--font-display)">{{ $postsThisWeek }}</p>
                 <p class="text-sm text-stone-500 mt-1">Posts esta semana</p>
+                <div class="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-stone-800 text-white text-xs rounded-lg whitespace-nowrap z-10">
+                    Posts aprovados entre {{ $weekStart->format('d/m') }} e {{ $weekEnd->format('d/m') }}
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-stone-800"></div>
+                </div>
             </div>
-            <div class="bg-white rounded-xl border border-stone-200 p-5 text-center">
+
+            {{-- Problemas abertos --}}
+            <div class="bg-white rounded-xl border border-stone-200 p-5 text-center relative group">
                 <p class="text-3xl font-bold text-red-500" style="font-family: var(--font-display)">{{ $openProblems }}</p>
                 <p class="text-sm text-stone-500 mt-1">Problemas abertos</p>
+                <div class="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-stone-800 text-white text-xs rounded-lg whitespace-nowrap z-10">
+                    Problemas não resolvidos ({{ $inProgressCount }} em andamento)
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-stone-800"></div>
+                </div>
             </div>
-            <div class="bg-white rounded-xl border border-stone-200 p-5 text-center">
+
+            {{-- Resolvidos esta semana --}}
+            <div class="bg-white rounded-xl border border-stone-200 p-5 text-center relative group">
                 <p class="text-3xl font-bold text-green-600" style="font-family: var(--font-display)">{{ $resolvedThisWeek }}</p>
                 <p class="text-sm text-stone-500 mt-1">Resolvidos esta semana</p>
+                <div class="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-stone-800 text-white text-xs rounded-lg whitespace-nowrap z-10">
+                    Problemas marcados como resolvidos desde {{ $weekStart->format('d/m') }}
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-stone-800"></div>
+                </div>
             </div>
-            <div class="bg-white rounded-xl border border-stone-200 p-5 text-center">
+
+            {{-- Score do bairro --}}
+            <div class="bg-white rounded-xl border border-stone-200 p-5 text-center relative group">
                 @php
-                    $total = $openProblems + $resolvedThisWeek;
-                    $score = $total > 0 ? max(1, min(10, round(10 - ($openProblems / max($total, 1)) * 5 + ($resolvedThisWeek / max($total, 1)) * 3))) : 7;
+                    $score = $totalProblems > 0
+                        ? max(1, min(10, round(10 - ($openProblems / max($totalProblems, 1)) * 5 + ($resolvedThisWeek / max($totalProblems, 1)) * 3)))
+                        : 7;
                 @endphp
                 <p class="text-3xl font-bold {{ $score >= 7 ? 'text-green-600' : ($score >= 4 ? 'text-amber-500' : 'text-red-500') }}" style="font-family: var(--font-display)">
                     {{ $score }}/10
                 </p>
                 <p class="text-sm text-stone-500 mt-1">Score do bairro</p>
+                <div class="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-stone-800 text-white text-xs rounded-lg w-64 z-10">
+                    <p class="font-semibold mb-1">Como calculamos:</p>
+                    <p>Base: 10 pontos</p>
+                    <p>-5 × (abertos / total) = -{{ $totalProblems > 0 ? round(($openProblems / $totalProblems) * 5, 1) : 0 }}</p>
+                    <p>+3 × (resolvidos esta semana / total) = +{{ $totalProblems > 0 ? round(($resolvedThisWeek / $totalProblems) * 3, 1) : 0 }}</p>
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-stone-800"></div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Métricas secundárias --}}
+        <div class="grid grid-cols-3 gap-4 mb-8">
+            <div class="bg-stone-50 rounded-lg border border-stone-200 px-4 py-3 text-center">
+                <p class="text-lg font-bold text-stone-700">{{ $resolutionRate }}%</p>
+                <p class="text-xs text-stone-500">Taxa de resolução</p>
+            </div>
+            <div class="bg-stone-50 rounded-lg border border-stone-200 px-4 py-3 text-center">
+                <p class="text-lg font-bold text-stone-700">{{ $requestsCount }}</p>
+                <p class="text-xs text-stone-500">Pedidos esta semana</p>
+            </div>
+            <div class="bg-stone-50 rounded-lg border border-stone-200 px-4 py-3 text-center">
+                <p class="text-lg font-bold text-stone-700">{{ $activeBusinesses }}</p>
+                <p class="text-xs text-stone-500">Negócios ativos</p>
             </div>
         </div>
 
@@ -168,6 +213,29 @@
                         </div>
                     </div>
                 @endif
+
+                {{-- Legenda --}}
+                <div class="bg-stone-50 rounded-xl border border-stone-200 p-5">
+                    <h3 class="text-xs font-semibold text-stone-600 uppercase tracking-wider mb-3">Como ler os dados</h3>
+                    <div class="space-y-2.5 text-xs text-stone-500">
+                        <div class="flex items-start gap-2">
+                            <span class="w-2 h-2 rounded-full bg-amber-500 mt-1 shrink-0"></span>
+                            <p><strong class="text-stone-700">Posts esta semana:</strong> publicações aprovadas nos últimos 7 dias</p>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="w-2 h-2 rounded-full bg-red-500 mt-1 shrink-0"></span>
+                            <p><strong class="text-stone-700">Problemas abertos:</strong> não resolvidos (inclui "em andamento")</p>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="w-2 h-2 rounded-full bg-green-500 mt-1 shrink-0"></span>
+                            <p><strong class="text-stone-700">Resolvidos:</strong> marcados como resolvidos esta semana</p>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="w-2 h-2 rounded-full bg-blue-500 mt-1 shrink-0"></span>
+                            <p><strong class="text-stone-700">Taxa de resolução:</strong> (resolvidos / total de problemas) × 100</p>
+                        </div>
+                    </div>
+                </div>
 
                 {{-- Dica de engajamento --}}
                 <div class="bg-amber-50 rounded-xl border border-amber-200 p-5">
