@@ -6,6 +6,7 @@ use App\Enums\BusinessStatus;
 use App\Enums\PostStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Business;
+use App\Models\BusinessAnalytics;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\Promotion;
@@ -70,6 +71,52 @@ class StatsController extends Controller
             'promotions' => Promotion::where('status', 'pending')->count(),
         ];
 
-        return view('admin.stats', compact('totals', 'thisWeek', 'weeks', 'pending'));
+        // Business analytics (last 30 days)
+        $analyticsStartDate = now()->subDays(30)->toDateString();
+        $businessAnalytics = BusinessAnalytics::query()
+            ->where('recorded_date', '>=', $analyticsStartDate)
+            ->selectRaw('event_type, SUM(count) as total')
+            ->groupBy('event_type')
+            ->pluck('total', 'event_type');
+
+        $topViewedBusinesses = Business::query()
+            ->where('status', BusinessStatus::Approved)
+            ->select(['id', 'name', 'slug'])
+            ->selectSub(
+                BusinessAnalytics::query()
+                    ->where('event_type', 'view')
+                    ->where('recorded_date', '>=', $analyticsStartDate)
+                    ->whereColumn('business_id', 'businesses.id')
+                    ->selectRaw('SUM(count)'),
+                'views_count'
+            )
+            ->orderByDesc('views_count')
+            ->limit(5)
+            ->get();
+
+        $topContactedBusinesses = Business::query()
+            ->where('status', BusinessStatus::Approved)
+            ->select(['id', 'name', 'slug'])
+            ->selectSub(
+                BusinessAnalytics::query()
+                    ->whereIn('event_type', ['phone_click', 'whatsapp_click'])
+                    ->where('recorded_date', '>=', $analyticsStartDate)
+                    ->whereColumn('business_id', 'businesses.id')
+                    ->selectRaw('SUM(count)'),
+                'contacts_count'
+            )
+            ->orderByDesc('contacts_count')
+            ->limit(5)
+            ->get();
+
+        return view('admin.stats', compact(
+            'totals',
+            'thisWeek',
+            'weeks',
+            'pending',
+            'businessAnalytics',
+            'topViewedBusinesses',
+            'topContactedBusinesses',
+        ));
     }
 }

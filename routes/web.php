@@ -70,6 +70,18 @@ Route::middleware('auth')->group(function () {
     Route::post('/promocoes/{promotion}/reportar', [ReportController::class, 'promotion'])->name('report.promotion')->middleware('throttle:10,1');
 });
 
+// Analytics tracking (authenticated but no CSRF for AJAX)
+Route::middleware('auth')->group(function () {
+    Route::post('/negocio/{business}/rastrear/{eventType}', function (Business $business, string $eventType) {
+        if (! in_array($eventType, ['phone_click', 'whatsapp_click'])) {
+            abort(422);
+        }
+        BusinessAnalytics::record($business, $eventType);
+
+        return response()->json(['ok' => true]);
+    })->name('business.track');
+});
+
 // Admin
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/moderacao', [ModerationController::class, 'index'])->name('moderation.index');

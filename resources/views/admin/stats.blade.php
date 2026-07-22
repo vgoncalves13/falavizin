@@ -154,7 +154,7 @@
 
         {{-- Fila de aprovação pendente --}}
         @php $totalPending = array_sum($pending); @endphp
-        <div class="bg-white rounded-xl border border-stone-200 p-5">
+        <div class="bg-white rounded-xl border border-stone-200 p-5 mb-6">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-sm font-semibold text-stone-700">Fila de aprovação</h2>
                 <a href="{{ route('admin.moderation.index') }}"
@@ -180,6 +180,85 @@
                     </div>
                 </div>
             @endif
+        </div>
+
+        {{-- Analytics de negócios (últimos 30 dias) --}}
+        <h2 class="text-lg font-semibold text-stone-900 mb-4 flex items-center gap-2">
+            <x-heroicon-o-chart-bar class="w-5 h-5 text-amber-500" />
+            Analytics de negócios (30 dias)
+        </h2>
+
+        <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="bg-white rounded-xl border border-stone-200 p-4 text-center">
+                <p class="text-2xl font-bold text-stone-800">{{ number_format($businessAnalytics->get('view', 0)) }}</p>
+                <p class="text-xs text-stone-500 mt-1">Visualizações</p>
+            </div>
+            <div class="bg-white rounded-xl border border-stone-200 p-4 text-center">
+                <p class="text-2xl font-bold text-stone-800">{{ number_format($businessAnalytics->get('phone_click', 0)) }}</p>
+                <p class="text-xs text-stone-500 mt-1">Cliques telefone</p>
+            </div>
+            <div class="bg-white rounded-xl border border-green-200 p-4 text-center">
+                <p class="text-2xl font-bold text-green-700">{{ number_format($businessAnalytics->get('whatsapp_click', 0)) }}</p>
+                <p class="text-xs text-stone-500 mt-1">Cliques WhatsApp</p>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            {{-- Top visualizados --}}
+            <div class="bg-white rounded-xl border border-stone-200 overflow-hidden">
+                <div class="px-5 py-3 border-b border-stone-100 bg-stone-50">
+                    <h3 class="text-sm font-semibold text-stone-700 flex items-center gap-2">
+                        <x-heroicon-o-eye class="w-4 h-4 text-stone-400" />
+                        Mais visualizados
+                    </h3>
+                </div>
+                <div class="divide-y divide-stone-50">
+                    @forelse($topViewedBusinesses as $i => $business)
+                        <div class="flex items-center gap-3 px-5 py-3">
+                            <span class="text-lg font-bold text-stone-200 w-5 shrink-0">{{ $i + 1 }}</span>
+                            <div class="min-w-0 flex-1">
+                                <a href="{{ route('businesses.show', $business) }}"
+                                   class="text-sm font-medium text-stone-900 hover:text-amber-600 transition-colors truncate block">
+                                    {{ $business->name }}
+                                </a>
+                            </div>
+                            <span class="text-sm font-semibold text-stone-600 shrink-0">
+                                {{ number_format($business->views_count) }}
+                            </span>
+                        </div>
+                    @empty
+                        <div class="px-5 py-4 text-sm text-stone-400 text-center">Nenhum dado ainda</div>
+                    @endforelse
+                </div>
+            </div>
+
+            {{-- Top contatos --}}
+            <div class="bg-white rounded-xl border border-stone-200 overflow-hidden">
+                <div class="px-5 py-3 border-b border-stone-100 bg-stone-50">
+                    <h3 class="text-sm font-semibold text-stone-700 flex items-center gap-2">
+                        <x-heroicon-o-phone class="w-4 h-4 text-stone-400" />
+                        Mais contatados
+                    </h3>
+                </div>
+                <div class="divide-y divide-stone-50">
+                    @forelse($topContactedBusinesses as $i => $business)
+                        <div class="flex items-center gap-3 px-5 py-3">
+                            <span class="text-lg font-bold text-stone-200 w-5 shrink-0">{{ $i + 1 }}</span>
+                            <div class="min-w-0 flex-1">
+                                <a href="{{ route('businesses.show', $business) }}"
+                                   class="text-sm font-medium text-stone-900 hover:text-amber-600 transition-colors truncate block">
+                                    {{ $business->name }}
+                                </a>
+                            </div>
+                            <span class="text-sm font-semibold text-stone-600 shrink-0">
+                                {{ number_format($business->contacts_count) }}
+                            </span>
+                        </div>
+                    @empty
+                        <div class="px-5 py-4 text-sm text-stone-400 text-center">Nenhum dado ainda</div>
+                    @endforelse
+                </div>
+            </div>
         </div>
     </div>
 </x-app-layout>

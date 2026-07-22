@@ -123,6 +123,11 @@ class Business extends Model
         return $this->hasMany(Review::class);
     }
 
+    public function analytics(): HasMany
+    {
+        return $this->hasMany(BusinessAnalytics::class);
+    }
+
     public function averageRating(): ?float
     {
         $avg = $this->reviews()->avg('rating');

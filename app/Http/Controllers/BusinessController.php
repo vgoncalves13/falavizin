@@ -10,6 +10,7 @@ use App\Http\Requests\MapBusinessesRequest;
 use App\Http\Requests\StoreBusinessRequest;
 use App\Http\Requests\UpdateBusinessRequest;
 use App\Models\Business;
+use App\Models\BusinessAnalytics;
 use App\Models\Setting;
 use App\Models\User;
 use App\Notifications\PlanUpgradeApprovedNotification;
@@ -67,6 +68,10 @@ class BusinessController extends Controller
         Gate::authorize('view', $business);
 
         $canManage = auth()->user()?->can('update', $business);
+
+        if (! $canManage) {
+            BusinessAnalytics::record($business, 'view');
+        }
 
         $business->load(['user', 'category', 'coverPhoto', 'promotions' => function ($q) use ($canManage) {
             $canManage

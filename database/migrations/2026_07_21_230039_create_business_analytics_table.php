@@ -1,0 +1,28 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('business_analytics', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('business_id')->constrained()->cascadeOnDelete();
+            $table->string('event_type'); // 'view', 'phone_click', 'whatsapp_click'
+            $table->date('recorded_date');
+            $table->unsignedInteger('count')->default(1);
+            $table->timestamps();
+
+            $table->unique(['business_id', 'event_type', 'recorded_date']);
+            $table->index(['event_type', 'recorded_date']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('business_analytics');
+    }
+};
