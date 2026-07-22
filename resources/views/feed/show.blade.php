@@ -150,7 +150,11 @@
                 {{-- Votos --}}
                 <div class="mt-6 pt-4 border-t border-stone-100 flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <livewire:feed.vote-buttons :post="$post" :key="'votes-'.$post->id" />
+                        @if($post->category?->slug === 'pedido' && $post->serviceCategory)
+                            <livewire:feed.interest-button :post="$post" :key="'interest-'.$post->id" />
+                        @else
+                            <livewire:feed.vote-buttons :post="$post" :key="'votes-'.$post->id" />
+                        @endif
                         <livewire:feed.save-button :post="$post" :key="'save-'.$post->id" />
                     </div>
 
@@ -194,6 +198,11 @@
 
         {{-- Comentários --}}
         <livewire:feed.comment-section :post="$post" :key="'comments-'.$post->id" />
+
+        {{-- Interessados (apenas para pedidos) --}}
+        @if($post->category?->slug === 'pedido')
+            <livewire:feed.interest-list :post="$post" :key="'interests-'.$post->id" />
+        @endif
 
         {{-- Posts relacionados --}}
         @if($relatedPosts->isNotEmpty())

@@ -103,6 +103,19 @@ class Post extends Model
         return $this->belongsToMany(User::class, 'post_user_saves')->withPivot('created_at');
     }
 
+    /**
+     * @return BelongsToMany<User>
+     */
+    public function interests(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'post_interests')->withPivot('message', 'created_at')->withTimestamps();
+    }
+
+    public function isInterestedBy(User $user): bool
+    {
+        return $this->interests()->where('user_id', $user->id)->exists();
+    }
+
     public function scopeApproved(Builder $query): Builder
     {
         return $query->where('status', PostStatus::Approved);

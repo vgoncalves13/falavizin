@@ -18,7 +18,7 @@ class PostController extends Controller
     {
         Gate::authorize('view', $post);
 
-        $post->load(['user', 'category', 'serviceCategory', 'votes', 'poll.options', 'poll.votes']);
+        $post->load(['user', 'category', 'serviceCategory', 'votes', 'poll.options', 'poll.votes', 'interests.businesses']);
 
         $relatedPosts = Post::query()
             ->approved()

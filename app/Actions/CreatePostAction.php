@@ -4,9 +4,11 @@ namespace App\Actions;
 
 use App\Enums\PointEventReason;
 use App\Enums\PostStatus;
+use App\Models\Category;
 use App\Models\Post;
 use App\Models\User;
 use App\Notifications\NewContentNotification;
+use App\Notifications\NewRequestNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -69,6 +71,7 @@ class CreatePostAction
         }
 
         $this->notifyAdmins($post->title);
+        $this->notifyMerchants($post);
 
         return $post;
     }
@@ -83,5 +86,35 @@ class CreatePostAction
 
         Notification::send($admins, new NewContentNotification('post', $title));
         Cache::forget('admin:moderation_count');
+    }
+
+    private function notifyMerchants(Post $post): void
+    {
+        if (! $post->service_category_id) {
+            return;
+        }
+
+        $isPedido = Category::where('id', $post->category_id)
+            ->where('slug', 'pedido')
+            ->exists();
+
+        if (! $isPedido) {
+            return;
+        }
+
+        $merchants = User::query()
+            ->whereHas('businesses', function ($q) use ($post) {
+                $q->whereHas('categories', function ($cq) use ($post) {
+                    $cq->where('categories.id', $post->service_category_id);
+                });
+            })
+            ->where('id', '!=', $post->user_id)
+            ->get();
+
+        if ($merchants->isEmpty()) {
+            return;
+        }
+
+        Notification::send($merchants, new NewRequestNotification($post));
     }
 }

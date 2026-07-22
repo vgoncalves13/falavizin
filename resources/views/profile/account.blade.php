@@ -107,6 +107,16 @@
                     <x-heroicon-o-bell class="w-4 h-4" />
                     Notificações
                 </button>
+                @if($businessCategoryIds->isNotEmpty())
+                    <button
+                        @click="tab = 'requests'"
+                        :class="tab === 'requests' ? 'bg-amber-600 text-white shadow-sm' : 'text-stone-600 hover:bg-stone-100'"
+                        class="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-150 whitespace-nowrap"
+                    >
+                        <x-heroicon-o-megaphone class="w-4 h-4" />
+                        Pedidos
+                    </button>
+                @endif
             </div>
 
             {{-- Posts --}}
@@ -300,6 +310,67 @@
                     <livewire:profile.notification-settings />
                 </div>
             </div>
+
+            {{-- Pedidos relevantes --}}
+            @if($businessCategoryIds->isNotEmpty())
+                <div x-show="tab === 'requests'" style="display: none;">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                        <div class="flex items-start gap-3">
+                            <x-heroicon-o-information-circle class="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                            <p class="text-sm text-blue-700">
+                                Pedidos de moradores que combinam com as categorias dos seus negócios. Responda diretamente no post para oferecer seus serviços.
+                            </p>
+                        </div>
+                    </div>
+                    @if($relevantRequests->isEmpty())
+                        <div class="bg-white rounded-xl border border-stone-200 p-12 text-center">
+                            <x-heroicon-o-megaphone class="w-10 h-10 text-stone-300 mx-auto mb-3" />
+                            <p class="text-stone-500 text-sm">Nenhum pedido relevante no momento.</p>
+                            <p class="text-xs text-stone-400 mt-1">Quando alguém publicar um pedido nas categorias dos seus negócios, ele aparecerá aqui.</p>
+                        </div>
+                    @else
+                        <div class="space-y-3">
+                            @foreach($relevantRequests as $post)
+                                <div class="bg-white rounded-xl border border-blue-200 p-4 hover:shadow-sm transition-shadow">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+                                                <span class="inline-flex items-center gap-1 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
+                                                    <x-heroicon-o-wrench-screwdriver class="w-3 h-3" />
+                                                    {{ $post->serviceCategory->name }}
+                                                </span>
+                                                <span class="text-xs text-stone-400">{{ $post->created_at->diffForHumans() }}</span>
+                                                <span class="text-xs text-stone-400">por {{ $post->user->name }}</span>
+                                            </div>
+                                            <a href="{{ route('feed.show', $post) }}"
+                                               class="font-medium text-stone-900 hover:text-amber-600 transition-colors">
+                                                {{ $post->title }}
+                                            </a>
+                                            <p class="text-sm text-stone-500 line-clamp-2 mt-0.5">{{ $post->body }}</p>
+                                            <div class="flex items-center gap-3 mt-2">
+                                                <span class="inline-flex items-center gap-1 text-xs text-stone-400">
+                                                    <x-heroicon-o-chat-bubble-left class="w-3.5 h-3.5" />
+                                                    {{ $post->comments_count }} respostas
+                                                </span>
+                                                <span class="inline-flex items-center gap-1 text-xs text-stone-400">
+                                                    <x-heroicon-o-hand-thumb-up class="w-3.5 h-3.5" />
+                                                    {{ $post->votes_count }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <a href="{{ route('feed.show', $post) }}"
+                                           class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg transition-colors">
+                                            <x-heroicon-o-chat-bubble-left-right class="w-4 h-4" />
+                                            Responder
+                                        </a>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        {{ $relevantRequests->links() }}
+                    @endif
+                </div>
+            @endif
         </div>
     </div>
 </x-app-layout>

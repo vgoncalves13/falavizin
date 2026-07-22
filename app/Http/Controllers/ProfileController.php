@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\Post;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +24,7 @@ class ProfileController extends Controller
 
         $posts = $user->posts()->with(['category', 'serviceCategory'])->latest()
             ->paginate(10, ['*'], 'posts_page')->appends(['tab' => 'posts']);
-        $businesses = $user->businesses()->with('category')->latest()
+        $businesses = $user->businesses()->with(['category', 'categories'])->latest()
             ->paginate(10, ['*'], 'businesses_page')->appends(['tab' => 'businesses']);
         $comments = $user->comments()->with('post')->latest()
             ->paginate(10, ['*'], 'comments_page')->appends(['tab' => 'comments']);
@@ -31,8 +32,30 @@ class ProfileController extends Controller
             ->paginate(10, ['*'], 'favorites_page')->appends(['tab' => 'favorites']);
         $savedPosts = $user->savedPosts()->with(['category', 'user', 'serviceCategory'])
             ->paginate(10, ['*'], 'saved_page')->appends(['tab' => 'saved']);
+
+        $businessCategoryIds = $user->businesses()
+            ->with('categories')
+            ->get()
+            ->flatMap(fn ($business) => $business->categories->pluck('id'))
+            ->unique()
+            ->filter()
+            ->values();
+
+        $relevantRequests = collect();
+        if ($businessCategoryIds->isNotEmpty()) {
+            $relevantRequests = Post::query()
+                ->approved()
+                ->whereHas('category', fn ($q) => $q->where('slug', 'pedido'))
+                ->whereIn('service_category_id', $businessCategoryIds)
+                ->with(['user', 'category', 'serviceCategory'])
+                ->withCount(['comments', 'votes'])
+                ->latest()
+                ->paginate(10, ['*'], 'requests_page')
+                ->appends(['tab' => 'requests']);
+        }
+
         $requestedTab = $request->string('tab')->value();
-        $activeTab = in_array($requestedTab, ['posts', 'businesses', 'comments', 'favorites', 'saved'], true)
+        $activeTab = in_array($requestedTab, ['posts', 'businesses', 'comments', 'favorites', 'saved', 'requests'], true)
             ? $requestedTab
             : 'posts';
 
@@ -43,6 +66,8 @@ class ProfileController extends Controller
             'comments',
             'favorites',
             'savedPosts',
+            'relevantRequests',
+            'businessCategoryIds',
             'activeTab',
         ));
     }
