@@ -77,6 +77,22 @@ class ModerationController extends Controller
             ->limit(20)
             ->get();
 
+        $featuredCount = Business::query()
+            ->where('plan', 'featured')
+            ->where('status', BusinessStatus::Approved)
+            ->count();
+
+        $featuredRequestsThisMonth = Business::query()
+            ->whereNotNull('plan_upgrade_requested_at')
+            ->where('plan_upgrade_requested_at', '>=', now()->startOfMonth())
+            ->count();
+
+        $featuredApprovedThisMonth = Business::query()
+            ->where('plan', 'featured')
+            ->whereNotNull('claimed_at')
+            ->where('claimed_at', '>=', now()->startOfMonth())
+            ->count();
+
         return view('admin.moderation.index', compact(
             'pendingPosts',
             'pendingBusinesses',
@@ -87,6 +103,9 @@ class ModerationController extends Controller
             'pendingUpgrades',
             'pendingClaims',
             'recentLogs',
+            'featuredCount',
+            'featuredRequestsThisMonth',
+            'featuredApprovedThisMonth',
         ));
     }
 

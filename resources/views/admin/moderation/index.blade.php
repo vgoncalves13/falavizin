@@ -27,6 +27,22 @@
             $totalReported = $reportedPosts->total() + $reportedBusinesses->total() + $reportedPromotions->total();
         @endphp
 
+        {{-- Métricas Featured --}}
+        <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="bg-white rounded-xl border border-amber-200 p-4 text-center">
+                <p class="text-2xl font-bold text-amber-600">{{ $featuredCount }}</p>
+                <p class="text-xs text-stone-500 mt-1">Negócios em destaque</p>
+            </div>
+            <div class="bg-white rounded-xl border border-stone-200 p-4 text-center">
+                <p class="text-2xl font-bold text-stone-700">{{ $featuredRequestsThisMonth }}</p>
+                <p class="text-xs text-stone-500 mt-1">Solicitações este mês</p>
+            </div>
+            <div class="bg-white rounded-xl border border-green-200 p-4 text-center">
+                <p class="text-2xl font-bold text-green-600">{{ $featuredApprovedThisMonth }}</p>
+                <p class="text-xs text-stone-500 mt-1">Aprovados este mês</p>
+            </div>
+        </div>
+
         @if($totalPending === 0 && $totalReported === 0 && $pendingUpgrades->isEmpty() && $pendingClaims->isEmpty())
             <div class="bg-white rounded-xl border border-stone-200 p-10 text-center">
                 <x-heroicon-o-shield-check class="w-10 h-10 text-green-400 mx-auto mb-3" />
