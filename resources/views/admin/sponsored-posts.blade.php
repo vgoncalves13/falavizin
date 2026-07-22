@@ -88,19 +88,46 @@
                         </div>
 
                         {{-- Toggle --}}
-                        <form action="{{ route('admin.sponsored-posts.toggle', $post) }}" method="POST" class="shrink-0">
-                            @csrf
-                            <button
-                                type="submit"
-                                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium rounded-lg border transition-colors duration-150
-                                    {{ $post->is_sponsored
-                                        ? 'bg-amber-500 border-amber-500 text-white hover:bg-amber-600 hover:border-amber-600'
-                                        : 'bg-white border-stone-300 text-stone-600 hover:bg-amber-50 hover:border-amber-300 hover:text-amber-700' }}"
-                            >
-                                <x-heroicon-s-bolt class="w-3.5 h-3.5" />
-                                {{ $post->is_sponsored ? 'Remover patrocínio' : 'Patrocinar' }}
-                            </button>
-                        </form>
+                        @if($post->is_sponsored)
+                            <div class="shrink-0 flex items-center gap-2">
+                                @if($post->sponsored_until)
+                                    <span class="text-xs text-stone-500">
+                                        Até {{ $post->sponsored_until->format('d/m/Y') }}
+                                    </span>
+                                @else
+                                    <span class="text-xs text-stone-500">Sem prazo</span>
+                                @endif
+                                <form action="{{ route('admin.sponsored-posts.toggle', $post) }}" method="POST">
+                                    @csrf
+                                    <button type="submit"
+                                        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium rounded-lg border bg-amber-500 border-amber-500 text-white hover:bg-amber-600 transition-colors">
+                                        <x-heroicon-s-bolt class="w-3.5 h-3.5" />
+                                        Remover
+                                    </button>
+                                </form>
+                            </div>
+                        @else
+                            <form action="{{ route('admin.sponsored-posts.toggle', $post) }}" method="POST" class="shrink-0 flex items-center gap-2" x-data="{ days: '' }">
+                                @csrf
+                                <input type="hidden" name="days" :value="days">
+                                <select
+                                    x-model="days"
+                                    class="text-xs rounded border-stone-300 text-stone-600 focus:ring-amber-500 focus:border-amber-500 py-1.5"
+                                >
+                                    <option value="">Sem prazo</option>
+                                    <option value="7">7 dias</option>
+                                    <option value="15">15 dias</option>
+                                    <option value="30">30 dias</option>
+                                    <option value="60">60 dias</option>
+                                    <option value="90">90 dias</option>
+                                </select>
+                                <button type="submit"
+                                    class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium rounded-lg border bg-white border-stone-300 text-stone-600 hover:bg-amber-50 hover:border-amber-300 hover:text-amber-700 transition-colors">
+                                    <x-heroicon-o-bolt class="w-3.5 h-3.5" />
+                                    Patrocinar
+                                </button>
+                            </form>
+                        @endif
                     </div>
                 @endforeach
             </div>

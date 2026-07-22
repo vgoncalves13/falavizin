@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\ToggleSponsorAction;
 use App\Enums\PostStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Post;
@@ -26,18 +27,18 @@ class SponsoredPostsController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        $sponsoredCount = Post::where('status', PostStatus::Approved)
-            ->where('is_sponsored', true)
-            ->count();
+        $sponsoredCount = Post::query()->sponsored()->count();
 
         return view('admin.sponsored-posts', compact('posts', 'sponsoredCount', 'search'));
     }
 
-    public function toggle(Post $post): RedirectResponse
+    public function toggle(Post $post, ToggleSponsorAction $action, Request $request): RedirectResponse
     {
-        $post->update(['is_sponsored' => ! $post->is_sponsored]);
+        $days = $request->input('days') ? (int) $request->input('days') : null;
 
-        $status = $post->is_sponsored ? 'patrocinado' : 'removido dos patrocinados';
+        $action->execute($post, $days);
+
+        $status = $post->fresh()->is_sponsored ? 'patrocinado' : 'removido dos patrocinados';
 
         return back()->with('success', "Post \"{$post->title}\" {$status}.");
     }

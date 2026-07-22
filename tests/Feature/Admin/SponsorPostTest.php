@@ -17,7 +17,7 @@ class SponsorPostTest extends TestCase
         $post = Post::factory()->create(['is_sponsored' => false]);
 
         $this->actingAs($admin)
-            ->post(route('admin.posts.sponsor', $post))
+            ->post(route('admin.sponsored-posts.toggle', $post))
             ->assertRedirect();
 
         $this->assertTrue($post->fresh()->is_sponsored);
@@ -29,7 +29,7 @@ class SponsorPostTest extends TestCase
         $post = Post::factory()->create(['is_sponsored' => true]);
 
         $this->actingAs($admin)
-            ->post(route('admin.posts.sponsor', $post))
+            ->post(route('admin.sponsored-posts.toggle', $post))
             ->assertRedirect();
 
         $this->assertFalse($post->fresh()->is_sponsored);
@@ -41,7 +41,7 @@ class SponsorPostTest extends TestCase
         $post = Post::factory()->create(['is_sponsored' => false]);
 
         $this->actingAs($user)
-            ->post(route('admin.posts.sponsor', $post))
+            ->post(route('admin.sponsored-posts.toggle', $post))
             ->assertForbidden();
 
         $this->assertFalse($post->fresh()->is_sponsored);
@@ -51,7 +51,7 @@ class SponsorPostTest extends TestCase
     {
         $post = Post::factory()->create(['is_sponsored' => false]);
 
-        $this->post(route('admin.posts.sponsor', $post))
+        $this->post(route('admin.sponsored-posts.toggle', $post))
             ->assertRedirect(route('login'));
     }
 }

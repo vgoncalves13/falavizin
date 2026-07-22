@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Admin\ModerationController;
-use App\Http\Controllers\Admin\PostSponsorController;
 use App\Http\Controllers\Admin\SponsoredPostsController;
 use App\Http\Controllers\Admin\StatsController;
 use App\Http\Controllers\BusinessController;
@@ -96,7 +95,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/negocio/{business}/aprovar-upgrade', [BusinessController::class, 'approveUpgrade'])->name('businesses.upgrade.approve');
     Route::post('/negocio/{business}/dispensar-upgrade', [BusinessController::class, 'dismissUpgrade'])->name('businesses.upgrade.dismiss');
 
-    Route::post('/posts/{post}/patrocinar', [PostSponsorController::class, 'toggle'])->name('posts.sponsor');
     Route::get('/posts-patrocinados', [SponsoredPostsController::class, 'index'])->name('sponsored-posts.index');
     Route::post('/posts-patrocinados/{post}/toggle', [SponsoredPostsController::class, 'toggle'])->name('sponsored-posts.toggle');
 });

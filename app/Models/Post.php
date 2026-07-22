@@ -34,6 +34,7 @@ class Post extends Model
         'event_starts_at',
         'event_ends_at',
         'is_sponsored',
+        'sponsored_until',
         'status',
         'approved_at',
         'reported_at',
@@ -51,6 +52,7 @@ class Post extends Model
             'event_starts_at' => 'datetime',
             'event_ends_at' => 'datetime',
             'is_sponsored' => 'boolean',
+            'sponsored_until' => 'datetime',
             'resolution_status' => PostResolutionStatus::class,
             'resolved_at' => 'datetime',
         ];
@@ -126,5 +128,19 @@ class Post extends Model
         return $query->approved()
             ->whereHas('category', fn ($q) => $q->where('slug', 'evento'))
             ->where('event_starts_at', '>=', now());
+    }
+
+    public function scopeSponsored(Builder $query): Builder
+    {
+        return $query->where('is_sponsored', true)
+            ->where(fn ($q) => $q
+                ->whereNull('sponsored_until')
+                ->orWhere('sponsored_until', '>=', now())
+            );
+    }
+
+    public function isSponsoredActive(): bool
+    {
+        return $this->is_sponsored && ($this->sponsored_until === null || $this->sponsored_until->isFuture());
     }
 }

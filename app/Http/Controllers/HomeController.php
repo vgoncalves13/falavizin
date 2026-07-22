@@ -48,7 +48,7 @@ class HomeController extends Controller
 
         $sponsoredPosts = HomeCache::remember(HomeCache::SPONSORED_POSTS, fn () => Post::query()
             ->approved()
-            ->where('is_sponsored', true)
+            ->sponsored()
             ->with(['user', 'category', 'serviceCategory'])
             ->withCount(['comments', 'votes'])
             ->latest()

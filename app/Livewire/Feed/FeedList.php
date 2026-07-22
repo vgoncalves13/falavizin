@@ -49,7 +49,7 @@ class FeedList extends Component
             ->when($this->neighborhoodOnly && $userNeighborhood, fn ($q) => $q->whereHas('user', fn ($u) => $u->where('neighborhood', $userNeighborhood)))
             ->with(['user', 'category', 'serviceCategory', 'poll.options', 'poll.votes'])
             ->withCount(['comments', 'votes'])
-            ->orderByDesc('is_sponsored')
+            ->orderByRaw('is_sponsored = 1 AND (sponsored_until IS NULL OR sponsored_until >= NOW()) DESC')
             ->when($this->sortBy === 'trending', fn ($q) => $q->orderByRaw(
                 '(votes_count + comments_count * 1.5) / POW(TIMESTAMPDIFF(HOUR, posts.created_at, NOW()) + 2, 1.5) DESC'
             ))
