@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\UserRole;
 use App\Notifications\QueuedResetPassword;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -28,6 +29,7 @@ class User extends Authenticatable
         'phone',
         'neighborhood',
         'is_admin',
+        'role',
         'points',
         'notification_preferences',
     ];
@@ -53,9 +55,24 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'role' => UserRole::class,
             'points' => 'integer',
             'notification_preferences' => 'array',
         ];
+    }
+
+    public function isAdministrator(): bool
+    {
+        return $this->is_admin === true;
+    }
+
+    public function isModerator(): bool
+    {
+        if ($this->isAdministrator()) {
+            return true;
+        }
+
+        return $this->role?->canModerate() ?? $this->is_admin;
     }
 
     public function wantsEmailNotification(string $type): bool

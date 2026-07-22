@@ -83,12 +83,16 @@ Route::middleware('auth')->group(function () {
     })->name('business.track');
 });
 
-// Admin
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+// Moderation (admin + moderator)
+Route::middleware(['auth', 'moderator'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/moderacao', [ModerationController::class, 'index'])->name('moderation.index');
     Route::post('/moderacao/em-massa', [ModerationController::class, 'bulk'])->name('moderation.bulk');
     Route::post('/moderacao/{type}/{id}/aprovar', [ModerationController::class, 'approve'])->name('moderation.approve');
     Route::post('/moderacao/{type}/{id}/rejeitar', [ModerationController::class, 'reject'])->name('moderation.reject');
+});
+
+// Admin only
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::post('/reivindicacoes/{business}/aprovar', [ModerationController::class, 'approveClaim'])->name('claims.approve');
     Route::post('/reivindicacoes/{business}/rejeitar', [ModerationController::class, 'rejectClaim'])->name('claims.reject');
     Route::get('/importar-google-places', GooglePlacesImport::class)->name('google-places-import');
