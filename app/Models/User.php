@@ -32,6 +32,7 @@ class User extends Authenticatable
         'role',
         'points',
         'notification_preferences',
+        'avatar_url',
     ];
 
     /**
@@ -123,5 +124,13 @@ class User extends Authenticatable
     public function pointEvents(): HasMany
     {
         return $this->hasMany(PointEvent::class);
+    }
+
+    /**
+     * @return HasMany<SocialAccount>
+     */
+    public function socialAccounts(): HasMany
+    {
+        return $this->hasMany(SocialAccount::class);
     }
 }
