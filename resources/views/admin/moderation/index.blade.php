@@ -3,6 +3,11 @@
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-bold text-stone-900" style="font-family: var(--font-display)">Moderação</h1>
             <div class="flex items-center gap-2">
+                <a href="{{ route('admin.users.index') }}"
+                   class="inline-flex items-center gap-1.5 text-sm font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-3 py-1.5 rounded-lg transition-colors duration-150">
+                    <x-heroicon-o-users class="w-4 h-4" />
+                    Usuários
+                </a>
                 <a href="{{ route('admin.sponsored-posts.index') }}"
                    class="inline-flex items-center gap-1.5 text-sm font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-3 py-1.5 rounded-lg transition-colors duration-150">
                     <x-heroicon-s-bolt class="w-4 h-4" />

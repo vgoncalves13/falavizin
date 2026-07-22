@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\SponsoredPostsController;
 use App\Http\Controllers\Admin\StatsController;
+use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ClaimBusinessController;
@@ -93,6 +94,9 @@ Route::middleware(['auth', 'moderator'])->prefix('admin')->name('admin.')->group
 
 // Admin only
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/usuarios', [UserManagementController::class, 'index'])->name('users.index');
+    Route::patch('/usuarios/{user}/role', [UserManagementController::class, 'updateRole'])->name('users.update-role');
+
     Route::post('/reivindicacoes/{business}/aprovar', [ModerationController::class, 'approveClaim'])->name('claims.approve');
     Route::post('/reivindicacoes/{business}/rejeitar', [ModerationController::class, 'rejectClaim'])->name('claims.reject');
     Route::get('/importar-google-places', GooglePlacesImport::class)->name('google-places-import');
