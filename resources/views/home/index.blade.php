@@ -108,7 +108,7 @@
             {{-- Eyebrow --}}
             <div class="h-up1 flex items-center gap-3 mb-5">
                 <span style="display:inline-block;width:28px;height:2px;background:#d97706;border-radius:2px;flex-shrink:0;"></span>
-                <span style="font-size:.6875rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#fbbf24;">{{ $neighborhoodName }} · Hub do Bairro</span>
+                <span style="font-size:.6875rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#fbbf24;">{{ $neighborhoodName }} · FalaVizin</span>
             </div>
 
             {{-- Headline --}}

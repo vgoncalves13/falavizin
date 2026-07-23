@@ -38,11 +38,11 @@ class PlanUpgradeApprovedNotification extends Notification implements ShouldQueu
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Seu negócio agora é Destaque — Hub do Bairro')
+            ->subject('Seu negócio agora é Destaque — FalaVizin')
             ->greeting('Parabéns, '.$notifiable->name.'!')
             ->line("Seu negócio **{$this->business->name}** foi promovido ao plano **Destaque**.")
             ->line('Com o plano Destaque você pode criar promoções ilimitadas e aparece em primeiro nos resultados de busca.')
             ->action('Ver seu negócio', route('businesses.show', $this->business))
-            ->line('Obrigado por fazer parte do Hub do Bairro!');
+            ->line('Obrigado por fazer parte do FalaVizin!');
     }
 }

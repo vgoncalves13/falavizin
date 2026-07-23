@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Hub do Bairro') }}</title>
+    <title>{{ config('app.name', 'FalaVizin') }}</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -295,7 +295,7 @@
                 <div style="width:38px;height:38px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="#fbbf24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 </div>
-                <span style="color:rgba(255,255,255,.8);font-size:.8125rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;">Hub do Bairro</span>
+                <span style="color:rgba(255,255,255,.8);font-size:.8125rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;">FalaVizin</span>
             </div>
 
             <h1 style="font-family:'Fraunces',Georgia,serif;font-size:clamp(2.1rem,3.2vw,2.9rem);font-weight:700;color:#fff;line-height:1.12;margin:0 0 1.1rem;letter-spacing:-.025em;">
@@ -348,7 +348,7 @@
                 <div style="width:36px;height:36px;background:#d97706;border-radius:10px;display:flex;align-items:center;justify-content:center;">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 </div>
-                <span style="font-family:'Fraunces',serif;font-size:1.125rem;font-weight:600;color:#1c1917;">Hub do Bairro</span>
+                <span style="font-family:'Fraunces',serif;font-size:1.125rem;font-weight:600;color:#1c1917;">FalaVizin</span>
             </a>
         </div>
 
@@ -357,7 +357,7 @@
         </div>
 
         <p style="margin-top:2.5rem;font-size:.75rem;color:#a8a29e;text-align:center;">
-            © {{ date('Y') }} Hub do Bairro · Feito com carinho para a comunidade
+            © {{ date('Y') }} FalaVizin · Feito com carinho para a comunidade
         </p>
     </div>
 </div>

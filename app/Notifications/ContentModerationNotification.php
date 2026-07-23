@@ -61,10 +61,10 @@ class ContentModerationNotification extends Notification implements ShouldQueueA
         $approved = $this->decision === 'approved';
 
         $message = (new MailMessage)
-            ->subject(($approved ? '✓ ' : '✗ ').ucfirst($typeLabel).' '.($approved ? 'aprovado' : 'rejeitado').' — Hub do Bairro')
+            ->subject(($approved ? '✓ ' : '✗ ').ucfirst($typeLabel).' '.($approved ? 'aprovado' : 'rejeitado').' — FalaVizin')
             ->greeting('Olá, '.$notifiable->name.'!')
             ->line($approved
-                ? "Sua requisição de {$typeLabel} foi **aprovada** e já está visível no Hub do Bairro:"
+                ? "Sua requisição de {$typeLabel} foi **aprovada** e já está visível no FalaVizin:"
                 : "Infelizmente, sua requisição de {$typeLabel} foi **rejeitada** pela nossa equipe de moderação:")
             ->line("**{$this->title}**");
 
@@ -76,6 +76,6 @@ class ContentModerationNotification extends Notification implements ShouldQueueA
             $message->line('Se tiver dúvidas, entre em contato com a administração.');
         }
 
-        return $message->line('Obrigado por contribuir com o Hub do Bairro!');
+        return $message->line('Obrigado por contribuir com o FalaVizin!');
     }
 }

@@ -5,11 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ isset($title) ? $title . ' — ' : '' }}{{ config('app.name', 'Hub do Bairro') }}</title>
+        <title>{{ isset($title) ? $title . ' — ' : '' }}{{ config('app.name', 'FalaVizin') }}</title>
 
         @php $metaDescription = $description ?? 'Serviços, eventos, avisos e muito mais — tudo do seu bairro, em um só lugar.'; @endphp
         <meta name="description" content="{{ $metaDescription }}">
-        <meta property="og:title" content="{{ isset($title) ? $title . ' — ' : '' }}{{ config('app.name', 'Hub do Bairro') }}">
+        <meta property="og:title" content="{{ isset($title) ? $title . ' — ' : '' }}{{ config('app.name', 'FalaVizin') }}">
         <meta property="og:description" content="{{ $metaDescription }}">
         <meta property="og:type" content="website">
 

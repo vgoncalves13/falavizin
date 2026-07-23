@@ -38,7 +38,7 @@ class PlanUpgradeRequestNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Solicitação de upgrade para Destaque — Hub do Bairro')
+            ->subject('Solicitação de upgrade para Destaque — FalaVizin')
             ->greeting('Olá, admin!')
             ->line("O negócio **{$this->business->name}** solicitou upgrade para o plano Destaque.")
             ->action('Ver painel de moderação', route('admin.moderation.index'))

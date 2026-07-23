@@ -6,7 +6,7 @@
         {{-- Header com campo de busca --}}
         <div class="mb-8">
             <h1 class="text-2xl font-bold text-stone-900 mb-4" style="font-family: var(--font-display)">
-                Buscar no Hub do Bairro
+                Buscar no FalaVizin
             </h1>
             <form action="{{ route('search.index') }}" method="GET">
                 <div class="relative max-w-xl">

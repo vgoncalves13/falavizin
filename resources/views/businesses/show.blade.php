@@ -127,7 +127,7 @@
                         @endforeach
 
                         @if($business->whatsapp)
-                            <a href="https://wa.me/{{ preg_replace('/\D/', '', $business->whatsapp) }}?={{ urlencode('Olá! Vi seu perfil no Hub do Bairro.') }}"
+                            <a href="https://wa.me/{{ preg_replace('/\D/', '', $business->whatsapp) }}?={{ urlencode('Olá! Vi seu perfil no FalaVizin.') }}"
                                target="_blank"
                                rel="noopener noreferrer"
                                @click="trackContact('whatsapp_click')"

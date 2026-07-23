@@ -40,7 +40,7 @@
             <!-- Search -->
             <form action="{{ route('search.index') }}" method="GET" class="hidden sm:flex items-center" role="search">
                 <div class="relative">
-                    <label for="search-desktop" class="sr-only">Buscar no Hub do Bairro</label>
+                    <label for="search-desktop" class="sr-only">Buscar no FalaVizin</label>
                     <x-heroicon-o-magnifying-glass class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" aria-hidden="true" />
                     <input
                         id="search-desktop"
@@ -150,7 +150,7 @@
         <div class="px-4 pt-3 pb-2">
             <form action="{{ route('search.index') }}" method="GET" role="search">
                 <div class="relative">
-                    <label for="search-mobile" class="sr-only">Buscar no Hub do Bairro</label>
+                    <label for="search-mobile" class="sr-only">Buscar no FalaVizin</label>
                     <x-heroicon-o-magnifying-glass class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" aria-hidden="true" />
                     <input
                         id="search-mobile"

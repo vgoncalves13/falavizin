@@ -56,7 +56,7 @@ class NewContentNotification extends Notification implements ShouldQueueAfterCom
         };
 
         return (new MailMessage)
-            ->subject('Nova solicitação de '.$typeLabel.' aguardando aprovação — Hub do Bairro')
+            ->subject('Nova solicitação de '.$typeLabel.' aguardando aprovação — FalaVizin')
             ->greeting('Olá, admin!')
             ->line("Uma nova solicitação de {$typeLabel} foi recebida e aguarda aprovação:")
             ->line("**{$this->title}**")
