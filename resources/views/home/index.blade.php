@@ -104,25 +104,32 @@
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
         <div style="max-width:640px;">
+            <div class="h-up1 mb-6">
+                <img
+                    src="{{ asset('assets/images/logotipo.png') }}"
+                    alt="{{ config('app.name') }}"
+                    style="height:clamp(2.5rem,5vw,3.5rem);width:auto;"
+                >
+            </div>
 
             {{-- Eyebrow --}}
-            <div class="h-up1 flex items-center gap-3 mb-5">
+            <div class="h-up2 flex items-center gap-3 mb-5">
                 <span style="display:inline-block;width:28px;height:2px;background:#d97706;border-radius:2px;flex-shrink:0;"></span>
-                <span style="font-size:.6875rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#fbbf24;">{{ $neighborhoodName }} · FalaVizin</span>
+                <span style="font-size:.6875rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#fbbf24;">{{ $neighborhoodName }} · comunidade local</span>
             </div>
 
             {{-- Headline --}}
-            <h1 class="h-up2" style="font-family:var(--font-display);font-size:clamp(2.5rem,5.5vw,4rem);font-weight:800;color:#fff;line-height:1.06;letter-spacing:-.03em;margin:0 0 1.25rem;">
+            <h1 class="h-up3" style="font-family:var(--font-display);font-size:clamp(2.5rem,5.5vw,4rem);font-weight:800;color:#fff;line-height:1.06;letter-spacing:-.03em;margin:0 0 1.25rem;">
                 O bairro tem voz.<br>
                 <span style="color:#fbbf24;font-style:italic;">Você faz parte disso.</span>
             </h1>
 
-            <p class="h-up3" style="font-size:1.0625rem;color:rgba(255,255,255,.72);line-height:1.72;margin:0 0 2.25rem;max-width:500px;">
+            <p class="h-up4" style="font-size:1.0625rem;color:rgba(255,255,255,.72);line-height:1.72;margin:0 0 2.25rem;max-width:500px;">
                 Serviços locais, avisos de vizinhos, eventos e pedidos de ajuda — tudo em um só lugar, feito pela sua comunidade.
             </p>
 
             {{-- CTAs --}}
-            <div class="h-up3 flex flex-col sm:flex-row gap-3 mb-10">
+            <div class="h-up4 flex flex-col sm:flex-row gap-3 mb-10">
                 <a href="{{ route('feed.index') }}"
                    style="display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:.9rem 1.875rem;background:#d97706;color:#fff;font-weight:700;font-size:.9375rem;border-radius:12px;text-decoration:none;letter-spacing:.01em;box-shadow:0 4px 20px rgba(217,119,6,.35);transition:background .15s,transform .12s,box-shadow .15s;"
                    onmouseover="this.style.background='#b45309';this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 28px rgba(180,83,9,.45)'"

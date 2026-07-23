@@ -291,11 +291,12 @@
         {{-- Text content --}}
         <div style="position:relative;z-index:10;max-width:420px;">
             {{-- Logomark --}}
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:2.5rem;">
-                <div style="width:38px;height:38px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#fbbf24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                </div>
-                <span style="color:rgba(255,255,255,.8);font-size:.8125rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;">FalaVizin</span>
+            <div style="margin-bottom:2.5rem;">
+                <img
+                    src="{{ asset('assets/images/logotipo.png') }}"
+                    alt="{{ config('app.name') }}"
+                    style="height:52px;width:auto;display:block;"
+                >
             </div>
 
             <h1 style="font-family:'Fraunces',Georgia,serif;font-size:clamp(2.1rem,3.2vw,2.9rem);font-weight:700;color:#fff;line-height:1.12;margin:0 0 1.1rem;letter-spacing:-.025em;">
@@ -344,11 +345,12 @@
 
         {{-- Mobile logo --}}
         <div id="mobile-logo" style="margin-bottom:2rem;text-align:center;">
-            <a href="{{ route('home') }}" style="display:inline-flex;align-items:center;gap:9px;text-decoration:none;">
-                <div style="width:36px;height:36px;background:#d97706;border-radius:10px;display:flex;align-items:center;justify-content:center;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                </div>
-                <span style="font-family:'Fraunces',serif;font-size:1.125rem;font-weight:600;color:#1c1917;">FalaVizin</span>
+            <a href="{{ route('home') }}" style="display:inline-flex;align-items:center;text-decoration:none;">
+                <img
+                    src="{{ asset('assets/images/logotipo.png') }}"
+                    alt="{{ config('app.name') }}"
+                    style="height:42px;width:auto;display:block;"
+                >
             </a>
         </div>
 

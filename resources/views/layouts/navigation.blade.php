@@ -3,9 +3,17 @@
         <div class="flex justify-between h-16">
             <!-- Logo + Nav Links -->
             <div class="flex items-center gap-8">
-                <a href="{{ route('home') }}" class="shrink-0 flex items-center gap-2">
-                    <x-heroicon-s-bolt class="w-6 h-6 text-amber-600" />
-                    <span class="font-bold text-stone-900 text-lg" style="font-family: var(--font-display)">{{config('app.name')}}</span>
+                <a href="{{ route('home') }}" class="shrink-0 flex items-center">
+                    <img
+                        src="{{ asset('assets/images/logotipo.png') }}"
+                        alt="{{ config('app.name') }}"
+                        class="hidden sm:block h-10 w-auto"
+                    >
+                    <img
+                        src="{{ asset('assets/images/logo.png') }}"
+                        alt="{{ config('app.name') }}"
+                        class="block sm:hidden h-10 w-10 rounded-xl"
+                    >
                 </a>
 
                 <div class="hidden sm:flex items-center gap-6">
