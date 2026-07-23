@@ -56,10 +56,9 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY . .
 COPY --from=vendor /app/vendor ./vendor
 COPY --from=frontend /app/public/build ./public/build
-COPY docker/nginx/default.conf /etc/nginx/sites-enabled/default
+COPY docker/nginx/default.conf /etc/nginx/sites-available/default
 
-RUN rm -f /etc/nginx/sites-available/default \
-    && mkdir -p storage/app/public storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache \
+RUN mkdir -p storage/app/public storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache \
     && rm -f bootstrap/cache/*.php \
     && php artisan package:discover --ansi \
     && chown -R www-data:www-data /var/www/html \

@@ -19,7 +19,7 @@ services:
       sh -lc '
       mkdir -p storage/app/public storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache &&
       chown -R www-data:www-data storage bootstrap/cache &&
-      php artisan storage:link || true &&
+      [ -L public/storage ] || php artisan storage:link &&
       php-fpm -D &&
       exec nginx -g "daemon off;"'
 
@@ -41,7 +41,7 @@ services:
       sh -lc '
       mkdir -p storage/app/public storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache &&
       chown -R www-data:www-data storage bootstrap/cache &&
-      php artisan storage:link || true &&
+      [ -L public/storage ] || php artisan storage:link &&
       exec su -s /bin/sh www-data -c "php artisan queue:work --sleep=3 --tries=3 --timeout=120 --max-time=3600"'
 
   scheduler:
@@ -62,7 +62,7 @@ services:
       sh -lc '
       mkdir -p storage/app/public storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache &&
       chown -R www-data:www-data storage bootstrap/cache &&
-      php artisan storage:link || true &&
+      [ -L public/storage ] || php artisan storage:link &&
       while true; do su -s /bin/sh www-data -c "php artisan schedule:run --no-interaction"; sleep 60; done'
 
   mysql:
