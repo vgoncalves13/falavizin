@@ -5,7 +5,7 @@
             <div class="flex items-center gap-8">
                 <a href="{{ route('home') }}" class="shrink-0 flex items-center gap-2">
                     <x-heroicon-s-bolt class="w-6 h-6 text-amber-600" />
-                    <span class="font-bold text-stone-900 text-lg" style="font-family: var(--font-display)">Hub do Bairro</span>
+                    <span class="font-bold text-stone-900 text-lg" style="font-family: var(--font-display)">{{config('app.name')}}</span>
                 </a>
 
                 <div class="hidden sm:flex items-center gap-6">

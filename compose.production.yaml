@@ -1,0 +1,90 @@
+services:
+  web:
+    image: ${APP_IMAGE:-ghcr.io/vgoncalves13/falavizin:latest}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${APP_PORT:-8081}:80"
+    env_file:
+      - .env
+    environment:
+      DB_HOST: mysql
+      APP_ENV: production
+      APP_DEBUG: "false"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - storage:/var/www/html/storage
+    command: >
+      sh -lc '
+      mkdir -p storage/app/public storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache &&
+      chown -R www-data:www-data storage bootstrap/cache &&
+      php artisan storage:link || true &&
+      php-fpm -D &&
+      exec nginx -g "daemon off;"'
+
+  worker:
+    image: ${APP_IMAGE:-ghcr.io/vgoncalves13/falavizin:latest}
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DB_HOST: mysql
+      APP_ENV: production
+      APP_DEBUG: "false"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - storage:/var/www/html/storage
+    command: >
+      sh -lc '
+      mkdir -p storage/app/public storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache &&
+      chown -R www-data:www-data storage bootstrap/cache &&
+      php artisan storage:link || true &&
+      exec su -s /bin/sh www-data -c "php artisan queue:work --sleep=3 --tries=3 --timeout=120 --max-time=3600"'
+
+  scheduler:
+    image: ${APP_IMAGE:-ghcr.io/vgoncalves13/falavizin:latest}
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DB_HOST: mysql
+      APP_ENV: production
+      APP_DEBUG: "false"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - storage:/var/www/html/storage
+    command: >
+      sh -lc '
+      mkdir -p storage/app/public storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache &&
+      chown -R www-data:www-data storage bootstrap/cache &&
+      php artisan storage:link || true &&
+      while true; do su -s /bin/sh www-data -c "php artisan schedule:run --no-interaction"; sleep 60; done'
+
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:${DB_FORWARD_PORT:-3307}:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+    volumes:
+      - mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  mysql:
+  storage:
