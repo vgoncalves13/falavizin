@@ -1,0 +1,16 @@
+.git
+.github
+docs
+node_modules
+vendor
+storage/logs
+storage/framework/cache
+storage/framework/sessions
+storage/framework/testing
+storage/framework/views
+.env
+.env.*
+bootstrap/cache/*.php
+npm-debug.log
+yarn-error.log
+.DS_Store
