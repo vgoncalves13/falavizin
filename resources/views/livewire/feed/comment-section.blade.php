@@ -7,9 +7,7 @@
     @auth
         <form wire:submit="addComment" class="mb-6">
             <div class="flex gap-3">
-                <div class="shrink-0 w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
-                    <span class="text-xs font-bold text-amber-700">{{ substr(auth()->user()->name, 0, 1) }}</span>
-                </div>
+                <x-avatar :user="auth()->user()" class="w-8 h-8 text-xs" />
                 <div class="flex-1">
                     <label for="comment-body" class="sr-only">Escreva um comentário</label>
                     <textarea
@@ -46,9 +44,7 @@
     <div class="space-y-4">
         @forelse($comments as $comment)
             <div class="flex gap-3">
-                <div class="shrink-0 w-8 h-8 rounded-full bg-stone-200 flex items-center justify-center">
-                    <span class="text-xs font-bold text-stone-600">{{ substr($comment->user->name, 0, 1) }}</span>
-                </div>
+                <x-avatar :user="$comment->user" class="w-8 h-8 text-xs" />
                 <div class="flex-1">
                     {{-- Balão do comentário --}}
                     <div class="bg-stone-50 rounded-lg px-4 py-3">
@@ -130,9 +126,7 @@
                     {{-- Formulário de resposta inline --}}
                     @if($replyingTo === $comment->id)
                         <div class="mt-3 flex gap-2">
-                            <div class="shrink-0 w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center">
-                                <span class="text-xs font-bold text-amber-700">{{ substr(auth()->user()->name, 0, 1) }}</span>
-                            </div>
+                            <x-avatar :user="auth()->user()" class="w-6 h-6 text-xs" />
                             <div class="flex-1">
                                 <label for="reply-body-{{ $comment->id }}" class="sr-only">Respondendo a {{ $comment->user->name }}</label>
                                 <textarea id="reply-body-{{ $comment->id }}" wire:model="replyBody" rows="2"
@@ -160,9 +154,7 @@
                         <div class="mt-3 space-y-3 border-l-2 border-stone-200 pl-4">
                             @foreach($comment->replies as $reply)
                                 <div class="flex gap-2">
-                                    <div class="shrink-0 w-6 h-6 rounded-full bg-stone-200 flex items-center justify-center">
-                                        <span class="text-xs font-bold text-stone-600">{{ substr($reply->user->name, 0, 1) }}</span>
-                                    </div>
+                                    <x-avatar :user="$reply->user" class="w-6 h-6 text-xs" />
                                     <div class="flex-1">
                                         <div class="bg-stone-50 rounded-lg px-3 py-2">
                                             <div class="flex items-center justify-between mb-1">

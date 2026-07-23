@@ -14,9 +14,39 @@
         <div class="bg-white rounded-xl border border-stone-200 p-6 mb-5">
             <h2 class="text-base font-semibold text-stone-900 mb-5">Dados pessoais</h2>
 
-            <form method="POST" action="{{ route('profile.update') }}" class="space-y-4">
+            <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="space-y-4">
                 @csrf
                 @method('PATCH')
+
+                <div x-data="{ preview: null }">
+                    <label for="avatar" class="block text-sm font-medium text-stone-700 mb-2">Foto de perfil</label>
+                    <div class="flex items-center gap-4">
+                        <div class="relative">
+                            <x-avatar :user="$user" class="w-16 h-16 text-xl" x-show="!preview" />
+                            <img
+                                x-show="preview"
+                                :src="preview"
+                                alt="Prévia da nova foto"
+                                class="w-16 h-16 rounded-full object-cover ring-2 ring-amber-200"
+                                style="display: none"
+                            />
+                        </div>
+                        <div>
+                            <input
+                                type="file"
+                                id="avatar"
+                                name="avatar"
+                                accept="image/jpeg,image/png,image/webp"
+                                @change="preview = $event.target.files[0] ? URL.createObjectURL($event.target.files[0]) : null"
+                                class="block w-full text-sm text-stone-500 file:mr-3 file:rounded-lg file:border-0 file:bg-amber-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-amber-700 hover:file:bg-amber-100"
+                            />
+                            <p class="mt-1 text-xs text-stone-400">JPEG, PNG ou WebP, até 5 MB.</p>
+                        </div>
+                    </div>
+                    @error('avatar')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
 
                 <div>
                     <label for="name" class="block text-sm font-medium text-stone-700 mb-1">Nome</label>

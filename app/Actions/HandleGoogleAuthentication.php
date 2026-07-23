@@ -22,6 +22,10 @@ class HandleGoogleAuthentication
         $existingAccount = SocialAccount::findByProvider('google', $providerUserId);
 
         if ($existingAccount) {
+            if (! $existingAccount->user->avatar_url && $googleUser->getAvatar()) {
+                $existingAccount->user->update(['avatar_url' => $googleUser->getAvatar()]);
+            }
+
             Log::info('Social login completed', [
                 'provider' => 'google',
                 'type' => 'existing_account',

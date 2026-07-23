@@ -23,9 +23,7 @@
     <div class="p-5">
         <div class="flex items-start gap-4">
             {{-- Avatar --}}
-            <div class="shrink-0 w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-                <span class="text-sm font-bold text-amber-700">{{ substr($post->user->name, 0, 1) }}</span>
-            </div>
+            <x-avatar :user="$post->user" class="w-10 h-10 text-sm" />
 
             {{-- Conteúdo --}}
             <div class="flex-1 min-w-0">

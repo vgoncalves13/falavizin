@@ -11,9 +11,7 @@
         <div class="bg-white rounded-xl border border-stone-200 p-6 mb-6">
             <div class="flex items-start justify-between gap-4 flex-wrap">
                 <div class="flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
-                        <span class="text-xl font-bold text-amber-700">{{ substr($user->name, 0, 1) }}</span>
-                    </div>
+                    <x-avatar :user="$user" class="w-14 h-14 text-xl" />
                     <div>
                         <h1 class="text-xl font-bold text-stone-900" style="font-family: var(--font-display)">
                             {{ $user->name }}

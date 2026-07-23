@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\UpdateProfileAction;
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\Post;
 use Illuminate\Http\RedirectResponse;
@@ -79,15 +80,9 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(ProfileUpdateRequest $request, UpdateProfileAction $action): RedirectResponse
     {
-        $request->user()->fill($request->validated());
-
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
-        }
-
-        $request->user()->save();
+        $action->execute($request->user(), $request->validated());
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }

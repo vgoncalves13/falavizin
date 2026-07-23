@@ -65,7 +65,7 @@
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
                             <button class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 rounded-lg hover:bg-stone-100 transition-colors duration-150">
-                                <x-heroicon-o-user-circle class="w-5 h-5" />
+                                <x-avatar :user="Auth::user()" class="w-6 h-6 text-xs" />
                                 <span>{{ Auth::user()->name }}</span>
                                 <x-heroicon-o-chevron-down class="w-4 h-4" />
                             </button>

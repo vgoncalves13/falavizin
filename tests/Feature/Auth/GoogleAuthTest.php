@@ -173,6 +173,33 @@ class GoogleAuthTest extends TestCase
         $this->assertEquals('https://example.com/my-avatar.jpg', $user->avatar_url);
     }
 
+    public function test_google_callback_fills_missing_avatar_for_linked_account(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'linked@gmail.com',
+            'avatar_url' => null,
+        ]);
+        SocialAccount::create([
+            'user_id' => $user->id,
+            'provider' => 'google',
+            'provider_user_id' => 'google-linked',
+            'provider_email' => 'linked@gmail.com',
+        ]);
+
+        Socialite::shouldReceive('driver->user')->andReturn($this->createSocialiteUser(
+            id: 'google-linked',
+            email: 'linked@gmail.com',
+            avatar: 'https://lh3.googleusercontent.com/linked-avatar',
+        ));
+
+        $this->get(route('auth.google.callback'));
+
+        $this->assertSame(
+            'https://lh3.googleusercontent.com/linked-avatar',
+            $user->refresh()->avatar_url,
+        );
+    }
+
     public function test_google_callback_handles_provider_error(): void
     {
         Socialite::shouldReceive('driver->user')

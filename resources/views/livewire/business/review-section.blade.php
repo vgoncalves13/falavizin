@@ -108,9 +108,7 @@
                 <div class="bg-white rounded-lg border border-stone-200 p-4">
                     <div class="flex items-start justify-between gap-3">
                         <div class="flex items-center gap-2">
-                            <div class="w-7 h-7 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
-                                <span class="text-xs font-bold text-amber-700">{{ substr($review->user->name, 0, 1) }}</span>
-                            </div>
+                            <x-avatar :user="$review->user" class="w-7 h-7 text-xs" />
                             <div>
                                 <a href="{{ route('users.show', $review->user) }}"
                                    class="text-sm font-medium text-stone-900 hover:text-amber-700 transition-colors">{{ $review->user->name }}</a>

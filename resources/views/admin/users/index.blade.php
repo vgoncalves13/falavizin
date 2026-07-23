@@ -84,9 +84,7 @@
                         <tr class="hover:bg-stone-50 transition-colors">
                             <td class="px-5 py-3">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
-                                        <span class="text-xs font-bold text-amber-700">{{ substr($user->name, 0, 1) }}</span>
-                                    </div>
+                                    <x-avatar :user="$user" class="w-8 h-8 text-xs" />
                                     <div>
                                         <p class="font-medium text-stone-900">{{ $user->name }}</p>
                                         <p class="text-xs text-stone-400">{{ $user->email }}</p>

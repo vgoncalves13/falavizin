@@ -6,6 +6,8 @@ use App\Models\Business;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ProfileTest extends TestCase
@@ -166,5 +168,57 @@ class ProfileTest extends TestCase
             'phone' => '(11) 99999-0000',
             'neighborhood' => 'Jardim Europa',
         ]);
+    }
+
+    public function test_user_can_upload_a_profile_avatar(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->patch('/profile', [
+                'name' => $user->name,
+                'email' => $user->email,
+                'avatar' => UploadedFile::fake()->image('avatar.jpg', 800, 600),
+            ])
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/profile');
+
+        $avatarPath = $user->refresh()->avatar_url;
+
+        $this->assertNotNull($avatarPath);
+        $this->assertStringStartsWith('avatars/', $avatarPath);
+        Storage::disk('public')->assertExists($avatarPath);
+    }
+
+    public function test_profile_avatar_must_be_an_image(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->patch('/profile', [
+                'name' => $user->name,
+                'email' => $user->email,
+                'avatar' => UploadedFile::fake()->create('avatar.txt', 10, 'text/plain'),
+            ])
+            ->assertSessionHasErrors('avatar');
+    }
+
+    public function test_replacing_an_avatar_removes_the_previous_local_file(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('avatars/old.webp', 'old');
+        $user = User::factory()->create(['avatar_url' => 'avatars/old.webp']);
+
+        $this->actingAs($user)
+            ->patch('/profile', [
+                'name' => $user->name,
+                'email' => $user->email,
+                'avatar' => UploadedFile::fake()->image('new.png'),
+            ])
+            ->assertSessionHasNoErrors();
+
+        Storage::disk('public')->assertMissing('avatars/old.webp');
+        Storage::disk('public')->assertExists($user->refresh()->avatar_url);
     }
 }

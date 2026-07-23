@@ -35,9 +35,7 @@
                             @else
                                 <span class="text-xl font-bold text-stone-400 mb-1.5">#{{ $rank }}</span>
                             @endif
-                            <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center mb-1.5">
-                                <span class="text-base font-bold text-amber-700">{{ substr($topUser->name, 0, 1) }}</span>
-                            </div>
+                            <x-avatar :user="$topUser" class="w-10 h-10 text-base mb-1.5" />
                             <a href="{{ route('users.show', $topUser) }}" class="text-sm font-semibold text-stone-900 hover:text-amber-600 truncate max-w-full">
                                 {{ $topUser->name }}
                             </a>
@@ -58,9 +56,7 @@
                     @php $rank = $position + 4; @endphp
                     <div class="flex items-center gap-4 px-5 py-3.5">
                         <span class="w-6 text-center text-sm font-medium text-stone-400 shrink-0">{{ $rank }}</span>
-                        <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
-                            <span class="text-sm font-bold text-amber-700">{{ substr($user->name, 0, 1) }}</span>
-                        </div>
+                        <x-avatar :user="$user" class="w-8 h-8 text-sm" />
                         <div class="flex-1 min-w-0">
                             <a href="{{ route('users.show', $user) }}" class="text-sm font-medium text-stone-900 hover:text-amber-600 truncate block">
                                 {{ $user->name }}
@@ -79,9 +75,7 @@
                         @php $rank = $position + 1; @endphp
                         <div class="flex items-center gap-4 px-5 py-3.5">
                             <span class="w-6 text-center text-sm font-bold {{ $rank === 1 ? 'text-amber-500' : 'text-stone-400' }} shrink-0">#{{ $rank }}</span>
-                            <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
-                                <span class="text-sm font-bold text-amber-700">{{ substr($user->name, 0, 1) }}</span>
-                            </div>
+                            <x-avatar :user="$user" class="w-8 h-8 text-sm" />
                             <div class="flex-1 min-w-0">
                                 <a href="{{ route('users.show', $user) }}" class="text-sm font-medium text-stone-900 hover:text-amber-600 truncate block">
                                     {{ $user->name }}

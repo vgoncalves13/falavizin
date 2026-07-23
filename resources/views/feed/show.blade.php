@@ -62,9 +62,7 @@
             <div class="p-6">
                 {{-- Meta --}}
                 <div class="flex items-center gap-2 flex-wrap mb-4">
-                    <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
-                        <span class="text-xs font-bold text-amber-700">{{ substr($post->user->name, 0, 1) }}</span>
-                    </div>
+                    <x-avatar :user="$post->user" class="w-8 h-8 text-xs" />
                     <a href="{{ route('users.show', $post->user) }}"
                        class="text-sm font-medium text-stone-900 hover:text-amber-700 transition-colors">{{ $post->user->name }}</a>
                     <span class="text-stone-300">·</span>

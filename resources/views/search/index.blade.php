@@ -74,9 +74,7 @@
                                     class="block bg-white rounded-xl border border-stone-200 p-4 hover:shadow-md hover:border-stone-300 transition-all duration-200"
                                 >
                                     <div class="flex items-start gap-3">
-                                        <div class="shrink-0 w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center mt-0.5">
-                                            <span class="text-xs font-bold text-amber-700">{{ substr($post->user->name, 0, 1) }}</span>
-                                        </div>
+                                        <x-avatar :user="$post->user" class="w-8 h-8 text-xs mt-0.5" />
                                         <div class="flex-1 min-w-0">
                                             <div class="flex items-center gap-2 flex-wrap mb-1">
                                                 <span class="text-xs text-stone-500">{{ $post->user->name }}</span>

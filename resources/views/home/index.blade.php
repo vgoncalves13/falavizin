@@ -252,9 +252,7 @@
                         @endif
                         <div class="p-5">
                             <div class="flex items-center gap-2 mb-3">
-                                <div class="w-7 h-7 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
-                                    <span class="text-xs font-bold text-amber-700">{{ substr($featuredPost->user->name,0,1) }}</span>
-                                </div>
+                                <x-avatar :user="$featuredPost->user" class="w-7 h-7 text-xs" />
                                 <span class="text-sm font-medium text-stone-700">{{ $featuredPost->user->name }}</span>
                                 <span class="text-stone-300">·</span>
                                 <span class="text-xs text-stone-400">{{ $featuredPost->created_at->diffForHumans() }}</span>
@@ -361,9 +359,7 @@
                                class="lift group flex flex-col gap-3 rounded-2xl border p-4"
                                style="background:linear-gradient(135deg,#eff6ff,#dbeafe 80%);border-color:#bfdbfe;">
                                 <div class="flex items-center gap-2">
-                                    <div class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                                        <span class="text-xs font-bold text-blue-700">{{ substr($post->user->name,0,1) }}</span>
-                                    </div>
+                                    <x-avatar :user="$post->user" class="w-7 h-7 text-xs" />
                                     <span class="text-xs text-stone-500 truncate flex-1">{{ $post->user->name }}</span>
                                     <span class="text-xs text-stone-400 shrink-0">{{ $post->created_at->diffForHumans() }}</span>
                                 </div>

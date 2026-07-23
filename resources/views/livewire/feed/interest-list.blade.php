@@ -9,9 +9,7 @@
                 @foreach($post->interests as $merchant)
                     <div class="flex items-center justify-between gap-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
                         <div class="flex items-center gap-3 min-w-0">
-                            <div class="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                                <span class="text-sm font-bold text-blue-700">{{ substr($merchant->name, 0, 1) }}</span>
-                            </div>
+                            <x-avatar :user="$merchant" class="w-9 h-9 text-sm" />
                             <div class="min-w-0">
                                 <a href="{{ route('users.show', $merchant) }}"
                                    class="text-sm font-medium text-stone-900 hover:text-amber-600 transition-colors">
