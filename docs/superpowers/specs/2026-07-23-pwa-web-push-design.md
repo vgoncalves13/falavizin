@@ -24,7 +24,8 @@ páginas autenticadas em cache.
 
 ## Decisão arquitetural
 
-Usar `laravel-notification-channels/webpush` 10.x, compatível com Laravel 12.
+Usar `laravel-notification-channels/webpush` 11.0.0, versão estável resolvida
+pelo Composer com Laravel 12.64, PHP 8.5 e as dependências atuais.
 O pacote integra o canal Web Push às Notifications nativas, oferece múltiplas
 subscriptions por usuário, VAPID e remoção de endpoints expirados.
 
@@ -103,6 +104,17 @@ O frontend não pedirá permissão automaticamente. A permissão nativa só ser�
 aberta após o usuário escolher “Receber notificações neste dispositivo”.
 Desativar removerá o endpoint no servidor e cancelará a subscription local.
 
+Ao sair da conta, o JavaScript interceptará o envio do formulário de logout,
+removerá a subscription atual do usuário e chamará `unsubscribe()` no
+navegador antes de continuar. Uma falha de rede não bloqueará o logout: a
+subscription local ainda será cancelada e o endpoint inválido será removido
+pelo pacote na próxima tentativa de envio.
+
+Na ativação, a interface exibirá os tipos de push disponíveis antes de pedir a
+permissão nativa. Nenhum tipo virá selecionado e pelo menos um deverá ser
+escolhido. A criação da subscription salvará apenas as escolhas explícitas.
+Sincronizações posteriores do mesmo navegador não alterarão preferências.
+
 ## Fluxo de envio
 
 As Notifications existentes ganharão condicionalmente
@@ -131,12 +143,30 @@ Será criada `PostVoteNotification` para o voto `helpful`. Votos
 
 `VoteButtons` continuará impedindo a própria interação. A idempotência já
 persistida em `point_events.idempotency_key` será reutilizada para que remover
-e recriar o mesmo voto não dispare outra notificação. O envio ocorrerá apenas
-quando o evento de pontos for criado pela primeira vez.
+e recriar o mesmo voto não crie um novo evento de domínio.
 
-Comentários e respostas usam o ID imutável da entidade como identidade do
-evento. O ID da Notification será enviado como `tag`, fazendo retries
-substituírem a notificação visual anterior em vez de empilhá-la.
+Também será criada a tabela `notification_deliveries`, com restrição única
+para:
+
+```text
+recipient_id + notification_type + event_key + channel
+```
+
+`event_key` representa a identidade estável da entidade e do autor da ação:
+
+- comentário/resposta: `comment:{comment_id}`;
+- reação em comentário: `comment:{comment_id}:voter:{user_id}`;
+- reação em post: `post:{post_id}:voter:{user_id}`;
+- moderação: `content:{type}:{entity_id}:{decision}`;
+- upgrade: `business:{business_id}:upgrade-approved`.
+
+Cada Notification usará `shouldSend()` para reservar atomicamente a entrega
+por canal antes do envio. Sucesso marcará a entrega como concluída; uma falha
+reportada pelo Laravel removerá a reserva para permitir retry. Assim,
+notificação interna, e-mail e push têm idempotência persistida independente.
+
+O ID da Notification também será enviado como `tag`, fazendo retries ou
+reentregas substituírem a notificação visual anterior no navegador.
 
 ## Payload e navegação
 
@@ -185,8 +215,11 @@ Ele armazenará somente:
 - ícones e logotipo públicos necessários ao fallback.
 
 Requisições de navegação continuarão network-first. Somente uma falha real de
-rede retornará `offline.html`. Respostas HTTP, páginas autenticadas, APIs,
-Livewire, cookies e formulários nunca serão gravados no cache.
+rede retornará `offline.html`. O handler aceitará exclusivamente requisições
+com método `GET` e `request.mode === 'navigate'`. `POST`, `PUT`, `PATCH`,
+`DELETE`, uploads, API, Livewire, logout e qualquer requisição mutável serão
+ignorados. Respostas HTTP, páginas autenticadas, cookies e formulários nunca
+serão gravados no cache.
 
 Cada versão usará um nome de cache diferente e removerá caches antigos na
 ativação. O ciclo padrão do service worker será preservado: uma versão nova
@@ -202,12 +235,15 @@ Um componente global e o módulo `resources/js/pwa.js` tratarão:
 - detecção de `display-mode: standalone`;
 - detecção de recursos disponíveis;
 - adiamento de 14 dias em `localStorage`;
-- instruções “Compartilhar → Adicionar à Tela de Início” quando
-  `navigator.standalone` indicar Safari no iOS/iPadOS;
+- detecção de iOS/iPadOS por plataforma, recursos touch e fallback de
+  user-agent;
+- instruções “Compartilhar → Adicionar à Tela de Início” somente quando for
+  iOS/iPadOS, não estiver em standalone e não houver `beforeinstallprompt`;
 - opção permanente “Instalar aplicativo” no menu/configurações.
 
-A sugestão automática aparecerá somente em páginas públicas de navegação,
-nunca em login, cadastro, edição, criação ou envio de formulário.
+A sugestão automática aparecerá em páginas públicas e autenticadas de
+navegação segura, incluindo o feed. Nunca aparecerá em login, cadastro,
+edição, criação, configurações ou envio de formulário.
 
 ## Interface de configurações
 
@@ -230,6 +266,8 @@ mensagens de estado acessíveis.
 Criações principais:
 
 - migration publicada pelo pacote para `push_subscriptions`;
+- migration e model para `notification_deliveries`;
+- trait compartilhada de idempotência para as Notifications;
 - `app/Actions/UpdatePushSubscriptionAction.php`;
 - `app/Actions/DeletePushSubscriptionAction.php`;
 - `app/Http/Controllers/PushSubscriptionController.php`;
@@ -250,6 +288,7 @@ Alterações principais:
 - `.env.example`;
 - `routes/web.php`;
 - `app/Models/User.php`;
+- `app/Providers/AppServiceProvider.php`;
 - Notifications incluídas no escopo;
 - `app/Notifications/QueuesMailAfterCommit.php`;
 - `app/Actions/AwardPointsAction.php`;
@@ -272,18 +311,26 @@ VAPID_SUBJECT=https://falavizin.com.br
 A chave privada ficará apenas no ambiente. As chaves devem permanecer estáveis
 entre deploys, pois trocá-las invalida subscriptions existentes.
 
+O Composer validou `laravel-notification-channels/webpush:^11.0` contra o
+`composer.lock`, o PHP e o Laravel atuais. A resolução adiciona o pacote
+11.0.0 e `minishlink/web-push` 10.1.0 sem atualizar ou remover dependências
+existentes.
+
 ## Verificação
 
 Testes automatizados cobrirão:
 
 - autenticação e ownership das rotas;
 - criação, atualização, remoção e deduplicação de subscriptions;
+- cancelamento da subscription durante logout;
 - preferências push habilitadas e desabilitadas;
+- escolha explícita de tipos durante a ativação;
 - ausência de autonotificação;
 - persistência da notificação interna;
 - enfileiramento do Web Push;
 - URL, tag e payload;
 - idempotência de voto;
+- idempotência persistida por destinatário, tipo, evento e canal;
 - comportamento definido pelo pacote para endpoint expirado;
 - manifest e arquivos públicos.
 
