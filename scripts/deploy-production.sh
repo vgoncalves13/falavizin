@@ -10,7 +10,7 @@ cd "$project_dir"
 $compose_cmd pull
 $compose_cmd up -d mysql
 
-until $compose_cmd exec -T mysql sh -lc 'mysqladmin ping -h127.0.0.1 -uroot -p"$MYSQL_ROOT_PASSWORD" --silent'; do
+until $compose_cmd exec -T mysql sh -lc 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysqladmin ping -h127.0.0.1 -uroot --silent'; do
     sleep 3
 done
 
