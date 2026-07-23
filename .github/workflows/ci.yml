@@ -68,11 +68,11 @@ jobs:
       - name: Check PHP formatting
         run: vendor/bin/pint --test
 
-      - name: Run tests
-        run: php artisan test --compact
-
       - name: Build frontend
         run: npm run build
+
+      - name: Run tests
+        run: php artisan test --compact
 
       - name: Audit PHP dependencies
         run: composer audit --locked
