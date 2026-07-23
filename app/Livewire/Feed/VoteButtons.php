@@ -7,6 +7,7 @@ use App\Enums\PointEventReason;
 use App\Enums\VoteType;
 use App\Models\Post;
 use App\Models\Vote;
+use App\Notifications\PostVoteNotification;
 use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Component;
 
@@ -57,7 +58,7 @@ class VoteButtons extends Component
         if ($voteType === VoteType::Helpful) {
             $postAuthor = $this->post->user;
             if ($postAuthor && $postAuthor->id !== auth()->id()) {
-                (new AwardPointsAction)->execute(
+                $isFirstReaction = (new AwardPointsAction)->execute(
                     user: $postAuthor,
                     reason: PointEventReason::VoteReceived,
                     pointable: $vote,
@@ -69,6 +70,10 @@ class VoteButtons extends Component
                         auth()->id(),
                     ]),
                 );
+
+                if ($isFirstReaction) {
+                    $postAuthor->notify(new PostVoteNotification($this->post, auth()->user()));
+                }
             }
         }
     }

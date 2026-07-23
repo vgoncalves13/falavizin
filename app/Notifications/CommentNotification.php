@@ -4,17 +4,29 @@ namespace App\Notifications;
 
 use App\Models\Comment;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\WebPush\WebPushChannel;
+use NotificationChannels\WebPush\WebPushMessage;
 
-class CommentNotification extends Notification
+class CommentNotification extends Notification implements ShouldQueueAfterCommit
 {
-    use Queueable;
+    use IdempotentNotification, Queueable, QueuesMailAfterCommit;
 
     public function __construct(public readonly Comment $comment) {}
 
     public function via(object $notifiable): array
     {
-        return ['database'];
+        $channels = ['database'];
+
+        if (
+            $notifiable->wantsPushNotification('comment')
+            && $notifiable->pushSubscriptions()->exists()
+        ) {
+            $channels[] = WebPushChannel::class;
+        }
+
+        return $channels;
     }
 
     /** @return array<string, mixed> */
@@ -31,5 +43,26 @@ class CommentNotification extends Notification
             'message' => $message,
             'url' => route('feed.show', $this->comment->post),
         ];
+    }
+
+    public function toWebPush(object $notifiable): WebPushMessage
+    {
+        $title = $this->comment->parent_id
+            ? $this->comment->user->name.' respondeu ao seu comentário'
+            : $this->comment->user->name.' comentou na sua publicação';
+
+        return (new WebPushMessage)
+            ->title($title)
+            ->body($this->comment->post->title)
+            ->icon('/assets/icons/icon-192.png')
+            ->badge('/assets/icons/badge-96.png')
+            ->tag($this->id)
+            ->data(['url' => route('feed.show', $this->comment->post, absolute: false)])
+            ->options(['TTL' => 3600]);
+    }
+
+    public function eventKey(): string
+    {
+        return "comment:{$this->comment->id}";
     }
 }

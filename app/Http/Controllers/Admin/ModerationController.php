@@ -319,6 +319,7 @@ class ModerationController extends Controller
 
         $author->notify(new ContentModerationNotification(
             type: $type,
+            entityId: $model->id,
             title: $title,
             decision: $decision,
             url: $url,

@@ -6,13 +6,16 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\WebPush\WebPushChannel;
+use NotificationChannels\WebPush\WebPushMessage;
 
 class ContentModerationNotification extends Notification implements ShouldQueueAfterCommit
 {
-    use Queueable, QueuesMailAfterCommit;
+    use IdempotentNotification, Queueable, QueuesMailAfterCommit;
 
     public function __construct(
         public string $type,
+        public int $entityId,
         public string $title,
         public string $decision,
         public ?string $url = null,
@@ -24,6 +27,13 @@ class ContentModerationNotification extends Notification implements ShouldQueueA
 
         if ($notifiable->wantsEmailNotification('moderation')) {
             $channels[] = 'mail';
+        }
+
+        if (
+            $notifiable->wantsPushNotification('moderation')
+            && $notifiable->pushSubscriptions()->exists()
+        ) {
+            $channels[] = WebPushChannel::class;
         }
 
         return $channels;
@@ -77,5 +87,24 @@ class ContentModerationNotification extends Notification implements ShouldQueueA
         }
 
         return $message->line('Obrigado por contribuir com o FalaVizin!');
+    }
+
+    public function toWebPush(object $notifiable): WebPushMessage
+    {
+        $approved = $this->decision === 'approved';
+
+        return (new WebPushMessage)
+            ->title('Seu conteúdo foi '.($approved ? 'aprovado' : 'rejeitado'))
+            ->body($this->title)
+            ->icon('/assets/icons/icon-192.png')
+            ->badge('/assets/icons/badge-96.png')
+            ->tag($this->id)
+            ->data(['url' => $this->url ? parse_url($this->url, PHP_URL_PATH) : '/minha-conta'])
+            ->options(['TTL' => 86400]);
+    }
+
+    public function eventKey(): string
+    {
+        return "content:{$this->type}:{$this->entityId}:{$this->decision}";
     }
 }

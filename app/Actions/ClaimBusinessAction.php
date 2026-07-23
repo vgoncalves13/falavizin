@@ -32,6 +32,7 @@ class ClaimBusinessAction
 
         $user->notify(new ContentModerationNotification(
             type: 'business',
+            entityId: $business->id,
             title: 'Reivindicação de '.$business->name,
             decision: $approved ? 'approved' : 'rejected',
             url: $approved ? route('businesses.show', $business) : null,

@@ -11,11 +11,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use NotificationChannels\WebPush\HasPushSubscriptions;
 
 class User extends Authenticatable
 {
+    public const PUSH_NOTIFICATION_TYPES = [
+        'comment',
+        'comment_vote',
+        'post_vote',
+        'moderation',
+        'plan_upgrade',
+    ];
+
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, HasPushSubscriptions, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -81,6 +90,13 @@ class User extends Authenticatable
         $preferences = $this->notification_preferences ?? [];
 
         return $preferences[$type] ?? true;
+    }
+
+    public function wantsPushNotification(string $type): bool
+    {
+        $preferences = $this->notification_preferences ?? [];
+
+        return $preferences['push'][$type] ?? false;
     }
 
     public function sendPasswordResetNotification($token): void

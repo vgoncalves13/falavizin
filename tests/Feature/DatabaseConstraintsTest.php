@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Business;
 use App\Models\BusinessPhoto;
+use App\Models\NotificationDelivery;
 use App\Models\Poll;
 use App\Models\PollOption;
 use App\Models\PollVote;
@@ -55,5 +56,22 @@ class DatabaseConstraintsTest extends TestCase
             'business_id' => $business->id,
             'is_cover' => true,
         ]);
+    }
+
+    public function test_notification_delivery_is_unique_per_recipient_event_and_channel(): void
+    {
+        $attributes = [
+            'user_id' => User::factory()->create()->id,
+            'notification_type' => 'comment',
+            'event_key' => 'comment:1',
+            'channel' => 'database',
+        ];
+
+        NotificationDelivery::create($attributes);
+        NotificationDelivery::create([...$attributes, 'channel' => 'webpush']);
+
+        $this->expectException(QueryException::class);
+
+        NotificationDelivery::create($attributes);
     }
 }

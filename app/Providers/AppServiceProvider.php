@@ -8,7 +8,11 @@ use App\Models\Post;
 use App\Models\Promotion;
 use App\Models\User;
 use App\Services\HomeCache;
+use Illuminate\Notifications\Events\NotificationFailed;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
+use NotificationChannels\WebPush\Events\NotificationFailed as WebPushFailed;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,5 +32,26 @@ class AppServiceProvider extends ServiceProvider
         foreach ([Post::class, Business::class, Promotion::class, Category::class, User::class] as $model) {
             $model::observe(HomeCache::class);
         }
+
+        Event::listen(NotificationFailed::class, function (NotificationFailed $event): void {
+            if (method_exists($event->notification, 'releaseDeliveryReservation')) {
+                $event->notification->releaseDeliveryReservation($event->notifiable, $event->channel);
+
+                Log::warning('Notification delivery failed', [
+                    'notification' => $event->notification::class,
+                    'notification_id' => $event->notification->id,
+                    'channel' => $event->channel,
+                    'user_id' => $event->notifiable->getKey(),
+                ]);
+            }
+        });
+
+        Event::listen(WebPushFailed::class, function (WebPushFailed $event): void {
+            Log::warning('Web Push provider rejected a delivery', [
+                'user_id' => $event->subscription->subscribable_id,
+                'expired' => $event->report->isSubscriptionExpired(),
+                'reason' => $event->report->getReason(),
+            ]);
+        });
     }
 }

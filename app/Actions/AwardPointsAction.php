@@ -15,12 +15,12 @@ class AwardPointsAction
         PointEventReason $reason,
         ?Model $pointable = null,
         ?string $idempotencyKey = null,
-    ): void {
+    ): bool {
         $idempotencyKey ??= $pointable
             ? implode(':', [$reason->value, $pointable->getMorphClass(), $pointable->getKey()])
             : null;
 
-        DB::transaction(function () use ($user, $reason, $pointable, $idempotencyKey): void {
+        return DB::transaction(function () use ($user, $reason, $pointable, $idempotencyKey): bool {
             $attributes = [
                 'user_id' => $user->id,
                 'points' => $reason->points(),
@@ -36,6 +36,8 @@ class AwardPointsAction
             if ($event->wasRecentlyCreated) {
                 $user->increment('points', $reason->points());
             }
+
+            return $event->wasRecentlyCreated;
         });
     }
 }

@@ -6,8 +6,10 @@ use App\Livewire\Feed\CommentSection;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
+use App\Notifications\CommentNotification;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -31,6 +33,45 @@ class CommentTest extends TestCase
             'user_id' => $user->id,
             'body' => 'Este é um comentário válido.',
         ]);
+    }
+
+    public function test_comment_notifies_post_author_but_not_the_commenter(): void
+    {
+        Notification::fake();
+
+        $author = User::factory()->create();
+        $commenter = User::factory()->create();
+        $post = Post::factory()->create(['user_id' => $author->id]);
+
+        Livewire::actingAs($commenter)
+            ->test(CommentSection::class, ['post' => $post])
+            ->set('body', 'Comentário para o autor.')
+            ->call('addComment');
+
+        Notification::assertSentTo($author, CommentNotification::class);
+        Notification::assertNotSentTo($commenter, CommentNotification::class);
+    }
+
+    public function test_reply_notifies_parent_author_but_not_the_replier(): void
+    {
+        Notification::fake();
+
+        $commentAuthor = User::factory()->create();
+        $replier = User::factory()->create();
+        $post = Post::factory()->create();
+        $comment = Comment::factory()->create([
+            'post_id' => $post->id,
+            'user_id' => $commentAuthor->id,
+        ]);
+
+        Livewire::actingAs($replier)
+            ->test(CommentSection::class, ['post' => $post])
+            ->set('replyingTo', $comment->id)
+            ->set('replyBody', 'Resposta ao comentário.')
+            ->call('addReply');
+
+        Notification::assertSentTo($commentAuthor, CommentNotification::class);
+        Notification::assertNotSentTo($replier, CommentNotification::class);
     }
 
     public function test_guest_cannot_add_comment(): void

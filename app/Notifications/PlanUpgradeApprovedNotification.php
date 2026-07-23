@@ -7,10 +7,12 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\WebPush\WebPushChannel;
+use NotificationChannels\WebPush\WebPushMessage;
 
 class PlanUpgradeApprovedNotification extends Notification implements ShouldQueueAfterCommit
 {
-    use Queueable, QueuesMailAfterCommit;
+    use IdempotentNotification, Queueable, QueuesMailAfterCommit;
 
     public function __construct(public Business $business) {}
 
@@ -20,6 +22,13 @@ class PlanUpgradeApprovedNotification extends Notification implements ShouldQueu
 
         if ($notifiable->wantsEmailNotification('plan_upgrade')) {
             $channels[] = 'mail';
+        }
+
+        if (
+            $notifiable->wantsPushNotification('plan_upgrade')
+            && $notifiable->pushSubscriptions()->exists()
+        ) {
+            $channels[] = WebPushChannel::class;
         }
 
         return $channels;
@@ -44,5 +53,22 @@ class PlanUpgradeApprovedNotification extends Notification implements ShouldQueu
             ->line('Com o plano Destaque você pode criar promoções ilimitadas e aparece em primeiro nos resultados de busca.')
             ->action('Ver seu negócio', route('businesses.show', $this->business))
             ->line('Obrigado por fazer parte do FalaVizin!');
+    }
+
+    public function toWebPush(object $notifiable): WebPushMessage
+    {
+        return (new WebPushMessage)
+            ->title('Seu negócio agora é Destaque')
+            ->body($this->business->name)
+            ->icon('/assets/icons/icon-192.png')
+            ->badge('/assets/icons/badge-96.png')
+            ->tag($this->id)
+            ->data(['url' => route('businesses.show', $this->business, absolute: false)])
+            ->options(['TTL' => 86400]);
+    }
+
+    public function eventKey(): string
+    {
+        return "business:{$this->business->id}:upgrade-approved";
     }
 }

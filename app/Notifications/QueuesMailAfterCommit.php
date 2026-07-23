@@ -2,6 +2,8 @@
 
 namespace App\Notifications;
 
+use NotificationChannels\WebPush\WebPushChannel;
+
 trait QueuesMailAfterCommit
 {
     public int $tries = 3;
@@ -17,6 +19,7 @@ trait QueuesMailAfterCommit
         return [
             'database' => 'sync',
             'mail' => config('queue.default'),
+            WebPushChannel::class => config('queue.default'),
         ];
     }
 }
