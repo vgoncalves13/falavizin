@@ -59,6 +59,10 @@ Route::prefix('{state}/{city}/{neighborhood}')
             Route::post('/cadastrar-negocio', [BusinessController::class, 'store'])->name('businesses.store');
         });
 
+        Route::middleware(['auth', 'neighborhood.active'])
+            ->post('/meu-negocio/{business}/promocoes', [PromotionController::class, 'store'])
+            ->name('promotions.store');
+
         Route::get('/feed/{post:slug}', [PostController::class, 'show'])
             ->scopeBindings()
             ->name('feed.show');

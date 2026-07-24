@@ -1,6 +1,12 @@
 <x-app-layout>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 class="text-2xl font-bold text-stone-900 mb-6" style="font-family: var(--font-display)">Promoções</h1>
+        <h1 class="text-2xl font-bold text-stone-900 mb-6" style="font-family: var(--font-display)">
+            @if($neighborhood)
+                Promoções em {{ $neighborhood->name }}
+            @else
+                Promoções
+            @endif
+        </h1>
 
         @if($promotions->isEmpty())
             <div class="bg-white rounded-xl border border-stone-200 p-8 text-center">
@@ -11,7 +17,12 @@
         @else
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 @foreach($promotions as $promotion)
-                    <a href="{{ route('businesses.show', $promotion->business) }}"
+                    @php
+                        $businessUrl = $neighborhood
+                            ? route('neighborhood.businesses.show', [...$neighborhood->routeParameters(), 'business' => $promotion->business])
+                            : route('businesses.show', $promotion->business);
+                    @endphp
+                    <a href="{{ $businessUrl }}"
                        class="group block bg-white rounded-xl border border-amber-200 bg-gradient-to-br from-amber-50 to-white p-5 hover:shadow-md transition-shadow duration-200">
                         <div class="flex items-start justify-between gap-2 mb-3">
                             <span class="inline-flex items-center gap-1 text-xs font-medium text-amber-700">

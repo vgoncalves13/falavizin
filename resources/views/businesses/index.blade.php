@@ -8,7 +8,7 @@
         class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
     >
         <div class="flex items-center justify-between mb-6 gap-4 flex-wrap">
-            <h1 class="text-2xl font-bold text-stone-900" style="font-family: var(--font-display)">Serviços e Comércios</h1>
+            <h1 class="text-2xl font-bold text-stone-900" style="font-family: var(--font-display)">Serviços em {{ $neighborhood->name }}</h1>
 
             <div class="flex items-center gap-3">
                 {{-- Toggle lista / mapa --}}
@@ -33,7 +33,7 @@
                 </div>
 
                 @auth
-                    <a href="{{ route('businesses.create') }}"
+                    <a href="{{ route('neighborhood.businesses.create', $neighborhood->routeParameters()) }}"
                        class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors duration-150">
                         <x-heroicon-o-plus class="w-4 h-4" />
                         Cadastrar Negócio
@@ -50,7 +50,7 @@
 
         {{-- Vista: Lista --}}
         <div x-show="view === 'list'" x-transition>
-            <livewire:business.business-list />
+            <livewire:business.business-list :neighborhood-id="$neighborhood->id" />
         </div>
 
         {{-- Vista: Mapa --}}
@@ -133,7 +133,7 @@
                     requestController?.abort();
                     requestController = new AbortController();
                     const bounds = map.getBounds();
-                    const url = new URL(@js(route('businesses.map')));
+                    const url = new URL(@js(route('neighborhood.businesses.map', $neighborhood->routeParameters())));
                     url.searchParams.set('north', bounds.getNorth());
                     url.searchParams.set('south', bounds.getSouth());
                     url.searchParams.set('east', bounds.getEast());

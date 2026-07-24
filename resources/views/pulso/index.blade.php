@@ -5,7 +5,7 @@
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-stone-900 flex items-center gap-3" style="font-family: var(--font-display)">
                 <x-heroicon-o-signal class="w-8 h-8 text-amber-600" />
-                Pulso do Bairro
+                Pulso de {{ $neighborhood->name }}
             </h1>
             <p class="text-stone-500 mt-1">
                 Semana de {{ $weekStart->format('d/m') }} a {{ $weekEnd->format('d/m/Y') }}
@@ -120,7 +120,7 @@
                         </h2>
                         <div class="space-y-3">
                             @foreach($topProblems as $problem)
-                                <a href="{{ route('feed.show', $problem) }}"
+                                <a href="{{ route('neighborhood.feed.show', [...$neighborhood->routeParameters(), 'post' => $problem]) }}"
                                    class="flex items-center gap-3 p-3 rounded-lg border border-stone-100 hover:border-stone-200 hover:bg-stone-50 transition-colors duration-150 group">
                                     <div class="shrink-0 flex flex-col items-center justify-center w-10 h-10 rounded-lg bg-red-50 border border-red-100 text-center">
                                         <span class="text-sm font-bold text-red-600">{{ $problem->votes_count }}</span>
@@ -153,7 +153,7 @@
                         </h2>
                         <div class="space-y-3">
                             @foreach($activeRequests as $request)
-                                <a href="{{ route('feed.show', $request) }}"
+                                <a href="{{ route('neighborhood.feed.show', [...$neighborhood->routeParameters(), 'post' => $request]) }}"
                                    class="flex items-center gap-3 p-3 rounded-lg bg-blue-50 border border-blue-100 hover:border-blue-200 transition-colors duration-150 group">
                                     <div class="min-w-0 flex-1">
                                         <p class="text-sm font-medium text-stone-900 group-hover:text-blue-700 transition-colors line-clamp-1">
@@ -169,7 +169,7 @@
                             @endforeach
                         </div>
                         <div class="mt-3 text-right">
-                            <a href="{{ route('categories.show', 'pedido') }}" class="text-xs font-medium text-amber-600 hover:text-amber-700">
+                            <a href="{{ route('neighborhood.categories.show', [...$neighborhood->routeParameters(), 'category' => 'pedido']) }}" class="text-xs font-medium text-amber-600 hover:text-amber-700">
                                 Ver todos os pedidos →
                             </a>
                         </div>
@@ -190,7 +190,7 @@
                         </h2>
                         <div class="space-y-3">
                             @foreach($topBusiness as $i => $business)
-                                <a href="{{ route('businesses.show', $business) }}"
+                                <a href="{{ route('neighborhood.businesses.show', [...$neighborhood->routeParameters(), 'business' => $business]) }}"
                                    class="flex items-center gap-3 group">
                                     <span class="text-lg font-bold text-stone-200 w-5 shrink-0">{{ $i + 1 }}</span>
                                     <div class="min-w-0 flex-1">
@@ -207,7 +207,7 @@
                             @endforeach
                         </div>
                         <div class="mt-4 pt-3 border-t border-stone-100">
-                            <a href="{{ route('businesses.index') }}" class="text-xs font-medium text-amber-600 hover:text-amber-700">
+                            <a href="{{ route('neighborhood.businesses.index', $neighborhood->routeParameters()) }}" class="text-xs font-medium text-amber-600 hover:text-amber-700">
                                 Ver todos os serviços →
                             </a>
                         </div>
@@ -243,7 +243,7 @@
                     <p class="text-sm font-semibold text-stone-800 mb-1">Quer ver o bairro melhorar?</p>
                     <p class="text-xs text-stone-600 mb-3">Registre problemas, faça pedidos e vote nas questões que mais te importam.</p>
                     @auth
-                        <a href="{{ route('feed.create') }}"
+                        <a href="{{ route('neighborhood.feed.create', $neighborhood->routeParameters()) }}"
                            class="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-amber-600 hover:bg-amber-700 px-3 py-1.5 rounded-lg transition-colors duration-150">
                             <x-heroicon-o-plus class="w-3.5 h-3.5" />
                             Publicar no feed

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Business;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 
@@ -9,7 +10,15 @@ class StorePromotionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return Gate::allows('update', $this->route('business'));
+        $businessParam = $this->route('business');
+
+        if ($businessParam instanceof Business) {
+            return Gate::allows('update', $businessParam);
+        }
+
+        $business = Business::where('slug', $businessParam)->first();
+
+        return $business ? Gate::allows('update', $business) : false;
     }
 
     public function rules(): array

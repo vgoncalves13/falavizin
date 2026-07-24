@@ -25,22 +25,28 @@ class BusinessController extends Controller
 {
     public function index(): View
     {
+        $neighborhood = request()->route('neighborhood');
+
         $mapCenter = [
-            'lat' => (float) Setting::get('neighborhood_lat'),
-            'lng' => (float) Setting::get('neighborhood_lng'),
+            'lat' => (float) ($neighborhood->latitude ?? Setting::get('neighborhood_lat')),
+            'lng' => (float) ($neighborhood->longitude ?? Setting::get('neighborhood_lng')),
         ];
 
-        return view('businesses.index', compact('mapCenter'));
+        return view('businesses.index', compact('neighborhood', 'mapCenter'));
     }
 
     public function map(MapBusinessesRequest $request): JsonResponse
     {
+        $neighborhood = request()->route('neighborhood');
         $bounds = $request->validated();
+
         $businesses = Business::query()
+            ->when($neighborhood, fn ($q) => $q->forNeighborhood($neighborhood))
             ->where('status', BusinessStatus::Approved)
             ->whereBetween('lat', [$bounds['south'], $bounds['north']])
             ->whereBetween('lng', [$bounds['west'], $bounds['east']])
             ->with('category:id,name')
+            ->with('localNeighborhood:id,name,state_code,city_slug,slug')
             ->orderByRaw("plan = 'featured' DESC")
             ->orderBy('name')
             ->limit(201)
@@ -53,10 +59,10 @@ class BusinessController extends Controller
                 'id' => $business->id,
                 'name' => $business->name,
                 'category' => $business->category?->name,
-                'neighborhood' => $business->neighborhood,
+                'neighborhood' => $business->localNeighborhood->name,
                 'lat' => (float) $business->lat,
                 'lng' => (float) $business->lng,
-                'url' => route('businesses.show', $business),
+                'url' => $business->canonicalUrl(),
                 'featured' => $business->plan === BusinessPlan::Featured,
             ])->values(),
             'truncated' => $truncated,
@@ -68,11 +74,10 @@ class BusinessController extends Controller
         $neighborhood = request()->route('neighborhood');
         $slug = request()->route('business');
 
-        $query = Business::query()->where('slug', $slug);
-        if ($neighborhood) {
-            $query->where('neighborhood_id', $neighborhood->id);
-        }
-        $business = $query->firstOrFail();
+        $business = Business::query()
+            ->where('slug', $slug)
+            ->when($neighborhood, fn ($q) => $q->forNeighborhood($neighborhood))
+            ->firstOrFail();
 
         Gate::authorize('view', $business);
 
@@ -118,11 +123,10 @@ class BusinessController extends Controller
         $neighborhood = request()->route('neighborhood');
         $slug = request()->route('business');
 
-        $query = Business::query()->where('slug', $slug);
-        if ($neighborhood) {
-            $query->where('neighborhood_id', $neighborhood->id);
-        }
-        $business = $query->firstOrFail();
+        $business = Business::query()
+            ->where('slug', $slug)
+            ->when($neighborhood, fn ($q) => $q->forNeighborhood($neighborhood))
+            ->firstOrFail();
 
         Gate::authorize('update', $business);
 
@@ -136,11 +140,10 @@ class BusinessController extends Controller
         $neighborhood = request()->route('neighborhood');
         $slug = request()->route('business');
 
-        $query = Business::query()->where('slug', $slug);
-        if ($neighborhood) {
-            $query->where('neighborhood_id', $neighborhood->id);
-        }
-        $business = $query->firstOrFail();
+        $business = Business::query()
+            ->where('slug', $slug)
+            ->when($neighborhood, fn ($q) => $q->forNeighborhood($neighborhood))
+            ->firstOrFail();
 
         (new UpdateBusinessAction)->execute(
             business: $business,

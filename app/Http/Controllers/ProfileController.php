@@ -42,12 +42,19 @@ class ProfileController extends Controller
             ->filter()
             ->values();
 
+        $businessNeighborhoodIds = $user->businesses()
+            ->pluck('neighborhood_id')
+            ->unique()
+            ->filter()
+            ->values();
+
         $relevantRequests = collect();
-        if ($businessCategoryIds->isNotEmpty()) {
+        if ($businessCategoryIds->isNotEmpty() && $businessNeighborhoodIds->isNotEmpty()) {
             $relevantRequests = Post::query()
                 ->approved()
                 ->whereHas('category', fn ($q) => $q->where('slug', 'pedido'))
                 ->whereIn('service_category_id', $businessCategoryIds)
+                ->whereIn('neighborhood_id', $businessNeighborhoodIds)
                 ->with(['user', 'category', 'serviceCategory'])
                 ->withCount(['comments', 'votes'])
                 ->latest()

@@ -45,9 +45,13 @@ class WeeklyLimitTest extends TestCase
     {
         $user = User::factory()->create();
         $business = Business::factory()->create(['user_id' => $user->id]);
+        $neighborhood = $business->localNeighborhood;
 
         $this->actingAs($user)
-            ->post(route('promotions.store', $business), [
+            ->post(route('neighborhood.promotions.store', [
+                ...$neighborhood->routeParameters(),
+                'business' => $business,
+            ]), [
                 'title' => 'Promoção inaugural',
                 'description' => 'Primeira promoção do negócio.',
             ])
@@ -63,6 +67,7 @@ class WeeklyLimitTest extends TestCase
     {
         $user = User::factory()->create();
         $business = Business::factory()->create(['user_id' => $user->id]);
+        $neighborhood = $business->localNeighborhood;
 
         Promotion::factory()->create([
             'business_id' => $business->id,
@@ -70,7 +75,10 @@ class WeeklyLimitTest extends TestCase
         ]);
 
         $this->actingAs($user)
-            ->post(route('promotions.store', $business), [
+            ->post(route('neighborhood.promotions.store', [
+                ...$neighborhood->routeParameters(),
+                'business' => $business,
+            ]), [
                 'title' => 'Segunda promoção no prazo',
                 'description' => 'Não deveria ser criada.',
             ])
@@ -124,9 +132,13 @@ class WeeklyLimitTest extends TestCase
     {
         $user = User::factory()->create();
         $business = Business::factory()->create(['user_id' => $user->id]);
+        $neighborhood = $business->localNeighborhood;
 
         $this->actingAs($user)
-            ->post(route('promotions.store', $business), [
+            ->post(route('neighborhood.promotions.store', [
+                ...$neighborhood->routeParameters(),
+                'business' => $business,
+            ]), [
                 'title' => 'Datas inválidas no HTTP',
                 'starts_at' => now()->addDay()->toDateString(),
                 'ends_at' => now()->toDateString(),
@@ -164,6 +176,7 @@ class WeeklyLimitTest extends TestCase
     {
         $user = User::factory()->create();
         $business = Business::factory()->create(['user_id' => $user->id]);
+        $neighborhood = $business->localNeighborhood;
 
         Promotion::factory()->create([
             'business_id' => $business->id,
@@ -171,7 +184,10 @@ class WeeklyLimitTest extends TestCase
         ]);
 
         $this->actingAs($user)
-            ->post(route('promotions.store', $business), [
+            ->post(route('neighborhood.promotions.store', [
+                ...$neighborhood->routeParameters(),
+                'business' => $business,
+            ]), [
                 'title' => 'Promoção após 7 dias',
                 'description' => 'Deve ser criada normalmente.',
             ])
@@ -184,6 +200,7 @@ class WeeklyLimitTest extends TestCase
     {
         $user = User::factory()->create();
         $business = Business::factory()->create(['user_id' => $user->id]);
+        $neighborhood = $business->localNeighborhood;
 
         Promotion::factory()->create([
             'business_id' => $business->id,
@@ -191,7 +208,10 @@ class WeeklyLimitTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)
-            ->post(route('promotions.store', $business), [
+            ->post(route('neighborhood.promotions.store', [
+                ...$neighborhood->routeParameters(),
+                'business' => $business,
+            ]), [
                 'title' => 'Tentativa bloqueada',
             ]);
 
@@ -205,6 +225,7 @@ class WeeklyLimitTest extends TestCase
     {
         $user = User::factory()->create();
         $business = Business::factory()->create(['user_id' => $user->id]);
+        $neighborhood = $business->localNeighborhood;
 
         $promotion = Promotion::factory()->create([
             'business_id' => $business->id,
@@ -213,7 +234,10 @@ class WeeklyLimitTest extends TestCase
         $promotion->delete();
 
         $this->actingAs($user)
-            ->post(route('promotions.store', $business), [
+            ->post(route('neighborhood.promotions.store', [
+                ...$neighborhood->routeParameters(),
+                'business' => $business,
+            ]), [
                 'title' => 'Tentativa após deleção',
             ])
             ->assertSessionHasErrors('title');

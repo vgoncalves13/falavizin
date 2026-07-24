@@ -22,6 +22,13 @@ class BusinessList extends Component
     #[Url]
     public bool $openNow = false;
 
+    public ?int $neighborhoodId = null;
+
+    public function mount(?int $neighborhoodId = null): void
+    {
+        $this->neighborhoodId = $neighborhoodId;
+    }
+
     public function setCategory(?int $categoryId): void
     {
         $this->categoryId = $categoryId;
@@ -43,6 +50,7 @@ class BusinessList extends Component
     {
         $query = Business::query()
             ->where('status', 'approved')
+            ->when($this->neighborhoodId, fn ($q) => $q->where('neighborhood_id', $this->neighborhoodId))
             ->when($this->search, fn ($q) => $q->where(function ($q) {
                 $q->where('name', 'like', '%'.$this->search.'%')
                     ->orWhere('neighborhood', 'like', '%'.$this->search.'%')

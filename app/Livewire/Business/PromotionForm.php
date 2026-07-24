@@ -100,7 +100,10 @@ class PromotionForm extends Component
                 : 'Promoção atualizada com sucesso!'
         );
 
-        $this->redirect(route('businesses.show', $this->business));
+        $this->redirect(route('neighborhood.businesses.show', [
+            ...$this->business->localNeighborhood->routeParameters(),
+            'business' => $this->business,
+        ]));
     }
 
     public function render()

@@ -6,18 +6,20 @@ use App\Enums\BusinessStatus;
 use App\Enums\PostResolutionStatus;
 use App\Models\Business;
 use App\Models\Post;
-use Illuminate\Support\Facades\Cache;
+use App\Services\NeighborhoodCache;
 use Illuminate\View\View;
 
 class PulsoController extends Controller
 {
-    public function index(): View
+    public function index(NeighborhoodCache $cache): View
     {
+        $neighborhood = request()->route('neighborhood');
         $weekStart = now()->startOfWeek();
         $weekEnd = now()->endOfWeek();
 
-        $postsByCategory = Cache::remember('pulso:posts_by_category', 300, function () use ($weekStart) {
+        $postsByCategory = $cache->remember($neighborhood, NeighborhoodCache::PULSE_PREFIX.':posts_by_category', function () use ($neighborhood, $weekStart) {
             return Post::query()
+                ->forNeighborhood($neighborhood)
                 ->approved()
                 ->where('created_at', '>=', $weekStart)
                 ->with('category')
@@ -28,7 +30,8 @@ class PulsoController extends Controller
                 ->take(6);
         });
 
-        $topProblems = Cache::remember('pulso:top_problems', 300, fn () => Post::query()
+        $topProblems = $cache->remember($neighborhood, NeighborhoodCache::PULSE_PREFIX.':top_problems', fn () => Post::query()
+            ->forNeighborhood($neighborhood)
             ->approved()
             ->whereHas('category', fn ($q) => $q->where('slug', 'problema'))
             ->where(fn ($q) => $q
@@ -42,7 +45,8 @@ class PulsoController extends Controller
             ->get()
         );
 
-        $resolvedThisWeek = Cache::remember('pulso:resolved_this_week', 300, fn () => Post::query()
+        $resolvedThisWeek = $cache->remember($neighborhood, NeighborhoodCache::PULSE_PREFIX.':resolved_this_week', fn () => Post::query()
+            ->forNeighborhood($neighborhood)
             ->approved()
             ->whereHas('category', fn ($q) => $q->where('slug', 'problema'))
             ->where('resolution_status', PostResolutionStatus::Resolvido->value)
@@ -50,7 +54,8 @@ class PulsoController extends Controller
             ->count()
         );
 
-        $openProblems = Cache::remember('pulso:open_problems', 300, fn () => Post::query()
+        $openProblems = $cache->remember($neighborhood, NeighborhoodCache::PULSE_PREFIX.':open_problems', fn () => Post::query()
+            ->forNeighborhood($neighborhood)
             ->approved()
             ->whereHas('category', fn ($q) => $q->where('slug', 'problema'))
             ->where(fn ($q) => $q
@@ -61,6 +66,7 @@ class PulsoController extends Controller
         );
 
         $totalProblems = $openProblems + Post::query()
+            ->forNeighborhood($neighborhood)
             ->approved()
             ->whereHas('category', fn ($q) => $q->where('slug', 'problema'))
             ->where('resolution_status', PostResolutionStatus::Resolvido->value)
@@ -71,12 +77,14 @@ class PulsoController extends Controller
             : 0;
 
         $inProgressCount = Post::query()
+            ->forNeighborhood($neighborhood)
             ->approved()
             ->whereHas('category', fn ($q) => $q->where('slug', 'problema'))
             ->where('resolution_status', PostResolutionStatus::EmAndamento->value)
             ->count();
 
-        $topBusiness = Cache::remember('pulso:top_business', 300, fn () => Business::query()
+        $topBusiness = $cache->remember($neighborhood, NeighborhoodCache::PULSE_PREFIX.':top_business', fn () => Business::query()
+            ->forNeighborhood($neighborhood)
             ->where('status', BusinessStatus::Approved->value)
             ->withCount(['reviews as positive_reviews_count' => fn ($q) => $q->where('rating', '>=', 4)])
             ->orderByDesc('positive_reviews_count')
@@ -85,13 +93,15 @@ class PulsoController extends Controller
             ->get()
         );
 
-        $postsThisWeek = Cache::remember('pulso:posts_this_week', 300, fn () => Post::query()
+        $postsThisWeek = $cache->remember($neighborhood, NeighborhoodCache::PULSE_PREFIX.':posts_this_week', fn () => Post::query()
+            ->forNeighborhood($neighborhood)
             ->approved()
             ->where('created_at', '>=', $weekStart)
             ->count()
         );
 
-        $activeRequests = Cache::remember('pulso:active_requests', 300, fn () => Post::query()
+        $activeRequests = $cache->remember($neighborhood, NeighborhoodCache::PULSE_PREFIX.':active_requests', fn () => Post::query()
+            ->forNeighborhood($neighborhood)
             ->approved()
             ->whereHas('category', fn ($q) => $q->where('slug', 'pedido'))
             ->where('created_at', '>=', now()->subDays(7))
@@ -103,16 +113,19 @@ class PulsoController extends Controller
         );
 
         $requestsCount = Post::query()
+            ->forNeighborhood($neighborhood)
             ->approved()
             ->whereHas('category', fn ($q) => $q->where('slug', 'pedido'))
             ->where('created_at', '>=', $weekStart)
             ->count();
 
         $activeBusinesses = Business::query()
+            ->forNeighborhood($neighborhood)
             ->where('status', BusinessStatus::Approved->value)
             ->count();
 
         return view('pulso.index', compact(
+            'neighborhood',
             'postsByCategory',
             'topProblems',
             'resolvedThisWeek',
