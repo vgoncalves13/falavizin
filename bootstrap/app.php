@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureNeighborhoodIsActive;
+use App\Http\Middleware\EnsurePrimaryNeighborhood;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\EnsureUserIsModerator;
 use App\Http\Middleware\LogSlowRequests;
@@ -23,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'moderator' => EnsureUserIsModerator::class,
             'neighborhood' => ResolveNeighborhood::class,
             'neighborhood.active' => EnsureNeighborhoodIsActive::class,
+            'primary-neighborhood' => EnsurePrimaryNeighborhood::class,
         ]);
         $middleware->append(LogSlowRequests::class);
     })

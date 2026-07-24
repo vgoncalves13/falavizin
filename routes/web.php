@@ -10,6 +10,7 @@ use App\Http\Controllers\ClaimBusinessController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LegacyNeighborhoodRedirectController;
+use App\Http\Controllers\NeighborhoodSelectionController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
@@ -57,11 +58,22 @@ Route::prefix('{state}/{city}/{neighborhood}')
             Route::get('/criar-post', [PostController::class, 'create'])->name('feed.create');
             Route::get('/cadastrar-negocio', [BusinessController::class, 'create'])->name('businesses.create');
             Route::post('/cadastrar-negocio', [BusinessController::class, 'store'])->name('businesses.store');
+            Route::get('/meu-negocio/{business:slug}/editar', [BusinessController::class, 'edit'])->scopeBindings()->name('businesses.edit');
+            Route::put('/meu-negocio/{business:slug}', [BusinessController::class, 'update'])->scopeBindings()->name('businesses.update');
+
+            Route::post('/meu-negocio/{business:slug}/promocoes', [PromotionController::class, 'store'])
+                ->scopeBindings()
+                ->name('promotions.store');
         });
 
-        Route::middleware(['auth', 'neighborhood.active'])
-            ->post('/meu-negocio/{business}/promocoes', [PromotionController::class, 'store'])
-            ->name('promotions.store');
+        Route::middleware('auth')->group(function (): void {
+            Route::get('/feed/{post:slug}/editar', [PostController::class, 'edit'])->scopeBindings()->name('feed.edit');
+            Route::delete('/feed/{post:slug}', [PostController::class, 'destroy'])->scopeBindings()->name('feed.destroy');
+
+            Route::post('/servicos/{business}/reivindicar', [ClaimBusinessController::class, 'request'])
+                ->middleware('throttle:5,60')
+                ->name('businesses.claim.request');
+        });
 
         Route::get('/feed/{post:slug}', [PostController::class, 'show'])
             ->scopeBindings()
@@ -80,7 +92,7 @@ Route::get('/feed/{post:slug}', [LegacyNeighborhoodRedirectController::class, 'p
 Route::get('/servicos/{business:slug}', [LegacyNeighborhoodRedirectController::class, 'business'])->name('businesses.show');
 
 // Original routes (temporary — kept for compatibility until tasks migrate consumers)
-Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/', [HomeController::class, 'directory'])->name('home');
 Route::get('/busca', [SearchController::class, 'index'])->name('search.index');
 Route::get('/u/{user}', [UserProfileController::class, 'show'])->name('users.show');
 Route::get('/categoria/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
@@ -89,8 +101,16 @@ Route::get('/ranking', [RankingController::class, 'index'])->name('ranking.index
 Route::get('/pulso', [PulsoController::class, 'index'])->name('pulso.index');
 Route::get('/eventos', fn () => view('events.index'))->name('events.index');
 
-// Autenticadas
+// Neighborhood selection (authenticated, no primary-neighborhood requirement)
 Route::middleware('auth')->group(function () {
+    Route::get('/escolher-bairro', [NeighborhoodSelectionController::class, 'create'])
+        ->name('neighborhoods.select');
+    Route::patch('/meu-bairro', [NeighborhoodSelectionController::class, 'update'])
+        ->name('neighborhoods.update');
+});
+
+// Autenticadas
+Route::middleware(['auth', 'primary-neighborhood'])->group(function () {
     Route::get('/minha-conta', [ProfileController::class, 'account'])->name('profile.account');
     Route::get('/notificacoes', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -102,7 +122,6 @@ Route::middleware('auth')->group(function () {
         ->name('push-subscriptions.destroy');
 
     Route::get('/criar-post', [PostController::class, 'create'])->name('feed.create');
-    Route::get('/feed/{post:slug}/editar', [PostController::class, 'edit'])->name('feed.edit');
     Route::delete('/feed/{post}', [PostController::class, 'destroy'])->name('feed.destroy');
 
     Route::get('/cadastrar-negocio', [BusinessController::class, 'create'])->name('businesses.create');
@@ -111,12 +130,6 @@ Route::middleware('auth')->group(function () {
     Route::put('/meu-negocio/{business}', [BusinessController::class, 'update'])->name('businesses.update');
     Route::post('/meu-negocio/{business}/solicitar-upgrade', [BusinessController::class, 'requestUpgrade'])->name('businesses.upgrade.request');
 
-    Route::post('/servicos/{business}/reivindicar', [ClaimBusinessController::class, 'request'])
-        ->middleware('throttle:5,60')
-        ->name('businesses.claim.request');
-
-    Route::post('/meu-negocio/{business}/promocoes', [PromotionController::class, 'store'])
-        ->name('promotions.store');
     Route::delete('/promocoes/{promotion}', [PromotionController::class, 'destroy'])
         ->name('promotions.destroy');
 
