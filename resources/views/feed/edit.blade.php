@@ -1,6 +1,6 @@
 <x-app-layout title="Editar post">
     <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <a href="{{ route('feed.show', $post) }}" class="inline-flex items-center gap-1 text-sm text-stone-500 hover:text-stone-700 mb-6">
+        <a href="{{ $post->canonicalUrl() }}" class="inline-flex items-center gap-1 text-sm text-stone-500 hover:text-stone-700 mb-6">
             <x-heroicon-o-arrow-left class="w-4 h-4" />
             Voltar ao post
         </a>

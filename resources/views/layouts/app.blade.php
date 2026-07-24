@@ -13,17 +13,18 @@
         <meta name="authenticated-user-id" content="{{ auth()->id() }}">
         @php
             $pwaInstallSafeRoutes = [
-                'home',
-                'feed.index',
-                'businesses.index',
-                'businesses.map',
-                'promotions.index',
+                'neighborhood.home',
+                'neighborhood.feed.index',
+                'neighborhood.businesses.index',
+                'neighborhood.businesses.map',
+                'neighborhood.promotions.index',
                 'ranking.index',
-                'pulso.index',
-                'events.index',
-                'search.index',
-                'categories.show',
+                'neighborhood.pulso.index',
+                'neighborhood.events.index',
+                'neighborhood.search.index',
+                'neighborhood.categories.show',
                 'users.show',
+                'home',
             ];
         @endphp
         <meta name="pwa-install-safe" content="{{ in_array(request()->route()?->getName(), $pwaInstallSafeRoutes, true) ? 'true' : 'false' }}">
@@ -37,6 +38,10 @@
         <meta property="og:title" content="{{ isset($title) ? $title . ' — ' : '' }}{{ config('app.name', 'FalaVizin') }}">
         <meta property="og:description" content="{{ $metaDescription }}">
         <meta property="og:type" content="website">
+        @if(isset($canonicalUrl))
+            <link rel="canonical" href="{{ $canonicalUrl }}">
+            <meta property="og:url" content="{{ $canonicalUrl }}">
+        @endif
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">

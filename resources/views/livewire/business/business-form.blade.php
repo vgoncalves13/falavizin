@@ -236,7 +236,7 @@
 
         {{-- Botões --}}
         <div class="flex items-center justify-end gap-3 pt-2">
-            <a href="{{ $business?->exists ? route('businesses.show', $business) : route('businesses.index') }}" class="text-sm text-stone-500 hover:text-stone-700">
+            <a href="{{ $business?->exists ? $business->canonicalUrl() : route('neighborhood.businesses.index', $neighborhood->routeParameters()) }}" class="text-sm text-stone-500 hover:text-stone-700">
                 Cancelar
             </a>
             <button

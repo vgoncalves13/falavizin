@@ -83,7 +83,7 @@
         </div>
 
         <div class="flex items-center justify-between pt-2">
-            <a href="{{ route('feed.show', $post) }}"
+            <a href="{{ $post->canonicalUrl() }}"
                class="text-sm text-stone-500 hover:text-stone-700 transition-colors">
                 Cancelar
             </a>

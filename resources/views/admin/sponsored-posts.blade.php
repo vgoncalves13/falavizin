@@ -65,7 +65,7 @@
                         {{-- Info --}}
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 flex-wrap">
-                                <a href="{{ route('feed.show', $post) }}"
+                                <a href="{{ $post->canonicalUrl() }}"
                                    target="_blank"
                                    class="font-medium text-stone-900 hover:text-amber-700 transition-colors truncate max-w-sm">
                                     {{ $post->title }}

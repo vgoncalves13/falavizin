@@ -40,7 +40,7 @@ class PostVoteNotification extends Notification implements ShouldQueueAfterCommi
             'icon' => 'hand-thumb-up',
             'color' => 'text-amber-500',
             'message' => $this->voter->name.' reagiu à sua publicação: '.$this->post->title,
-            'url' => route('feed.show', $this->post),
+            'url' => $this->post->canonicalUrl(),
         ];
     }
 
@@ -52,7 +52,7 @@ class PostVoteNotification extends Notification implements ShouldQueueAfterCommi
             ->icon('/assets/icons/icon-192.png')
             ->badge('/assets/icons/badge-96.png')
             ->tag($this->id)
-            ->data(['url' => route('feed.show', $this->post, absolute: false)])
+            ->data(['url' => $this->post->canonicalUrl(absolute: false)])
             ->options(['TTL' => 3600]);
     }
 

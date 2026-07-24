@@ -40,7 +40,7 @@ class PlanUpgradeApprovedNotification extends Notification implements ShouldQueu
             'icon' => 'star',
             'color' => 'text-amber-500',
             'message' => "Parabéns! Seu negócio \"{$this->business->name}\" foi promovido ao plano Destaque.",
-            'url' => route('businesses.show', $this->business),
+            'url' => $this->business->canonicalUrl(),
         ];
     }
 
@@ -51,7 +51,7 @@ class PlanUpgradeApprovedNotification extends Notification implements ShouldQueu
             ->greeting('Parabéns, '.$notifiable->name.'!')
             ->line("Seu negócio **{$this->business->name}** foi promovido ao plano **Destaque**.")
             ->line('Com o plano Destaque você pode criar promoções ilimitadas e aparece em primeiro nos resultados de busca.')
-            ->action('Ver seu negócio', route('businesses.show', $this->business))
+            ->action('Ver seu negócio', $this->business->canonicalUrl())
             ->line('Obrigado por fazer parte do FalaVizin!');
     }
 
@@ -63,7 +63,7 @@ class PlanUpgradeApprovedNotification extends Notification implements ShouldQueu
             ->icon('/assets/icons/icon-192.png')
             ->badge('/assets/icons/badge-96.png')
             ->tag($this->id)
-            ->data(['url' => route('businesses.show', $this->business, absolute: false)])
+            ->data(['url' => $this->business->canonicalUrl(absolute: false)])
             ->options(['TTL' => 86400]);
     }
 

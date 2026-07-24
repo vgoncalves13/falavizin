@@ -1,7 +1,7 @@
 @props(['business'])
 
 <a
-    href="{{ route('businesses.show', $business) }}"
+    href="{{ $business->canonicalUrl() }}"
     class="group block bg-white rounded-xl border border-stone-200 overflow-hidden hover:shadow-md transition-shadow duration-200 {{ $business->plan->value === 'featured' ? 'border-amber-300 ring-1 ring-amber-200' : '' }}"
 >
     {{-- Cover photo --}}

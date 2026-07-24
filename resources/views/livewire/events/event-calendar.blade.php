@@ -4,7 +4,7 @@
             <p class="sec-eyebrow">Agenda</p>
             <h2 style="font-family:var(--font-display);font-size:1.25rem;font-weight:800;color:#1c1917;margin:0;letter-spacing:-.02em;">Eventos</h2>
         </div>
-        <a href="{{ route('events.index') }}"
+        <a href="{{ route('neighborhood.events.index', $neighborhood->routeParameters()) }}"
            class="text-xs font-semibold text-amber-600 hover:text-amber-700 transition-colors mb-1">
             Ver tudo →
         </a>

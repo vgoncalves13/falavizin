@@ -74,7 +74,7 @@
                         <div class="space-y-3">
                             @foreach ($posts as $post)
                                 <a
-                                    href="{{ route('feed.show', $post) }}"
+                                    href="{{ $post->canonicalUrl() }}"
                                     class="block bg-white rounded-xl border border-stone-200 p-4 hover:shadow-md hover:border-stone-300 transition-all duration-200"
                                 >
                                     <div class="flex items-start gap-3">
@@ -111,7 +111,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             @foreach ($businesses as $business)
                                 <a
-                                    href="{{ route('businesses.show', $business) }}"
+                                    href="{{ $business->canonicalUrl() }}"
                                     class="block bg-white rounded-xl border border-stone-200 p-4 hover:shadow-md hover:border-stone-300 transition-all duration-200 {{ $business->plan->value === 'featured' ? 'border-amber-300 ring-1 ring-amber-200' : '' }}"
                                 >
                                     <div class="flex items-start gap-3">

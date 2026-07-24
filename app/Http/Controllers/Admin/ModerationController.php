@@ -311,9 +311,9 @@ class ModerationController extends Controller
         };
 
         $url = $decision === 'approved' ? match ($type) {
-            'post' => route('feed.show', $model),
-            'business' => route('businesses.show', $model),
-            'promotion' => route('businesses.show', $model->business),
+            'post' => $model->canonicalUrl(),
+            'business' => $model->canonicalUrl(),
+            'promotion' => $model->business->canonicalUrl(),
             default => null,
         } : null;
 

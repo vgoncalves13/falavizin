@@ -2,7 +2,7 @@
 
 <article
     x-data
-    @click="window.location.href = '{{ route('feed.show', $post) }}'"
+    @click="window.location.href = '{{ $post->canonicalUrl() }}'"
     class="bg-white rounded-xl border
         {{ $post->is_sponsored ? 'border-amber-300 bg-amber-50/30' : '' }}
         {{ !$post->is_sponsored && $post->category?->slug === 'pedido' ? 'border-blue-200 bg-blue-50/20' : '' }}
@@ -66,7 +66,7 @@
 
                 {{-- Título --}}
                 <h3 class="font-semibold text-stone-900 mb-1.5 leading-snug">
-                    <a href="{{ route('feed.show', $post) }}" class="hover:text-amber-700 transition-colors duration-150">
+                    <a href="{{ $post->canonicalUrl() }}" class="hover:text-amber-700 transition-colors duration-150">
                         {{ $post->title }}
                     </a>
                 </h3>
@@ -76,7 +76,7 @@
 
                 {{-- Footer: stats --}}
                 <div class="flex items-center gap-4 flex-wrap">
-                    <a href="{{ route('feed.show', $post) }}"
+                    <a href="{{ $post->canonicalUrl() }}"
                        class="inline-flex items-center gap-1.5 text-xs text-stone-400 hover:text-stone-600 transition-colors">
                         <x-heroicon-o-chat-bubble-left class="w-4 h-4" />
                         {{ $post->comments_count ?? 0 }}

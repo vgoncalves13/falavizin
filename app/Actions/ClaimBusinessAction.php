@@ -35,7 +35,7 @@ class ClaimBusinessAction
             entityId: $business->id,
             title: 'Reivindicação de '.$business->name,
             decision: $approved ? 'approved' : 'rejected',
-            url: $approved ? route('businesses.show', $business) : null,
+            url: $approved ? $business->canonicalUrl() : null,
         ));
     }
 }

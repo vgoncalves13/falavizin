@@ -64,6 +64,10 @@ Route::prefix('{state}/{city}/{neighborhood}')
             Route::post('/meu-negocio/{business:slug}/promocoes', [PromotionController::class, 'store'])
                 ->scopeBindings()
                 ->name('promotions.store');
+
+            Route::post('/meu-negocio/{business:slug}/solicitar-upgrade', [BusinessController::class, 'requestUpgrade'])
+                ->scopeBindings()
+                ->name('businesses.upgrade.request');
         });
 
         Route::middleware('auth')->group(function (): void {

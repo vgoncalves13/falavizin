@@ -43,7 +43,7 @@ class CommentVoteNotification extends Notification implements ShouldQueueAfterCo
             'icon' => 'hand-thumb-up',
             'color' => 'text-amber-500',
             'message' => $this->voter->name.' curtiu seu comentário: "'.$preview.'"',
-            'url' => route('feed.show', $this->comment->post),
+            'url' => $this->comment->post->canonicalUrl(),
         ];
     }
 
@@ -55,7 +55,7 @@ class CommentVoteNotification extends Notification implements ShouldQueueAfterCo
             ->icon('/assets/icons/icon-192.png')
             ->badge('/assets/icons/badge-96.png')
             ->tag($this->id)
-            ->data(['url' => route('feed.show', $this->comment->post, absolute: false)])
+            ->data(['url' => $this->comment->post->canonicalUrl(absolute: false)])
             ->options(['TTL' => 3600]);
     }
 

@@ -27,7 +27,7 @@
             @endif
         @endif
         @if($type === 'post' && isset($model->status) && $model->status->value === 'approved')
-            <a href="{{ route('feed.show', $model) }}" target="_blank"
+            <a href="{{ $model->canonicalUrl() }}" target="_blank"
                class="mt-1.5 inline-flex items-center gap-1 text-xs text-stone-400 hover:text-amber-600 transition-colors">
                 <x-heroicon-o-arrow-top-right-on-square class="w-3 h-3" />
                 Abrir post

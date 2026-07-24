@@ -49,7 +49,7 @@
                 <p class="text-sm text-amber-800">Solicitação enviada em {{ $business->plan_upgrade_requested_at->format('d/m/Y') }}. Aguardando aprovação.</p>
             </div>
         @else
-            <form action="{{ route('businesses.upgrade.request', $business) }}" method="POST">
+            <form action="{{ route('neighborhood.businesses.upgrade.request', [...$business->localNeighborhood->routeParameters(), 'business' => $business]) }}" method="POST">
                 @csrf
                 <button type="submit"
                         class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors">

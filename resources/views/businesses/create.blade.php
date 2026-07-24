@@ -8,7 +8,7 @@
         <h1 class="text-2xl font-bold text-stone-900 mb-6" style="font-family: var(--font-display)">Cadastrar Negócio</h1>
 
         <div class="bg-white rounded-xl border border-stone-200 p-6">
-            <livewire:business.business-form />
+            <livewire:business.business-form :neighborhood="$neighborhood" />
         </div>
     </div>
 </x-app-layout>

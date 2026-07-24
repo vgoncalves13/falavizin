@@ -1,6 +1,6 @@
 <x-app-layout :title="$post->title" :description="Str::limit($post->body, 160)">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <a href="{{ route('feed.index') }}" class="inline-flex items-center gap-1 text-sm text-stone-500 hover:text-stone-700 mb-6">
+        <a href="{{ route('neighborhood.feed.index', $post->neighborhood->routeParameters()) }}" class="inline-flex items-center gap-1 text-sm text-stone-500 hover:text-stone-700 mb-6">
             <x-heroicon-o-arrow-left class="w-4 h-4" />
             Voltar ao Feed
         </a>
@@ -166,7 +166,7 @@
                     </div>
 
                     <div class="flex items-center gap-3">
-                        <x-share-button :url="route('feed.show', $post)" :title="$post->title" />
+                        <x-share-button :url="$post->canonicalUrl()" :title="$post->title" />
 
                         @auth
                             @unless(auth()->id() === $post->user_id)

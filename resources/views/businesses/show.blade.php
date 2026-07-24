@@ -1,6 +1,6 @@
 <x-app-layout :title="$business->name" :description="Str::limit($business->description ?? $business->name . ' — ' . $business->neighborhood, 160)">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <a href="{{ route('businesses.index') }}" class="inline-flex items-center gap-1 text-sm text-stone-500 hover:text-stone-700 mb-6">
+        <a href="{{ route('neighborhood.businesses.index', $business->localNeighborhood->routeParameters()) }}" class="inline-flex items-center gap-1 text-sm text-stone-500 hover:text-stone-700 mb-6">
             <x-heroicon-o-arrow-left class="w-4 h-4" />
             Voltar aos Serviços
         </a>
@@ -66,7 +66,7 @@
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <x-share-button :url="route('businesses.show', $business)" :title="$business->name" />
+                        <x-share-button :url="$business->canonicalUrl()" :title="$business->name" />
 
                         @auth
                             <livewire:business.favorite-button :business="$business" :key="'fav-'.$business->id" />
@@ -385,9 +385,10 @@
     @push('scripts')
         <script>
             function businessContactTracking(businessId) {
+                const trackUrl = '{{ route("business.track", ["business" => "__ID__", "eventType" => "__TYPE__"]) }}';
                 return {
                     trackContact(eventType) {
-                        fetch(`/negocio/${businessId}/rastrear/${eventType}`, {
+                        fetch(trackUrl.replace('__ID__', businessId).replace('__TYPE__', eventType), {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',

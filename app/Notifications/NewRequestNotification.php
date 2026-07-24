@@ -26,7 +26,7 @@ class NewRequestNotification extends Notification
             'icon' => 'megaphone',
             'color' => 'text-blue-600',
             'message' => 'Novo pedido de '.$categoryName.': '.$this->post->title,
-            'url' => route('feed.show', $this->post),
+            'url' => $this->post->canonicalUrl(),
         ];
     }
 }

@@ -41,7 +41,7 @@ class CommentNotification extends Notification implements ShouldQueueAfterCommit
             'icon' => 'chat-bubble-left',
             'color' => 'text-amber-600',
             'message' => $message,
-            'url' => route('feed.show', $this->comment->post),
+            'url' => $this->comment->post->canonicalUrl(),
         ];
     }
 
@@ -57,7 +57,7 @@ class CommentNotification extends Notification implements ShouldQueueAfterCommit
             ->icon('/assets/icons/icon-192.png')
             ->badge('/assets/icons/badge-96.png')
             ->tag($this->id)
-            ->data(['url' => route('feed.show', $this->comment->post, absolute: false)])
+            ->data(['url' => $this->comment->post->canonicalUrl(absolute: false)])
             ->options(['TTL' => 3600]);
     }
 

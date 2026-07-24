@@ -28,7 +28,7 @@ class InterestNotification extends Notification
             'icon' => 'hand-raised',
             'color' => 'text-blue-600',
             'message' => $this->merchant->name.' manifestou interesse no seu pedido: '.$this->post->title,
-            'url' => route('feed.show', $this->post),
+            'url' => $this->post->canonicalUrl(),
         ];
     }
 }

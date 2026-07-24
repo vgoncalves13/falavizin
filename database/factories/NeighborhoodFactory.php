@@ -31,4 +31,9 @@ class NeighborhoodFactory extends Factory
     {
         return $this->state(['is_active' => false]);
     }
+
+    public function active(): static
+    {
+        return $this->state(['is_active' => true]);
+    }
 }

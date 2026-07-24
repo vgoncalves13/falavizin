@@ -130,20 +130,20 @@
 
             {{-- CTAs --}}
             <div class="h-up4 flex flex-col sm:flex-row gap-3 mb-10">
-                <a href="{{ route('feed.index') }}"
-                   style="display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:.9rem 1.875rem;background:#d97706;color:#fff;font-weight:700;font-size:.9375rem;border-radius:12px;text-decoration:none;letter-spacing:.01em;box-shadow:0 4px 20px rgba(217,119,6,.35);transition:background .15s,transform .12s,box-shadow .15s;"
-                   onmouseover="this.style.background='#b45309';this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 28px rgba(180,83,9,.45)'"
-                   onmouseout="this.style.background='#d97706';this.style.transform='none';this.style.boxShadow='0 4px 20px rgba(217,119,6,.35)'">
-                    <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
-                    Ver o Feed
-                </a>
-                <a href="{{ route('businesses.index') }}"
-                   style="display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:.9rem 1.875rem;background:rgba(255,255,255,.07);color:rgba(255,255,255,.85);font-weight:600;font-size:.9375rem;border-radius:12px;text-decoration:none;border:1.5px solid rgba(255,255,255,.14);transition:background .15s,border-color .15s;"
-                   onmouseover="this.style.background='rgba(255,255,255,.13)';this.style.borderColor='rgba(255,255,255,.3)'"
-                   onmouseout="this.style.background='rgba(255,255,255,.07)';this.style.borderColor='rgba(255,255,255,.14)'">
-                    <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
-                    Encontrar Serviços
-                </a>
+                    <a href="{{ route('neighborhood.feed.index', $neighborhood->routeParameters()) }}"
+                       style="display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:.9rem 1.875rem;background:#d97706;color:#fff;font-weight:700;font-size:.9375rem;border-radius:12px;text-decoration:none;letter-spacing:.01em;box-shadow:0 4px 20px rgba(217,119,6,.35);transition:background .15s,transform .12s,box-shadow .15s;"
+                       onmouseover="this.style.background='#b45309';this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 28px rgba(180,83,9,.45)'"
+                       onmouseout="this.style.background='#d97706';this.style.transform='none';this.style.boxShadow='0 4px 20px rgba(217,119,6,.35)'">
+                        <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+                        Ver o Feed
+                    </a>
+                    <a href="{{ route('neighborhood.businesses.index', $neighborhood->routeParameters()) }}"
+                       style="display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:.9rem 1.875rem;background:rgba(255,255,255,.07);color:rgba(255,255,255,.85);font-weight:600;font-size:.9375rem;border-radius:12px;text-decoration:none;border:1.5px solid rgba(255,255,255,.14);transition:background .15s,border-color .15s;"
+                       onmouseover="this.style.background='rgba(255,255,255,.13)';this.style.borderColor='rgba(255,255,255,.3)'"
+                       onmouseout="this.style.background='rgba(255,255,255,.07)';this.style.borderColor='rgba(255,255,255,.14)'">
+                        <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+                        Encontrar Serviços
+                    </a>
             </div>
 
             {{-- Live stats --}}
@@ -179,7 +179,7 @@
             <div class="flex-1 min-w-0" style="padding-top:4px;margin-top:-4px;" :class="open ? '' : 'overflow-hidden'">
                 <div class="flex gap-2" :class="open ? 'flex-wrap' : 'flex-nowrap'">
                     @foreach($categories as $category)
-                        <a href="{{ route('categories.show', $category) }}"
+                        <a href="{{ route('neighborhood.categories.show', [...$neighborhood->routeParameters(), 'category' => $category]) }}"
                            class="cat-pill flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-stone-50 border border-stone-200 rounded-full text-sm font-medium text-stone-700 hover:text-amber-700 hover:bg-amber-50 hover:border-amber-300 whitespace-nowrap transition-colors">
                             <x-dynamic-component :component="'heroicon-o-' . $category->icon" class="w-4 h-4 text-amber-600" />
                             {{ $category->name }}
@@ -221,7 +221,7 @@
                             Últimas do Bairro
                         </h2>
                     </div>
-                    <a href="{{ route('feed.index') }}"
+                    <a href="{{ route('neighborhood.feed.index', $neighborhood->routeParameters()) }}"
                        class="inline-flex items-center gap-1 text-sm font-semibold text-amber-600 hover:text-amber-700 transition-colors shrink-0 mb-1">
                         Ver tudo
                         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -233,7 +233,7 @@
                         <x-heroicon-o-newspaper class="w-10 h-10 text-stone-300 mx-auto mb-3" />
                         <p class="text-stone-400 text-sm">Nenhum post ainda. Seja o primeiro a publicar!</p>
                         @auth
-                            <a href="{{ route('feed.create') }}" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors">
+                            <a href="{{ route('neighborhood.feed.create', $neighborhood->routeParameters()) }}" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors">
                                 Publicar agora
                             </a>
                         @endauth
@@ -242,7 +242,7 @@
                     {{-- Feature: first post large --}}
                     @php $featuredPost = $recentPosts->first(); $otherPosts = $recentPosts->skip(1); @endphp
 
-                    <a href="{{ route('feed.show', $featuredPost) }}"
+                    <a href="{{ $featuredPost->canonicalUrl() }}"
                        class="lift group block bg-white rounded-2xl border border-stone-200 overflow-hidden mb-4">
                         @if($featuredPost->image)
                             <div class="h-52 overflow-hidden">
@@ -310,7 +310,7 @@
                                 Eventos Próximos
                             </h2>
                         </div>
-                        <a href="{{ route('categories.show', 'evento') }}"
+                        <a href="{{ route('neighborhood.categories.show', [...$neighborhood->routeParameters(), 'category' => 'evento']) }}"
                            class="inline-flex items-center gap-1 text-sm font-semibold text-amber-600 hover:text-amber-700 transition-colors shrink-0 mb-1">
                             Ver todos
                             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -318,7 +318,7 @@
                     </div>
                     <div class="grid sm:grid-cols-{{ min($upcomingEvents->count(), 3) === 1 ? '1' : (min($upcomingEvents->count(), 3) === 2 ? '2' : '3') }} gap-3">
                         @foreach($upcomingEvents as $event)
-                            <a href="{{ route('feed.show', $event) }}"
+                            <a href="{{ $event->canonicalUrl() }}"
                                class="lift group flex gap-4 bg-white rounded-2xl border border-stone-200 p-4 hover:border-amber-200">
                                 <div class="shrink-0 flex flex-col items-center justify-center w-14 h-14 rounded-xl text-center"
                                      style="background:linear-gradient(135deg,#fef3c7,#fde68a);border:1px solid #fcd34d;">
@@ -354,7 +354,7 @@
                                 Pedidos ao Bairro
                             </h2>
                         </div>
-                        <a href="{{ route('categories.show', 'pedido') }}"
+                        <a href="{{ route('neighborhood.categories.show', [...$neighborhood->routeParameters(), 'category' => 'pedido']) }}"
                            class="inline-flex items-center gap-1 text-sm font-semibold text-amber-600 hover:text-amber-700 transition-colors shrink-0 mb-1">
                             Ver todos
                             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -362,7 +362,7 @@
                     </div>
                     <div class="grid sm:grid-cols-3 gap-3">
                         @foreach($recentRequests as $post)
-                            <a href="{{ route('feed.show', $post) }}"
+                            <a href="{{ $post->canonicalUrl() }}"
                                class="lift group flex flex-col gap-3 rounded-2xl border p-4"
                                style="background:linear-gradient(135deg,#eff6ff,#dbeafe 80%);border-color:#bfdbfe;">
                                 <div class="flex items-center gap-2">
@@ -400,7 +400,7 @@
                     </div>
                     <div class="grid sm:grid-cols-3 gap-4">
                         @foreach($sponsoredPosts as $post)
-                            <a href="{{ route('feed.show', $post) }}"
+                            <a href="{{ $post->canonicalUrl() }}"
                                class="lift group relative flex flex-col bg-white rounded-2xl border border-amber-200 overflow-hidden">
                                 <div class="absolute top-3 right-3 z-10">
                                     <span class="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-200">
@@ -447,7 +447,7 @@
                             <div class="pulse-dot w-2.5 h-2.5 rounded-full bg-amber-400"></div>
                             <span style="font-size:.6875rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(251,191,36,.75);">Pulso desta semana</span>
                         </div>
-                        <a href="{{ route('pulso.index') }}"
+                        <a href="{{ route('neighborhood.pulso.index', $neighborhood->routeParameters()) }}"
                            style="font-size:.75rem;color:rgba(251,191,36,.65);text-decoration:none;font-weight:500;transition:color .15s;"
                            onmouseover="this.style.color='#fbbf24'" onmouseout="this.style.color='rgba(251,191,36,.65)'">
                             Ver tudo →
@@ -464,7 +464,7 @@
                         </div>
                     </div>
                 </div>
-                <a href="{{ route('pulso.index') }}"
+                <a href="{{ route('neighborhood.pulso.index', $neighborhood->routeParameters()) }}"
                    style="display:flex;align-items:center;justify-content:center;gap:6px;padding:.75rem;background:rgba(217,119,6,.12);border-top:1px solid rgba(217,119,6,.15);color:rgba(251,191,36,.8);font-size:.8125rem;font-weight:600;text-decoration:none;transition:background .15s;"
                    onmouseover="this.style.background='rgba(217,119,6,.22)'" onmouseout="this.style.background='rgba(217,119,6,.12)'">
                     Ver análise completa do bairro
@@ -479,7 +479,7 @@
                         <p class="sec-eyebrow">Parceiros</p>
                         <h2 style="font-family:var(--font-display);font-size:1.25rem;font-weight:800;color:#1c1917;margin:0;letter-spacing:-.02em;">Em Destaque</h2>
                     </div>
-                    <a href="{{ route('businesses.index') }}"
+                    <a href="{{ route('neighborhood.businesses.index', $neighborhood->routeParameters()) }}"
                        class="text-xs font-semibold text-amber-600 hover:text-amber-700 transition-colors mb-1">
                         Ver tudo →
                     </a>
@@ -493,7 +493,7 @@
                 @else
                     <div class="bg-white rounded-2xl border border-stone-200 overflow-hidden divide-y divide-stone-100">
                         @foreach($featuredBusinesses as $business)
-                            <a href="{{ route('businesses.show', $business) }}"
+                            <a href="{{ $business->canonicalUrl() }}"
                                class="biz-row flex items-center gap-3 p-3.5 group">
                                 <div class="w-11 h-11 rounded-xl overflow-hidden bg-amber-50 shrink-0 border border-amber-100">
                                     @if($business->coverPhoto)
@@ -530,14 +530,14 @@
                             <p class="sec-eyebrow">Ofertas</p>
                             <h2 style="font-family:var(--font-display);font-size:1.25rem;font-weight:800;color:#1c1917;margin:0;letter-spacing:-.02em;">Promoções</h2>
                         </div>
-                        <a href="{{ route('promotions.index') }}"
+                        <a href="{{ route('neighborhood.promotions.index', $neighborhood->routeParameters()) }}"
                            class="text-xs font-semibold text-amber-600 hover:text-amber-700 transition-colors mb-1">
                             Ver todas →
                         </a>
                     </div>
                     <div class="space-y-2">
                         @foreach($recentPromotions as $promotion)
-                            <a href="{{ route('businesses.show', $promotion->business) }}"
+                            <a href="{{ $promotion->business->canonicalUrl() }}"
                                class="promo-card group block rounded-xl border border-amber-100 p-3.5"
                                style="background:linear-gradient(to right,#fffbeb,#fff);">
                                 <p class="text-xs font-semibold text-amber-600 truncate mb-0.5">{{ $promotion->business->name }}</p>

@@ -74,7 +74,7 @@
                                 </p>
                             </div>
                             <div class="flex items-center gap-2 shrink-0">
-                                <a href="{{ route('businesses.show', $business) }}"
+                                <a href="{{ $business->canonicalUrl() }}"
                                    target="_blank"
                                    class="px-3 py-1.5 text-stone-600 bg-stone-100 hover:bg-stone-200 text-xs font-medium rounded-lg transition-colors inline-flex items-center gap-1">
                                     <x-heroicon-o-arrow-top-right-on-square class="w-3.5 h-3.5" />
@@ -125,7 +125,7 @@
                                 @endif
                             </div>
                             <div class="flex items-center gap-2 shrink-0">
-                                <a href="{{ route('businesses.show', $business) }}"
+                                <a href="{{ $business->canonicalUrl() }}"
                                    target="_blank"
                                    class="px-3 py-1.5 text-stone-600 bg-stone-100 hover:bg-stone-200 text-xs font-medium rounded-lg transition-colors inline-flex items-center gap-1">
                                     <x-heroicon-o-arrow-top-right-on-square class="w-3.5 h-3.5" />

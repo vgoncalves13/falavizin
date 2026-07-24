@@ -109,7 +109,7 @@ class WebPushNotificationTest extends TestCase
         $payload = $notification->toWebPush(User::factory()->create())->toArray();
 
         $this->assertSame('notification-id', $payload['tag']);
-        $this->assertSame(route('feed.show', $post, absolute: false), $payload['data']['url']);
+        $this->assertSame($post->canonicalUrl(absolute: false), $payload['data']['url']);
         $this->assertArrayNotHasKey('endpoint', $payload['data']);
     }
 

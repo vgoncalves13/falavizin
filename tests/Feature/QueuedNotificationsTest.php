@@ -2,7 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Comment;
+use App\Models\Post;
 use App\Models\User;
+use App\Notifications\CommentNotification;
 use App\Notifications\NewContentNotification;
 use App\Notifications\QueuedResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -45,5 +48,18 @@ class QueuedNotificationsTest extends TestCase
                 && $job->connection === 'database'
                 && $job->afterCommit === true;
         });
+    }
+
+    public function test_notification_resolves_the_entity_canonical_url(): void
+    {
+        $post = Post::factory()->create();
+        $notification = new CommentNotification(
+            Comment::factory()->for($post)->create(),
+        );
+
+        $this->assertSame(
+            $post->canonicalUrl(),
+            $notification->toDatabase($post->user)['url'],
+        );
     }
 }

@@ -41,7 +41,7 @@
     @else
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             @foreach($events as $event)
-                <a href="{{ route('feed.show', $event) }}"
+                <a href="{{ $event->canonicalUrl() }}"
                    class="bg-white rounded-xl border border-stone-200 overflow-hidden hover:shadow-md transition-shadow duration-200">
                     {{-- Header com data --}}
                     <div class="bg-amber-50 border-b border-amber-100 px-4 py-3 flex items-center gap-3">

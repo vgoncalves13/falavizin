@@ -192,7 +192,7 @@ class BusinessForm extends Component
 
         if ($this->business?->exists) {
             (new UpdateBusinessAction)->execute($this->business, $data, $uploadedPhoto);
-            $this->redirect(route('businesses.show', $this->business));
+            $this->redirect($this->business->canonicalUrl());
         } else {
             (new CreateBusinessAction)->execute(
                 user: auth()->user(),
