@@ -44,6 +44,7 @@
                         type="button"
                         data-push-enable
                         @disabled(! $hasSelectedPushTypes)
+                        wire:loading.attr="disabled"
                         class="inline-flex items-center gap-2 rounded-lg bg-[#FD5C3E] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#e94c31] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         <x-heroicon-o-bell-alert class="h-4 w-4" />
