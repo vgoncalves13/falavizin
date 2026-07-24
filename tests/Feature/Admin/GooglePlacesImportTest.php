@@ -190,6 +190,10 @@ class GooglePlacesImportTest extends TestCase
         ]);
 
         $this->assertDatabaseCount('businesses', 2);
+        $this->assertSame(
+            ['(21) 99999-1111'],
+            Business::where('google_place_id', 'ChIJ_place_001')->firstOrFail()->phone,
+        );
         Queue::assertPushed(EnrichBusinessFromGoogle::class, 2);
         Queue::assertPushed(EnrichBusinessFromGoogle::class, function (EnrichBusinessFromGoogle $job): bool {
             $secondBusiness = Business::where('google_place_id', 'ChIJ_place_002')->firstOrFail();

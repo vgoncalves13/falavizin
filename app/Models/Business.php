@@ -6,6 +6,7 @@ use App\Enums\BusinessPlan;
 use App\Enums\BusinessStatus;
 use Database\Factories\BusinessFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -54,7 +55,6 @@ class Business extends Model
         return [
             'plan' => BusinessPlan::class,
             'status' => BusinessStatus::class,
-            'phone' => 'array',
             'opening_hours' => 'array',
             'claimed' => 'boolean',
             'claim_requested_at' => 'datetime',
@@ -74,6 +74,20 @@ class Business extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    protected function phone(): Attribute
+    {
+        return Attribute::make(
+            get: function (?string $value): ?array {
+                $phones = json_decode($value ?? 'null', true);
+
+                return is_string($phones) ? [$phones] : (is_array($phones) ? $phones : null);
+            },
+            set: fn (array|string|null $value): ?string => $value === null
+                ? null
+                : json_encode(is_array($value) ? $value : [$value], JSON_THROW_ON_ERROR),
+        );
     }
 
     public function user(): BelongsTo
