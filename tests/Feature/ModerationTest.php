@@ -7,6 +7,7 @@ use App\Enums\PostStatus;
 use App\Livewire\Feed\CreatePost;
 use App\Models\Business;
 use App\Models\Category;
+use App\Models\Neighborhood;
 use App\Models\Post;
 use App\Models\User;
 use App\Notifications\ContentModerationNotification;
@@ -26,10 +27,11 @@ class ModerationTest extends TestCase
     {
         $user = User::factory()->create();
         $category = Category::factory()->create(['type' => 'post']);
+        $neighborhood = Neighborhood::factory()->create();
 
         $this->actingAs($user);
 
-        Livewire::test(CreatePost::class)
+        Livewire::test(CreatePost::class, ['neighborhood' => $neighborhood])
             ->set('title', 'Buraco na rua principal')
             ->set('body', 'Tem um buraco enorme na rua principal.')
             ->set('categoryId', $category->id)
@@ -48,10 +50,11 @@ class ModerationTest extends TestCase
         $admin = User::factory()->create(['is_admin' => true]);
         $user = User::factory()->create();
         $category = Category::factory()->create(['type' => 'post']);
+        $neighborhood = Neighborhood::factory()->create();
 
         $this->actingAs($user);
 
-        Livewire::test(CreatePost::class)
+        Livewire::test(CreatePost::class, ['neighborhood' => $neighborhood])
             ->set('title', 'Evento no bairro')
             ->set('body', 'Grande evento comunitário no parque do bairro.')
             ->set('categoryId', $category->id)
@@ -64,8 +67,9 @@ class ModerationTest extends TestCase
     {
         $user = User::factory()->create();
         $category = Category::factory()->create(['type' => 'business']);
+        $neighborhood = Neighborhood::factory()->create();
 
-        $this->actingAs($user)->post(route('businesses.store'), [
+        $this->actingAs($user)->post(route('neighborhood.businesses.store', $neighborhood->routeParameters()), [
             'name' => 'Padaria do João',
             'category_ids' => [$category->id],
             'neighborhood' => 'Centro',
