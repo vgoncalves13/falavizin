@@ -14,16 +14,14 @@ class LegacyNeighborhoodRedirectController extends Controller
     {
         $neighborhood = $this->currentNeighborhood(request());
 
-        $segments = match ($type) {
-            'feed' => 'feed',
-            'servicos' => 'servicos',
-            default => $type,
+        $route = match ($type) {
+            'feed' => 'neighborhood.feed.index',
+            'servicos' => 'neighborhood.businesses.index',
+            default => abort(404),
         };
 
-        return redirect()->to(
-            "/{$neighborhood->state_code}/{$neighborhood->city_slug}/{$neighborhood->slug}/{$segments}",
-            302,
-        )->withInput(request()->query());
+        return redirect()->route($route, $neighborhood->routeParameters())
+            ->withInput(request()->query());
     }
 
     public function post(Post $post): RedirectResponse

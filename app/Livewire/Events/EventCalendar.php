@@ -2,12 +2,15 @@
 
 namespace App\Livewire\Events;
 
+use App\Models\Neighborhood;
 use App\Models\Post;
 use Carbon\Carbon;
 use Livewire\Component;
 
 class EventCalendar extends Component
 {
+    public Neighborhood $neighborhood;
+
     public string $currentMonth;
 
     public ?string $selectedDate = null;
@@ -51,6 +54,7 @@ class EventCalendar extends Component
         $end = $start->copy()->endOfMonth()->endOfDay();
 
         $events = Post::query()
+            ->forNeighborhood($this->neighborhood)
             ->approved()
             ->whereHas('category', fn ($q) => $q->where('slug', 'evento'))
             ->whereNotNull('event_starts_at')
@@ -67,7 +71,10 @@ class EventCalendar extends Component
                 'id' => $event->id,
                 'title' => $event->title,
                 'time' => $event->event_starts_at->format('H:i'),
-                'url' => route('feed.show', $event->slug),
+                'url' => route('neighborhood.feed.show', [
+                    ...$this->neighborhood->routeParameters(),
+                    'post' => $event->slug,
+                ]),
             ];
         }
     }

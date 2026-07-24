@@ -516,9 +516,11 @@
             </div>
 
             {{-- Calendário de Eventos --}}
-            <div data-reveal data-reveal-d2>
-                <livewire:events.event-calendar />
-            </div>
+            @isset($neighborhood)
+                <div data-reveal data-reveal-d2>
+                    <livewire:events.event-calendar :neighborhood="$neighborhood" />
+                </div>
+            @endisset
 
             {{-- Promoções --}}
             @if($recentPromotions->isNotEmpty())

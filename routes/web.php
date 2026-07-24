@@ -46,10 +46,10 @@ Route::prefix('{state}/{city}/{neighborhood}')
             Route::get('/feed', [PostController::class, 'index'])->name('feed.index');
             Route::get('/servicos', [BusinessController::class, 'index'])->name('businesses.index');
             Route::get('/servicos/mapa', [BusinessController::class, 'map'])->name('businesses.map');
-            Route::get('/categoria/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
+            Route::get('/categoria/{category}', [CategoryController::class, 'show'])->withoutScopedBindings()->name('categories.show');
             Route::get('/promocoes', [PromotionController::class, 'index'])->name('promotions.index');
             Route::get('/pulso', [PulsoController::class, 'index'])->name('pulso.index');
-            Route::get('/eventos', fn (Neighborhood $neighborhood) => view('events.index', compact('neighborhood')))
+            Route::get('/eventos', fn () => view('events.index', ['neighborhood' => request()->route('neighborhood')]))
                 ->name('events.index');
         });
 

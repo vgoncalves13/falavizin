@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\BusinessStatus;
 use App\Models\Business;
+use App\Models\Neighborhood;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -13,6 +14,8 @@ class SearchController extends Controller
     public function index(Request $request): View
     {
         $query = $request->string('q')->trim();
+        /** @var Neighborhood|null $neighborhood */
+        $neighborhood = $request->route('neighborhood');
 
         $posts = collect();
         $businesses = collect();
@@ -20,6 +23,7 @@ class SearchController extends Controller
         if ($query->isNotEmpty()) {
             $posts = Post::query()
                 ->approved()
+                ->when($neighborhood, fn ($q) => $q->forNeighborhood($neighborhood))
                 ->where(fn ($q) => $q
                     ->where('title', 'like', "%{$query}%")
                     ->orWhere('body', 'like', "%{$query}%")
@@ -31,6 +35,7 @@ class SearchController extends Controller
 
             $businesses = Business::query()
                 ->where('status', BusinessStatus::Approved)
+                ->when($neighborhood, fn ($q) => $q->where('neighborhood_id', $neighborhood->id))
                 ->where(fn ($q) => $q
                     ->where('name', 'like', "%{$query}%")
                     ->orWhere('description', 'like', "%{$query}%")
@@ -42,6 +47,6 @@ class SearchController extends Controller
                 ->get();
         }
 
-        return view('search.index', compact('query', 'posts', 'businesses'));
+        return view('search.index', compact('query', 'posts', 'businesses', 'neighborhood'));
     }
 }

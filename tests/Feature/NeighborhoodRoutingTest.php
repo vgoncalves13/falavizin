@@ -97,7 +97,7 @@ class NeighborhoodRoutingTest extends TestCase
         $this->withCookie('last_neighborhood_id', (string) $neighborhood->id)
             ->get(route('feed.index'))
             ->assertStatus(302)
-            ->assertRedirectContains("/{$neighborhood->state_code}/{$neighborhood->city_slug}/{$neighborhood->slug}/feed");
+            ->assertRedirect(route('neighborhood.feed.index', $neighborhood->routeParameters()));
     }
 
     public function test_legacy_businesses_index_redirects_to_neighborhood_businesses(): void
@@ -112,7 +112,7 @@ class NeighborhoodRoutingTest extends TestCase
         $this->withCookie('last_neighborhood_id', (string) $neighborhood->id)
             ->get(route('businesses.index'))
             ->assertStatus(302)
-            ->assertRedirectContains("/{$neighborhood->state_code}/{$neighborhood->city_slug}/{$neighborhood->slug}/servicos");
+            ->assertRedirect(route('neighborhood.businesses.index', $neighborhood->routeParameters()));
     }
 
     public function test_legacy_business_show_redirects_permanently_to_canonical_url(): void

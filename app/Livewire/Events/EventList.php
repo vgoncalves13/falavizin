@@ -3,6 +3,7 @@
 namespace App\Livewire\Events;
 
 use App\Models\Category;
+use App\Models\Neighborhood;
 use App\Models\Post;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -11,6 +12,8 @@ use Livewire\WithPagination;
 class EventList extends Component
 {
     use WithPagination;
+
+    public Neighborhood $neighborhood;
 
     #[Url]
     public string $filter = 'upcoming';
@@ -24,6 +27,7 @@ class EventList extends Component
     public function render()
     {
         $query = Post::query()
+            ->forNeighborhood($this->neighborhood)
             ->approved()
             ->whereHas('category', fn ($q) => $q->where('slug', 'evento'))
             ->whereNotNull('event_starts_at')

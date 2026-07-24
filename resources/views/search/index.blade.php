@@ -8,7 +8,7 @@
             <h1 class="text-2xl font-bold text-stone-900 mb-4" style="font-family: var(--font-display)">
                 Buscar no FalaVizin
             </h1>
-            <form action="{{ route('search.index') }}" method="GET">
+            <form action="{{ $neighborhood ? route('neighborhood.search.index', $neighborhood->routeParameters()) : route('search.index') }}" method="GET">
                 <div class="relative max-w-xl">
                     <x-heroicon-o-magnifying-glass class="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400 pointer-events-none" />
                     <input

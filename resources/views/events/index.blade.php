@@ -14,6 +14,6 @@
             @endauth
         </div>
 
-        <livewire:events.event-list />
+        <livewire:events.event-list :neighborhood="$neighborhood" />
     </div>
 </x-app-layout>

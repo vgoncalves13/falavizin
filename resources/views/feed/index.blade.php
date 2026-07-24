@@ -17,6 +17,6 @@
             </div>
         @endsession
 
-        <livewire:feed.feed-list />
+        <livewire:feed.feed-list :neighborhood="$neighborhood" />
     </div>
 </x-app-layout>

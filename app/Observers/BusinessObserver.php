@@ -12,16 +12,22 @@ final class BusinessObserver implements ShouldHandleEventsAfterCommit
 
     public function saved(Business $business): void
     {
-        $this->cache->forget($business->neighborhood_id);
+        if ($business->neighborhood_id) {
+            $this->cache->forget($business->neighborhood_id);
+        }
     }
 
     public function deleted(Business $business): void
     {
-        $this->cache->forget($business->neighborhood_id);
+        if ($business->neighborhood_id) {
+            $this->cache->forget($business->neighborhood_id);
+        }
     }
 
     public function restored(Business $business): void
     {
-        $this->cache->forget($business->neighborhood_id);
+        if ($business->neighborhood_id) {
+            $this->cache->forget($business->neighborhood_id);
+        }
     }
 }

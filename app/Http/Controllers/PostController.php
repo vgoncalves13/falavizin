@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Neighborhood;
 use App\Models\Post;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
@@ -11,7 +12,10 @@ class PostController extends Controller
 {
     public function index(): View
     {
-        return view('feed.index');
+        /** @var Neighborhood $neighborhood */
+        $neighborhood = request()->route('neighborhood');
+
+        return view('feed.index', compact('neighborhood'));
     }
 
     public function show(): View
@@ -31,6 +35,7 @@ class PostController extends Controller
 
         $relatedPosts = Post::query()
             ->approved()
+            ->forNeighborhood($post->neighborhood_id)
             ->where('category_id', $post->category_id)
             ->where('id', '!=', $post->id)
             ->with(['user', 'category', 'serviceCategory'])
