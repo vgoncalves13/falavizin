@@ -202,12 +202,17 @@ class BusinessController extends Controller
             ->with('success', "Solicitação de upgrade de \"{$business->name}\" dispensada.");
     }
 
-    public function destroy(Business $business): RedirectResponse
+    public function destroy(): RedirectResponse
     {
-        Gate::authorize('delete', $business);
-
         /** @var Neighborhood $neighborhood */
         $neighborhood = request()->route('neighborhood');
+        $business = Business::query()
+            ->where('slug', request()->route('business'))
+            ->forNeighborhood($neighborhood)
+            ->firstOrFail();
+
+        Gate::authorize('delete', $business);
+
         $name = $business->name;
 
         $business->delete();

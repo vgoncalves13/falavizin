@@ -81,7 +81,8 @@
                         @endcan
                         @can('delete', $business)
                             <form action="{{ route('neighborhood.businesses.destroy', [...$business->localNeighborhood->routeParameters(), 'business' => $business]) }}" method="POST"
-                                  onsubmit="return confirm('Tem certeza que deseja remover \"{{ $business->name }}\"? Esta ação não pode ser desfeita.')">
+                                  data-confirm="Tem certeza que deseja remover &quot;{{ $business->name }}&quot;? Esta ação não pode ser desfeita."
+                                  onsubmit="return window.confirm(this.dataset.confirm)">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"

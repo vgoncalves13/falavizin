@@ -277,6 +277,23 @@ class BusinessTest extends TestCase
         $this->assertDatabaseHas('businesses', ['name' => 'Editado pelo Admin']);
     }
 
+    public function test_admin_can_delete_business_from_neighborhood_route(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $business = Business::factory()->create();
+
+        $response = $this->actingAs($admin)->delete(route('neighborhood.businesses.destroy', [
+            ...$business->localNeighborhood->routeParameters(),
+            'business' => $business,
+        ]));
+
+        $response->assertRedirect(route(
+            'neighborhood.businesses.index',
+            $business->localNeighborhood->routeParameters(),
+        ));
+        $this->assertSoftDeleted('businesses', ['id' => $business->id]);
+    }
+
     public function test_promotions_index_is_accessible_to_guests(): void
     {
         $response = $this->get(route('promotions.index'));
