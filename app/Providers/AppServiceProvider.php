@@ -15,9 +15,11 @@ use App\Observers\PostObserver;
 use App\Observers\PromotionObserver;
 use App\Observers\UserObserver;
 use Illuminate\Notifications\Events\NotificationFailed;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use NotificationChannels\WebPush\Events\NotificationFailed as WebPushFailed;
 
@@ -62,6 +64,14 @@ class AppServiceProvider extends ServiceProvider
                     'user_id' => $event->notifiable->getKey(),
                 ]);
             }
+        });
+
+        View::composer('layouts.navigation', function (\Illuminate\View\View $view): void {
+            $view->with('navigationNeighborhoods', Cache::remember(
+                'neighborhoods:active',
+                300,
+                fn () => Neighborhood::query()->active()->orderBy('sort_order')->orderBy('id')->get(),
+            ));
         });
 
         Event::listen(WebPushFailed::class, function (WebPushFailed $event): void {

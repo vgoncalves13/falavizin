@@ -61,6 +61,16 @@
                 </div>
             </form>
 
+            {{-- Neighborhood switcher (desktop) --}}
+            @php
+                $displayNeighborhood = $currentNeighborhood ?? auth()->user()?->primaryNeighborhood;
+            @endphp
+            @if($displayNeighborhood && isset($navigationNeighborhoods))
+                <div data-neighborhood-switcher-desktop class="hidden lg:block">
+                    <x-neighborhood-switcher :current="$displayNeighborhood" :neighborhoods="$navigationNeighborhoods" />
+                </div>
+            @endif
+
             <!-- User Menu -->
             <div class="flex items-center gap-1 sm:gap-3">
                 @auth
@@ -164,6 +174,13 @@
 
     <!-- Mobile Menu -->
     <div x-show="open" x-transition id="mobile-menu" class="sm:hidden border-t border-stone-200">
+        {{-- Neighborhood switcher (mobile) --}}
+        @if($displayNeighborhood && isset($navigationNeighborhoods))
+            <div data-neighborhood-switcher-mobile class="border-b border-stone-200">
+                <x-neighborhood-switcher :current="$displayNeighborhood" :neighborhoods="$navigationNeighborhoods" mobile />
+            </div>
+        @endif
+
         <div class="px-4 pt-3 pb-2">
             <form action="{{ route('search.index') }}" method="GET" role="search">
                 <div class="relative">

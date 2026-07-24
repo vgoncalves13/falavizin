@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\UpdateProfileAction;
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\Neighborhood;
 use App\Models\Post;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -82,8 +83,11 @@ class ProfileController extends Controller
 
     public function edit(Request $request): View
     {
+        $neighborhoods = Neighborhood::query()->active()->orderBy('sort_order')->orderBy('name')->get();
+
         return view('profile.edit', [
             'user' => $request->user(),
+            'neighborhoods' => $neighborhoods,
         ]);
     }
 

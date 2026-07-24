@@ -1,12 +1,16 @@
 <x-app-layout>
-    <x-slot name="title">{{ $query->isNotEmpty() ? 'Busca: ' . $query : 'Buscar' }}</x-slot>
+    <x-slot name="title">{{ $query->isNotEmpty() ? 'Busca: ' . $query : ($neighborhood ? 'Buscando em ' . $neighborhood->name : 'Buscar') }}</x-slot>
 
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {{-- Header com campo de busca --}}
         <div class="mb-8">
             <h1 class="text-2xl font-bold text-stone-900 mb-4" style="font-family: var(--font-display)">
-                Buscar no FalaVizin
+                @if($neighborhood)
+                    Buscando em {{ $neighborhood->name }}
+                @else
+                    Buscar no FalaVizin
+                @endif
             </h1>
             <form action="{{ $neighborhood ? route('neighborhood.search.index', $neighborhood->routeParameters()) : route('search.index') }}" method="GET">
                 <div class="relative max-w-xl">

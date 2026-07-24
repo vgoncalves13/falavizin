@@ -1,8 +1,14 @@
-<x-app-layout title="Eventos">
+<x-app-layout title="{{ $neighborhood ? 'Eventos em ' . $neighborhood->name : 'Eventos' }}">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-stone-900" style="font-family: var(--font-display)">Eventos</h1>
+                <h1 class="text-2xl font-bold text-stone-900" style="font-family: var(--font-display)">
+                    @if($neighborhood)
+                        Eventos em {{ $neighborhood->name }}
+                    @else
+                        Eventos
+                    @endif
+                </h1>
                 <p class="text-sm text-stone-500 mt-1">Acompanhe os eventos do bairro</p>
             </div>
             @auth

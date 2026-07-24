@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Neighborhood;
 use App\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -28,6 +29,11 @@ class ProfileUpdateRequest extends FormRequest
             ],
             'phone' => ['nullable', 'string', 'max:20'],
             'neighborhood' => ['nullable', 'string', 'max:100'],
+            'neighborhood_id' => [
+                'nullable',
+                'integer',
+                Rule::exists(Neighborhood::class, 'id')->where('is_active', true),
+            ],
             'avatar' => ['nullable', 'image', 'mimes:jpeg,png,webp', 'max:5120'],
         ];
     }

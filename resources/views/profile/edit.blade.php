@@ -85,14 +85,19 @@
                     </div>
 
                     <div>
-                        <label for="neighborhood" class="block text-sm font-medium text-stone-700 mb-1">
+                        <label for="neighborhood_id" class="block text-sm font-medium text-stone-700 mb-1">
                             Bairro <span class="text-stone-400 font-normal">(opcional)</span>
                         </label>
-                        <input type="text" id="neighborhood" name="neighborhood"
-                               value="{{ old('neighborhood', $user->neighborhood) }}"
-                               placeholder="Ex: Engenho da Rainha"
-                               class="w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none" />
-                        @error('neighborhood')
+                        <select id="neighborhood_id" name="neighborhood_id"
+                                class="w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none">
+                            <option value="">Selecione seu bairro</option>
+                            @foreach($neighborhoods as $neighborhood)
+                                <option value="{{ $neighborhood->id }}" {{ old('neighborhood_id', $user->neighborhood_id) == $neighborhood->id ? 'selected' : '' }}>
+                                    {{ $neighborhood->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('neighborhood_id')
                             <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                         @enderror
                     </div>

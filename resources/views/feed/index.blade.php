@@ -1,7 +1,13 @@
-<x-app-layout>
+<x-app-layout title="{{ $neighborhood ? 'Últimas notícias de ' . $neighborhood->name : 'Feed' }}">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-stone-900" style="font-family: var(--font-display)">Feed do Bairro</h1>
+            <h1 class="text-2xl font-bold text-stone-900" style="font-family: var(--font-display)">
+                @if($neighborhood)
+                    Últimas notícias de {{ $neighborhood->name }}
+                @else
+                    Feed do Bairro
+                @endif
+            </h1>
             @auth
                 <a href="{{ route('feed.create') }}"
                    class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors duration-150">

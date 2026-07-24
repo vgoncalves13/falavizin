@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Models\Neighborhood;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -39,6 +40,12 @@ class UpdateProfileAction
             }
 
             $emailChanged = ($data['email'] ?? $user->email) !== $user->email;
+
+            if (array_key_exists('neighborhood_id', $data) && $data['neighborhood_id'] !== null) {
+                $neighborhood = Neighborhood::query()->active()->findOrFail($data['neighborhood_id']);
+                $data['neighborhood'] = $neighborhood->name;
+            }
+
             $user->fill($data);
 
             if ($emailChanged) {
