@@ -56,7 +56,7 @@ class ProfileController extends Controller
         }
 
         $requestedTab = $request->string('tab')->value();
-        $activeTab = in_array($requestedTab, ['posts', 'businesses', 'comments', 'favorites', 'saved', 'requests'], true)
+        $activeTab = in_array($requestedTab, ['posts', 'businesses', 'comments', 'favorites', 'saved', 'requests', 'notifications'], true)
             ? $requestedTab
             : 'posts';
 

@@ -85,6 +85,13 @@
                             <x-dropdown-link :href="route('profile.edit')">
                                 Editar perfil
                             </x-dropdown-link>
+                            <button
+                                type="button"
+                                data-pwa-install
+                                class="block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 transition duration-150 ease-in-out hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                            >
+                                Instalar aplicativo
+                            </button>
                             @if(Auth::user()->is_admin || Auth::user()->isModerator())
                                 @php
                                     $pendingCount = \Illuminate\Support\Facades\Cache::remember('admin:moderation_count', 120, fn () =>
@@ -121,10 +128,12 @@
                             @endif
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault(); this.closest('form').submit();">
+                                <button
+                                    type="submit"
+                                    class="block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 transition duration-150 ease-in-out hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                                >
                                     {{ __('Sair') }}
-                                </x-dropdown-link>
+                                </button>
                             </form>
                         </x-slot>
                     </x-dropdown>
@@ -197,6 +206,14 @@
                 <x-heroicon-o-signal class="w-5 h-5" />
                 Pulso
             </a>
+            <button
+                type="button"
+                data-pwa-install
+                class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-stone-700 hover:bg-stone-100"
+            >
+                <x-heroicon-o-arrow-down-tray class="h-5 w-5" />
+                Instalar aplicativo
+            </button>
         </div>
 
         <div class="px-4 py-3 border-t border-stone-200">

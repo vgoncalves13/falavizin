@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Actions\DeletePushSubscriptionAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\LogoutRequest;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -34,8 +35,14 @@ class AuthenticatedSessionController extends Controller
     /**
      * Destroy an authenticated session.
      */
-    public function destroy(Request $request): RedirectResponse
-    {
+    public function destroy(
+        LogoutRequest $request,
+        DeletePushSubscriptionAction $deletePushSubscription,
+    ): RedirectResponse {
+        if ($endpoint = $request->validated('push_endpoint')) {
+            $deletePushSubscription->execute($request->user(), $endpoint);
+        }
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

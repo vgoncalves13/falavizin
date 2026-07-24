@@ -110,6 +110,17 @@ class ProfileTest extends TestCase
             ->assertOk();
     }
 
+    public function test_notification_preferences_tab_can_be_opened_directly(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get(route('profile.account', ['tab' => 'notifications']))
+            ->assertOk()
+            ->assertViewHas('activeTab', 'notifications')
+            ->assertSee('Notificações neste dispositivo');
+    }
+
     public function test_account_collections_are_paginated_independently(): void
     {
         $user = User::factory()->create();

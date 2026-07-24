@@ -51,4 +51,20 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
         $response->assertRedirect('/');
     }
+
+    public function test_logout_removes_the_current_device_push_subscription(): void
+    {
+        $user = User::factory()->create();
+        $endpoint = 'https://push.example.test/current-device';
+        $user->updatePushSubscription($endpoint, 'public-key', 'auth-token', 'aes128gcm');
+
+        $this->actingAs($user)->post('/logout', [
+            'push_endpoint' => $endpoint,
+        ])->assertRedirect('/');
+
+        $this->assertGuest();
+        $this->assertDatabaseMissing('push_subscriptions', [
+            'endpoint' => $endpoint,
+        ]);
+    }
 }

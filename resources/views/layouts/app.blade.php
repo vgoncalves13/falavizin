@@ -4,6 +4,31 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        <meta name="theme-color" content="#FD5C3E">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="apple-mobile-web-app-title" content="FalaVizin">
+        <meta name="vapid-public-key" content="{{ config('webpush.vapid.public_key') }}">
+        <meta name="authenticated-user-id" content="{{ auth()->id() }}">
+        @php
+            $pwaInstallSafeRoutes = [
+                'home',
+                'feed.index',
+                'businesses.index',
+                'businesses.map',
+                'promotions.index',
+                'ranking.index',
+                'pulso.index',
+                'events.index',
+                'search.index',
+                'categories.show',
+                'users.show',
+            ];
+        @endphp
+        <meta name="pwa-install-safe" content="{{ in_array(request()->route()?->getName(), $pwaInstallSafeRoutes, true) ? 'true' : 'false' }}">
+        <link rel="manifest" href="/manifest.webmanifest">
+        <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
 
         <title>{{ isset($title) ? $title . ' — ' : '' }}{{ config('app.name', 'FalaVizin') }}</title>
 
@@ -32,6 +57,7 @@
                 {{ $slot }}
             </main>
         </div>
+        <x-pwa-install-prompt />
         @livewireScripts
         @stack('scripts')
     </body>
