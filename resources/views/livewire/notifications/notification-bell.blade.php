@@ -23,7 +23,7 @@
          x-transition:leave="transition ease-in duration-100"
          x-transition:leave-start="opacity-100 scale-100"
          x-transition:leave-end="opacity-0 scale-95"
-         class="absolute right-0 mt-2 w-[min(20rem,calc(100vw-2rem))] bg-white rounded-xl shadow-lg border border-stone-200 z-50 overflow-hidden"
+         class="absolute -right-10 sm:-right-11 md:right-0 mt-2 w-[min(20rem,calc(100vw-2rem))] bg-white rounded-xl shadow-lg border border-stone-200 z-50 overflow-hidden"
          style="display: none;"
          role="menu"
          aria-label="Menu de notificações">
