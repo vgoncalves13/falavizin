@@ -146,11 +146,17 @@ class NeighborhoodManagementTest extends TestCase
             'name' => 'Copacabana',
             'city' => 'Rio de Janeiro',
             'state_code' => 'RJ',
+            'latitude' => -22.9711,
+            'longitude' => -43.1823,
         ]);
 
         Livewire::actingAs($admin)
             ->test(NeighborhoodManager::class)
             ->call('edit', $neighborhood->id)
+            ->assertSee('data-neighborhood-map', false)
+            ->assertSee('Buscar bairro no mapa')
+            ->assertSet('latitude', '-22.97110000')
+            ->assertSet('longitude', '-43.18230000')
             ->set('name', 'Copacabana Atualizado')
             ->call('save')
             ->assertHasNoErrors();

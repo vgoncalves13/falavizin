@@ -69,30 +69,66 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-stone-700 mb-1">Latitude</label>
-                        <input type="number" step="any" wire:model="latitude" placeholder="-22.9711"
-                               class="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500" />
-                        @error('latitude')
-                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                        @enderror
+                <div x-data="neighborhoodMap(@entangle('latitude'), @entangle('longitude'), @js($name))" class="space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-stone-700 mb-1">Latitude</label>
+                            <input type="number" step="any" x-model="latitude" x-on:change="moveMarker()" placeholder="-22.9711"
+                                   class="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500" />
+                            @error('latitude')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-stone-700 mb-1">Longitude</label>
+                            <input type="number" step="any" x-model="longitude" x-on:change="moveMarker()" placeholder="-43.1823"
+                                   class="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500" />
+                            @error('longitude')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-stone-700 mb-1">Ordenação</label>
+                            <input type="number" wire:model="sortOrder" min="0"
+                                   class="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500" />
+                            @error('sort_order')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-stone-700 mb-1">Longitude</label>
-                        <input type="number" step="any" wire:model="longitude" placeholder="-43.1823"
-                               class="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500" />
-                        @error('longitude')
-                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-stone-700 mb-1">Ordenação</label>
-                        <input type="number" wire:model="sortOrder" min="0"
-                               class="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500" />
-                        @error('sort_order')
-                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                        @enderror
+
+                    <div data-neighborhood-map wire:ignore class="overflow-hidden rounded-xl border border-stone-200 bg-stone-50">
+                        <form x-on:submit.prevent="searchPlace()" class="flex gap-2 border-b border-stone-200 bg-white p-3">
+                            <label for="neighborhood-map-search" class="sr-only">Buscar bairro no mapa</label>
+                            <div class="relative flex-1">
+                                <x-heroicon-o-magnifying-glass class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+                                <input
+                                    id="neighborhood-map-search"
+                                    type="search"
+                                    x-model="searchQuery"
+                                    placeholder="Buscar bairro no mapa"
+                                    class="w-full rounded-lg border border-stone-300 py-2 pl-9 pr-3 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                :disabled="searching"
+                                class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-700 disabled:opacity-60"
+                            >
+                                <span x-show="!searching">Buscar</span>
+                                <span x-show="searching">Buscando...</span>
+                            </button>
+                        </form>
+                        <p
+                            x-show="searchMessage"
+                            x-text="searchMessage"
+                            :class="searchFailed ? 'text-red-600' : 'text-stone-500'"
+                            class="border-b border-stone-200 bg-white px-3 py-2 text-xs"
+                        ></p>
+                        <div x-ref="map" class="relative z-0 h-72 w-full" role="application" aria-label="Mapa para selecionar as coordenadas do bairro"></div>
+                        <p class="border-t border-stone-200 px-3 py-2 text-xs text-stone-500">
+                            Clique no mapa ou arraste o marcador para definir latitude e longitude.
+                        </p>
                     </div>
                 </div>
 
@@ -165,3 +201,121 @@
         @endforelse
     </div>
 </div>
+
+@push('head')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+@endpush
+
+@push('scripts')
+<script>
+function neighborhoodMap(latitude, longitude, initialSearch) {
+    return {
+        map: null,
+        marker: null,
+        latitude,
+        longitude,
+        searchQuery: initialSearch,
+        searchMessage: '',
+        searchFailed: false,
+        searching: false,
+
+        init() {
+            const lat = Number.parseFloat(this.latitude);
+            const lng = Number.parseFloat(this.longitude);
+            const hasCoordinates = Number.isFinite(lat) && Number.isFinite(lng);
+            const center = hasCoordinates ? [lat, lng] : [-22.9068, -43.1729];
+
+            this.map = L.map(this.$refs.map).setView(center, 13);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+            }).addTo(this.map);
+
+            if (hasCoordinates) {
+                this.addMarker(lat, lng);
+            }
+
+            this.map.on('click', (event) => {
+                this.setPoint(event.latlng.lat, event.latlng.lng);
+            });
+        },
+
+        addMarker(lat, lng) {
+            this.marker = L.marker([lat, lng], { draggable: true }).addTo(this.map);
+            this.marker.on('dragend', (event) => {
+                const point = event.target.getLatLng();
+                this.setPoint(point.lat, point.lng);
+            });
+        },
+
+        setPoint(lat, lng) {
+            this.latitude = lat.toFixed(7);
+            this.longitude = lng.toFixed(7);
+            this.marker ? this.marker.setLatLng([lat, lng]) : this.addMarker(lat, lng);
+        },
+
+        moveMarker() {
+            const lat = Number.parseFloat(this.latitude);
+            const lng = Number.parseFloat(this.longitude);
+
+            if (Number.isFinite(lat) && Number.isFinite(lng)) {
+                this.marker ? this.marker.setLatLng([lat, lng]) : this.addMarker(lat, lng);
+                this.map.panTo([lat, lng]);
+            }
+        },
+
+        async searchPlace() {
+            const query = this.searchQuery.trim();
+
+            if (!query) {
+                return;
+            }
+
+            this.searching = true;
+            this.searchMessage = '';
+            this.searchFailed = false;
+
+            try {
+                const params = new URLSearchParams({
+                    format: 'jsonv2',
+                    limit: '1',
+                    countrycodes: 'br',
+                    q: query,
+                });
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?${params}`);
+
+                if (!response.ok) {
+                    throw new Error('Search failed');
+                }
+
+                const [place] = await response.json();
+
+                if (!place) {
+                    this.searchFailed = true;
+                    this.searchMessage = 'Bairro não encontrado.';
+
+                    return;
+                }
+
+                const lat = Number.parseFloat(place.lat);
+                const lng = Number.parseFloat(place.lon);
+
+                this.setPoint(lat, lng);
+                this.map.setView([lat, lng], 15);
+                this.searchMessage = place.display_name;
+            } catch {
+                this.searchFailed = true;
+                this.searchMessage = 'Não foi possível buscar agora. Tente novamente.';
+            } finally {
+                this.searching = false;
+            }
+        },
+
+        destroy() {
+            this.map?.remove();
+        },
+    };
+}
+</script>
+@endpush

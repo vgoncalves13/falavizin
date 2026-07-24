@@ -111,7 +111,7 @@
 
         {{-- Map --}}
         <div class="lg:col-span-2 bg-white rounded-xl border border-stone-200 overflow-hidden" wire:ignore>
-            <div id="places-map" class="w-full h-80 lg:h-full min-h-72"></div>
+            <div id="places-map" class="relative z-0 w-full h-80 lg:h-full min-h-72"></div>
             <p class="text-xs text-stone-400 px-4 py-2">
                 Clique no mapa para definir o centro da busca.
             </p>
