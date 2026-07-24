@@ -2,16 +2,16 @@
     $displayNeighborhood = $currentNeighborhood ?? auth()->user()?->primaryNeighborhood ?? null;
 @endphp
 <nav x-data="{ open: false, searchOpen: false, moreOpen: false }" class="bg-white border-b border-stone-200 sticky top-0 z-50" aria-label="Navegação principal">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16 gap-4">
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
+        <div class="flex items-center h-16 gap-2 lg:gap-3">
             <!-- Logo -->
             <a href="{{ route('home') }}" class="shrink-0 flex items-center">
-                <img src="{{ asset('assets/images/logotipo.png') }}" alt="{{ config('app.name') }}" class="hidden sm:block h-9 w-auto">
-                <img src="{{ asset('assets/images/logo.png') }}" alt="{{ config('app.name') }}" class="block sm:hidden h-9 w-9 rounded-xl">
+                <img src="{{ asset('assets/images/logotipo.png') }}" alt="{{ config('app.name') }}" class="hidden xl:block h-9 w-auto">
+                <img src="{{ asset('assets/images/logo.png') }}" alt="{{ config('app.name') }}" class="block xl:hidden h-9 w-9 rounded-xl">
             </a>
 
-            <!-- md nav: 3 links + "Mais" dropdown -->
-            <div class="flex md:hidden lg:flex items-center gap-1 flex-1 justify-center lg:justify-start lg:ml-6">
+            <!-- Desktop navigation -->
+            <div data-desktop-navigation class="hidden min-w-0 shrink-0 items-center gap-1 md:ml-auto md:flex">
                 @if($displayNeighborhood)
                     <a href="{{ route('neighborhood.feed.index', $displayNeighborhood->routeParameters()) }}"
                        class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 {{ request()->routeIs('neighborhood.feed.*') ? 'bg-amber-50 text-amber-700' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50' }}">
@@ -24,75 +24,65 @@
                         <span class="hidden md:inline lg:inline">Serviços</span>
                     </a>
                     <a href="{{ route('neighborhood.promotions.index', $displayNeighborhood->routeParameters()) }}"
-                       class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 {{ request()->routeIs('neighborhood.promotions.*') ? 'bg-amber-50 text-amber-700' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50' }}">
-                        <x-heroicon-o-tag class="w-4 h-4 lg:hidden" />
-                        <span class="hidden md:inline lg:inline">Promoções</span>
+                       class="hidden items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 lg:flex {{ request()->routeIs('neighborhood.promotions.*') ? 'bg-amber-50 text-amber-700' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50' }}">
+                        Promoções
                     </a>
                 @endif
 
-                <!-- "Mais" dropdown: only visible on md, hidden on lg+ -->
-                <div class="relative lg:hidden" x-on:click.outside="moreOpen = false">
-                    <button @click="moreOpen = !moreOpen"
+                @if($displayNeighborhood)
+                    <a href="{{ route('neighborhood.events.index', $displayNeighborhood->routeParameters()) }}"
+                       class="hidden items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 xl:flex {{ request()->routeIs('neighborhood.events.*') ? 'bg-amber-50 text-amber-700' : 'text-stone-500 hover:text-stone-700 hover:bg-stone-50' }}">
+                        Eventos
+                    </a>
+                    <a href="{{ route('neighborhood.pulso.index', $displayNeighborhood->routeParameters()) }}"
+                       class="hidden items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 xl:flex {{ request()->routeIs('neighborhood.pulso.*') ? 'bg-amber-50 text-amber-700' : 'text-stone-500 hover:text-stone-700 hover:bg-stone-50' }}">
+                       Pulso
+                    </a>
+                @endif
+
+                <!-- Overflow links -->
+                <div class="relative shrink-0" x-on:click.outside="moreOpen = false">
+                    <button type="button" @click="moreOpen = !moreOpen"
+                        aria-haspopup="true" :aria-expanded="moreOpen.toString()"
                         class="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-50 transition-colors duration-150">
                         Mais
                         <x-heroicon-o-chevron-down class="w-3.5 h-3.5 transition-transform duration-150" x-bind:class="moreOpen && 'rotate-180'" />
                     </button>
                     <div x-show="moreOpen" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
-                         class="absolute left-0 mt-1 w-48 bg-white rounded-xl shadow-lg border border-stone-200 py-1 z-50">
+                         class="absolute left-0 mt-1 w-48 bg-white rounded-xl shadow-lg border border-stone-200 py-1 z-50"
+                         style="display: none;">
+                        @if($displayNeighborhood)
+                            <a href="{{ route('neighborhood.promotions.index', $displayNeighborhood->routeParameters()) }}" class="flex items-center gap-2 px-3 py-2 text-sm text-stone-700 hover:bg-stone-50 lg:hidden">
+                                <x-heroicon-o-tag class="w-4 h-4 text-stone-400" /> Promoções
+                            </a>
+                            <a href="{{ route('neighborhood.events.index', $displayNeighborhood->routeParameters()) }}" class="flex items-center gap-2 px-3 py-2 text-sm text-stone-700 hover:bg-stone-50 xl:hidden">
+                                <x-heroicon-o-calendar-days class="w-4 h-4 text-stone-400" /> Eventos
+                            </a>
+                            <a href="{{ route('neighborhood.pulso.index', $displayNeighborhood->routeParameters()) }}" class="flex items-center gap-2 px-3 py-2 text-sm text-stone-700 hover:bg-stone-50 xl:hidden">
+                                <x-heroicon-o-signal class="w-4 h-4 text-stone-400" /> Pulso
+                            </a>
+                        @endif
                         <a href="{{ route('ranking.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm text-stone-700 hover:bg-stone-50">
                             <x-heroicon-o-trophy class="w-4 h-4 text-stone-400" /> Ranking
                         </a>
-                        @if($displayNeighborhood)
-                            <a href="{{ route('neighborhood.pulso.index', $displayNeighborhood->routeParameters()) }}" class="flex items-center gap-2 px-3 py-2 text-sm text-stone-700 hover:bg-stone-50">
-                                <x-heroicon-o-signal class="w-4 h-4 text-stone-400" /> Pulso
-                            </a>
-                            <a href="{{ route('neighborhood.events.index', $displayNeighborhood->routeParameters()) }}" class="flex items-center gap-2 px-3 py-2 text-sm text-stone-700 hover:bg-stone-50">
-                                <x-heroicon-o-calendar-days class="w-4 h-4 text-stone-400" /> Eventos
-                            </a>
-                        @endif
                     </div>
                 </div>
-
-                <!-- lg+ secondary links -->
-                <a href="{{ route('ranking.index') }}"
-                   class="hidden lg:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 {{ request()->routeIs('ranking.*') ? 'bg-amber-50 text-amber-700' : 'text-stone-500 hover:text-stone-700 hover:bg-stone-50' }}">
-                    <x-heroicon-o-trophy class="w-4 h-4" />
-                    Ranking
-                </a>
-                @if($displayNeighborhood)
-                    <a href="{{ route('neighborhood.pulso.index', $displayNeighborhood->routeParameters()) }}"
-                       class="hidden lg:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 {{ request()->routeIs('neighborhood.pulso.*') ? 'bg-amber-50 text-amber-700' : 'text-stone-500 hover:text-stone-700 hover:bg-stone-50' }}">
-                        <x-heroicon-o-signal class="w-4 h-4" />
-                        Pulso
-                    </a>
-                    <a href="{{ route('neighborhood.events.index', $displayNeighborhood->routeParameters()) }}"
-                       class="hidden lg:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 {{ request()->routeIs('neighborhood.events.*') ? 'bg-amber-50 text-amber-700' : 'text-stone-500 hover:text-stone-700 hover:bg-stone-50' }}">
-                        <x-heroicon-o-calendar-days class="w-4 h-4" />
-                        Eventos
-                    </a>
-                @endif
             </div>
 
             <!-- Right side: search + neighborhood + actions -->
-            <div class="flex items-center gap-2 shrink-0">
-                <!-- Search (lg+) -->
-                <form action="{{ $displayNeighborhood ? route('neighborhood.search.index', $displayNeighborhood->routeParameters()) : route('search.index') }}" method="GET" role="search" class="hidden lg:block">
-                    <div class="relative">
-                        <label for="search-desktop" class="sr-only">Buscar</label>
-                        <x-heroicon-o-magnifying-glass class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" />
-                        <input id="search-desktop" type="search" name="q" value="{{ request('q') }}" placeholder="Buscar..."
-                            class="pl-8 pr-3 py-1.5 text-sm bg-stone-100 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 w-44 xl:w-52 transition-colors duration-150" />
-                    </div>
-                </form>
-
-                <!-- Search toggle (md) -->
-                <button @click="searchOpen = !searchOpen" class="lg:hidden p-2 rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-50 transition-colors">
+            <div class="ml-auto flex min-w-0 shrink-0 items-center gap-1 sm:gap-2 md:ml-0">
+                <!-- Search toggle (md+) -->
+                <button type="button" @click="searchOpen = !searchOpen"
+                    class="hidden p-2 rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-50 transition-colors md:inline-flex"
+                    aria-label="Abrir busca" aria-controls="desktop-search" :aria-expanded="searchOpen.toString()">
                     <x-heroicon-o-magnifying-glass class="w-5 h-5" />
                 </button>
 
-                <!-- Neighborhood switcher (xl+) -->
                 @if($displayNeighborhood && isset($navigationNeighborhoods))
-                    <div data-neighborhood-switcher-desktop class="hidden xl:block">
+                    <div data-neighborhood-switcher-mobile class="min-w-0 sm:w-44 md:hidden">
+                        <x-neighborhood-switcher :current="$displayNeighborhood" :neighborhoods="$navigationNeighborhoods" />
+                    </div>
+                    <div data-neighborhood-switcher-desktop class="hidden md:block xl:w-60">
                         <x-neighborhood-switcher :current="$displayNeighborhood" :neighborhoods="$navigationNeighborhoods" />
                     </div>
                 @endif
@@ -104,18 +94,19 @@
 
                     @if($displayNeighborhood)
                         <a href="{{ route('neighborhood.feed.create', $displayNeighborhood->routeParameters()) }}"
-                           class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors duration-150">
+                           class="hidden items-center gap-1.5 px-2.5 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors duration-150 lg:inline-flex xl:px-3 xl:py-1.5">
                             <x-heroicon-o-plus class="w-4 h-4" />
-                            <span class="hidden lg:inline">Publicar</span>
+                            <span class="hidden xl:inline">Publicar</span>
                         </a>
                     @endif
 
-                    <div class="relative hidden sm:block">
+                    <div class="relative hidden md:block">
                         <x-dropdown align="right" width="48">
                             <x-slot name="trigger">
                                 <button class="flex items-center gap-1.5 p-1.5 rounded-lg text-stone-600 hover:text-stone-900 hover:bg-stone-50 transition-colors duration-150">
                                     <x-avatar :user="Auth::user()" class="w-7 h-7 text-xs" />
-                                    <x-heroicon-o-chevron-down class="w-3.5 h-3.5 hidden lg:block" />
+                                    <span class="hidden max-w-28 truncate text-sm font-medium xl:block">{{ Auth::user()->name }}</span>
+                                    <x-heroicon-o-chevron-down class="hidden w-3.5 h-3.5 xl:block" />
                                 </button>
                             </x-slot>
                             <x-slot name="content">
@@ -164,11 +155,11 @@
                         </x-dropdown>
                     </div>
                 @else
-                    <a href="{{ route('login') }}" class="hidden sm:block text-sm font-medium text-stone-600 hover:text-stone-900 px-3 py-2">Entrar</a>
-                    <a href="{{ route('register') }}" class="hidden sm:inline-flex px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors">Cadastrar</a>
+                    <a href="{{ route('login') }}" class="hidden md:block text-sm font-medium text-stone-600 hover:text-stone-900 px-3 py-2">Entrar</a>
+                    <a href="{{ route('register') }}" class="hidden md:inline-flex px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors">Cadastrar</a>
                 @endauth
 
-                <button @click="open = !open" class="inline-flex md:hidden items-center justify-center p-2 rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-50 transition"
+                <button data-mobile-menu-button type="button" @click="open = !open" class="inline-flex md:hidden items-center justify-center p-2 rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-50 transition"
                     :aria-expanded="open.toString()" aria-controls="mobile-menu" aria-label="Menu">
                     <x-heroicon-o-bars-3 x-show="!open" class="h-5 w-5" />
                     <x-heroicon-o-x-mark x-show="open" class="h-5 w-5" />
@@ -177,24 +168,28 @@
         </div>
     </div>
 
-    <!-- Search bar (md, expandable) -->
-    <div x-show="searchOpen" x-transition class="lg:hidden border-t border-stone-100 px-4 py-2 bg-white">
+    <!-- Search bar (md+, expandable) -->
+    <div id="desktop-search" x-show="searchOpen" x-transition class="hidden border-t border-stone-100 px-4 py-2 bg-white md:block" style="display: none;">
         <form action="{{ $displayNeighborhood ? route('neighborhood.search.index', $displayNeighborhood->routeParameters()) : route('search.index') }}" method="GET" role="search">
             <div class="relative">
                 <x-heroicon-o-magnifying-glass class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" />
-                <input type="search" name="q" value="{{ request('q') }}" placeholder="Buscar posts, serviços..." autofocus
+                <label for="search-desktop" class="sr-only">Buscar</label>
+                <input id="search-desktop" type="search" name="q" value="{{ request('q') }}" placeholder="Buscar posts, serviços..."
                     class="w-full pl-9 pr-3 py-2 text-sm bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
             </div>
         </form>
     </div>
 
     <!-- Mobile Menu -->
-    <div x-show="open" x-transition id="mobile-menu" class="md:hidden border-t border-stone-200 bg-white">
-        @if($displayNeighborhood && isset($navigationNeighborhoods))
-            <div data-neighborhood-switcher-mobile class="border-b border-stone-100 px-4 py-3">
-                <x-neighborhood-switcher :current="$displayNeighborhood" :neighborhoods="$navigationNeighborhoods" mobile />
+    <div x-show="open" x-transition id="mobile-menu" class="md:hidden border-t border-stone-200 bg-white" style="display: none;">
+        <form action="{{ $displayNeighborhood ? route('neighborhood.search.index', $displayNeighborhood->routeParameters()) : route('search.index') }}" method="GET" role="search" class="border-b border-stone-100 px-4 py-3">
+            <div class="relative">
+                <label for="search-mobile" class="sr-only">Buscar</label>
+                <x-heroicon-o-magnifying-glass class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" />
+                <input id="search-mobile" type="search" name="q" value="{{ request('q') }}" placeholder="Buscar posts, serviços..."
+                    class="w-full pl-9 pr-3 py-2 text-sm bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
             </div>
-        @endif
+        </form>
 
         <div class="px-3 py-2 space-y-0.5">
             @if($displayNeighborhood)

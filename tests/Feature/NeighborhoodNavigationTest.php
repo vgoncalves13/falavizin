@@ -18,6 +18,8 @@ class NeighborhoodNavigationTest extends TestCase
         $this->get(route('neighborhood.home', $neighborhood->routeParameters()))
             ->assertOk()
             ->assertSee('Engenho da Rainha', false)
+            ->assertSee('data-desktop-navigation', false)
+            ->assertSee('data-mobile-menu-button', false)
             ->assertSee('data-neighborhood-switcher-desktop', false)
             ->assertSee('data-neighborhood-switcher-mobile', false);
     }

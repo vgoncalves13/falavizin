@@ -58,7 +58,7 @@ class PwaTest extends TestCase
 
     public function test_authenticated_mobile_navbar_has_one_persistent_notification_bell(): void
     {
-        $response = $this->actingAs(User::factory()->create())->get(route('home'));
+        $response = $this->actingAs(User::factory()->create())->followingRedirects()->get(route('home'));
 
         $response->assertOk()->assertSee('data-navbar-notification', false);
         $this->assertSame(1, substr_count($response->getContent(), route('notifications.index')));
