@@ -12,7 +12,7 @@
             class="h-12 w-12 shrink-0 rounded-xl"
         >
         <div class="min-w-0">
-            <h2 id="pwa-install-title" class="font-display text-base font-bold text-stone-900">
+            <h2 id="pwa-install-title" data-pwa-title class="font-display text-base font-bold text-stone-900">
                 Leve o FalaVizin com você
             </h2>
             <p id="pwa-install-description" data-pwa-install-description class="mt-1 text-sm leading-5 text-stone-600">

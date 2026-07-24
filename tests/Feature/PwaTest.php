@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -53,5 +54,23 @@ class PwaTest extends TestCase
         $this->assertStringContainsString('new URL(request.url).origin !== self.location.origin', $serviceWorker);
         $this->assertStringNotContainsString('cache.put(request', $serviceWorker);
         $this->assertStringContainsString('caches.match(OFFLINE_URL)', $serviceWorker);
+    }
+
+    public function test_authenticated_mobile_navbar_has_one_persistent_notification_bell(): void
+    {
+        $response = $this->actingAs(User::factory()->create())->get(route('home'));
+
+        $response->assertOk()->assertSee('data-navbar-notification', false);
+        $this->assertSame(1, substr_count($response->getContent(), route('notifications.index')));
+    }
+
+    public function test_installed_app_offers_push_configuration_without_requesting_permission(): void
+    {
+        $javascript = file_get_contents(resource_path('js/pwa.js'));
+
+        $this->assertStringContainsString('PUSH_OFFER_DISMISS_STORAGE_KEY', $javascript);
+        $this->assertStringContainsString("window.addEventListener('appinstalled'", $javascript);
+        $this->assertStringContainsString('isStandalone()', $javascript);
+        $this->assertStringContainsString('/minha-conta?tab=notifications', $javascript);
     }
 }

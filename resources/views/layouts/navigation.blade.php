@@ -62,96 +62,96 @@
             </form>
 
             <!-- User Menu -->
-            <div class="hidden sm:flex sm:items-center gap-3">
+            <div class="flex items-center gap-1 sm:gap-3">
                 @auth
-                    <livewire:notifications.notification-bell />
+                    <div data-navbar-notification>
+                        <livewire:notifications.notification-bell />
+                    </div>
                     <a href="{{ route('feed.create') }}"
-                       class="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors duration-150">
+                       class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors duration-150">
                         <x-heroicon-o-plus class="w-4 h-4" />
                         Publicar
                     </a>
-                    <x-dropdown align="right" width="48">
-                        <x-slot name="trigger">
-                            <button class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 rounded-lg hover:bg-stone-100 transition-colors duration-150">
-                                <x-avatar :user="Auth::user()" class="w-6 h-6 text-xs" />
-                                <span>{{ Auth::user()->name }}</span>
-                                <x-heroicon-o-chevron-down class="w-4 h-4" />
-                            </button>
-                        </x-slot>
-                        <x-slot name="content">
-                            <x-dropdown-link :href="route('profile.account')">
-                                Minha conta
-                            </x-dropdown-link>
-                            <x-dropdown-link :href="route('profile.edit')">
-                                Editar perfil
-                            </x-dropdown-link>
-                            <button
-                                type="button"
-                                data-pwa-install
-                                class="block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 transition duration-150 ease-in-out hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
-                            >
-                                Instalar aplicativo
-                            </button>
-                            @if(Auth::user()->is_admin || Auth::user()->isModerator())
-                                @php
-                                    $pendingCount = \Illuminate\Support\Facades\Cache::remember('admin:moderation_count', 120, fn () =>
-                                        \App\Models\Post::where('status', 'pending')->count() +
-                                        \App\Models\Business::where('status', 'pending')->count() +
-                                        \App\Models\Promotion::where('status', 'pending')->count() +
-                                        \App\Models\Business::whereNotNull('claim_user_id')->count() +
-                                        \App\Models\Post::whereNotNull('reported_at')->where('status', 'approved')->count() +
-                                        \App\Models\Business::whereNotNull('reported_at')->where('status', 'approved')->count() +
-                                        \App\Models\Promotion::whereNotNull('reported_at')->where('status', 'approved')->count()
-                                    );
-                                @endphp
-                                <x-dropdown-link :href="route('admin.moderation.index')">
-                                    <span class="flex items-center justify-between gap-2">
-                                        Moderação
-                                        @if($pendingCount > 0)
-                                            <span class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-red-500 rounded-full">
-                                                {{ $pendingCount > 99 ? '99+' : $pendingCount }}
-                                            </span>
-                                        @endif
-                                    </span>
+                    <div class="hidden sm:block">
+                        <x-dropdown align="right" width="48">
+                            <x-slot name="trigger">
+                                <button class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 rounded-lg hover:bg-stone-100 transition-colors duration-150">
+                                    <x-avatar :user="Auth::user()" class="w-6 h-6 text-xs" />
+                                    <span>{{ Auth::user()->name }}</span>
+                                    <x-heroicon-o-chevron-down class="w-4 h-4" />
+                                </button>
+                            </x-slot>
+                            <x-slot name="content">
+                                <x-dropdown-link :href="route('profile.account')">
+                                    Minha conta
                                 </x-dropdown-link>
-                                @if(Auth::user()->is_admin)
-                                    <x-dropdown-link :href="route('admin.stats')">
-                                        Estatísticas
-                                    </x-dropdown-link>
-                                    <x-dropdown-link :href="route('admin.google-places-import')">
-                                        Importar Google Places
-                                    </x-dropdown-link>
-                                    <x-dropdown-link :href="route('admin.settings')">
-                                        Configurações
-                                    </x-dropdown-link>
-                                @endif
-                            @endif
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
+                                <x-dropdown-link :href="route('profile.edit')">
+                                    Editar perfil
+                                </x-dropdown-link>
                                 <button
-                                    type="submit"
+                                    type="button"
+                                    data-pwa-install
                                     class="block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 transition duration-150 ease-in-out hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
                                 >
-                                    {{ __('Sair') }}
+                                    Instalar aplicativo
                                 </button>
-                            </form>
-                        </x-slot>
-                    </x-dropdown>
+                                @if(Auth::user()->is_admin || Auth::user()->isModerator())
+                                    @php
+                                        $pendingCount = \Illuminate\Support\Facades\Cache::remember('admin:moderation_count', 120, fn () =>
+                                            \App\Models\Post::where('status', 'pending')->count() +
+                                            \App\Models\Business::where('status', 'pending')->count() +
+                                            \App\Models\Promotion::where('status', 'pending')->count() +
+                                            \App\Models\Business::whereNotNull('claim_user_id')->count() +
+                                            \App\Models\Post::whereNotNull('reported_at')->where('status', 'approved')->count() +
+                                            \App\Models\Business::whereNotNull('reported_at')->where('status', 'approved')->count() +
+                                            \App\Models\Promotion::whereNotNull('reported_at')->where('status', 'approved')->count()
+                                        );
+                                    @endphp
+                                    <x-dropdown-link :href="route('admin.moderation.index')">
+                                        <span class="flex items-center justify-between gap-2">
+                                            Moderação
+                                            @if($pendingCount > 0)
+                                                <span class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-red-500 rounded-full">
+                                                    {{ $pendingCount > 99 ? '99+' : $pendingCount }}
+                                                </span>
+                                            @endif
+                                        </span>
+                                    </x-dropdown-link>
+                                    @if(Auth::user()->is_admin)
+                                        <x-dropdown-link :href="route('admin.stats')">
+                                            Estatísticas
+                                        </x-dropdown-link>
+                                        <x-dropdown-link :href="route('admin.google-places-import')">
+                                            Importar Google Places
+                                        </x-dropdown-link>
+                                        <x-dropdown-link :href="route('admin.settings')">
+                                            Configurações
+                                        </x-dropdown-link>
+                                    @endif
+                                @endif
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button
+                                        type="submit"
+                                        class="block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 transition duration-150 ease-in-out hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                                    >
+                                        {{ __('Sair') }}
+                                    </button>
+                                </form>
+                            </x-slot>
+                        </x-dropdown>
+                    </div>
                 @else
-                    <a href="{{ route('login') }}" class="text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors duration-150">
+                    <a href="{{ route('login') }}" class="hidden sm:block text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors duration-150">
                         Entrar
                     </a>
                     <a href="{{ route('register') }}"
-                       class="inline-flex items-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors duration-150">
+                       class="hidden sm:inline-flex items-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors duration-150">
                         Cadastrar
                     </a>
                 @endauth
-            </div>
-
-            <!-- Hamburger -->
-            <div class="flex items-center sm:hidden">
                 <button @click="open = !open"
-                    class="inline-flex items-center justify-center p-2 rounded-md text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition duration-150"
+                    class="inline-flex sm:hidden items-center justify-center p-2 rounded-md text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition duration-150"
                     :aria-expanded="open.toString()"
                     aria-controls="mobile-menu"
                     aria-label="Menu de navegação">
@@ -226,11 +226,6 @@
                    class="flex items-center gap-2 px-3 py-2 mb-1 bg-amber-600 text-white rounded-lg text-sm font-medium">
                     <x-heroicon-o-plus class="w-4 h-4" />
                     Publicar
-                </a>
-                <a href="{{ route('notifications.index') }}"
-                   class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">
-                    <x-heroicon-o-bell class="w-4 h-4" />
-                    Notificações
                 </a>
                 <a href="{{ route('profile.account') }}"
                    class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">

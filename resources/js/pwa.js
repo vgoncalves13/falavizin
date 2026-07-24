@@ -1,5 +1,7 @@
 const DISMISS_STORAGE_KEY = 'falavizin-pwa-dismissed-at';
 const PUSH_OWNER_STORAGE_KEY = 'falavizin-push-owner';
+const PUSH_OFFER_DISMISS_STORAGE_KEY = 'falavizin-push-offer-dismissed-at';
+const PUSH_OFFER_ACCEPTED_STORAGE_KEY = 'falavizin-push-offer-accepted';
 const INSTALL_DISMISS_DAYS = 14;
 
 let deferredInstallPrompt = null;
@@ -36,9 +38,15 @@ function showInstallPrompt(manual = false) {
     const iosInstructions = prompt.querySelector('[data-pwa-ios-instructions]');
     const confirmButton = prompt.querySelector('[data-pwa-confirm]');
     const description = prompt.querySelector('[data-pwa-install-description]');
+    const title = prompt.querySelector('[data-pwa-title]');
     const showIosInstructions = isIos() && !deferredInstallPrompt;
 
+    prompt.dataset.mode = 'install';
     iosInstructions?.classList.toggle('hidden', !showIosInstructions);
+
+    if (title) {
+        title.textContent = 'Leve o FalaVizin com você';
+    }
 
     if (description) {
         description.textContent = !deferredInstallPrompt && !showIosInstructions
@@ -64,6 +72,39 @@ function wasInstallRecentlyDismissed() {
     const dismissalPeriod = INSTALL_DISMISS_DAYS * 24 * 60 * 60 * 1000;
 
     return dismissedAt > Date.now() - dismissalPeriod;
+}
+
+function wasPushOfferRecentlyDismissed() {
+    const dismissedAt = Number(localStorage.getItem(PUSH_OFFER_DISMISS_STORAGE_KEY) || 0);
+    const dismissalPeriod = INSTALL_DISMISS_DAYS * 24 * 60 * 60 * 1000;
+
+    return dismissedAt > Date.now() - dismissalPeriod;
+}
+
+async function showPushOffer() {
+    if (
+        !supportsPush()
+        || !metaContent('vapid-public-key')
+        || Notification.permission === 'denied'
+        || localStorage.getItem(PUSH_OFFER_ACCEPTED_STORAGE_KEY)
+        || wasPushOfferRecentlyDismissed()
+        || await currentSubscription()
+    ) {
+        return;
+    }
+
+    const prompt = installPromptElement();
+
+    if (!prompt) {
+        return;
+    }
+
+    prompt.dataset.mode = 'push';
+    prompt.querySelector('[data-pwa-title]').textContent = 'Quer receber novidades da sua vizinhança?';
+    prompt.querySelector('[data-pwa-install-description]').textContent = 'Escolha quais avisos quer receber, como comentários, respostas e reações.';
+    prompt.querySelector('[data-pwa-ios-instructions]')?.classList.add('hidden');
+    prompt.querySelector('[data-pwa-confirm]').textContent = 'Configurar notificações';
+    prompt.classList.remove('hidden');
 }
 
 async function confirmInstall() {
@@ -99,6 +140,7 @@ function registerInstallExperience() {
         localStorage.removeItem(DISMISS_STORAGE_KEY);
         hideInstallPrompt();
         document.querySelectorAll('[data-pwa-install]').forEach((button) => button.classList.add('hidden'));
+        window.setTimeout(showPushOffer, 300);
     });
 
     document.addEventListener('click', (event) => {
@@ -107,12 +149,21 @@ function registerInstallExperience() {
         }
 
         if (event.target.closest('[data-pwa-dismiss]')) {
-            localStorage.setItem(DISMISS_STORAGE_KEY, String(Date.now()));
+            const storageKey = installPromptElement()?.dataset.mode === 'push'
+                ? PUSH_OFFER_DISMISS_STORAGE_KEY
+                : DISMISS_STORAGE_KEY;
+
+            localStorage.setItem(storageKey, String(Date.now()));
             hideInstallPrompt();
         }
 
         if (event.target.closest('[data-pwa-confirm]')) {
-            confirmInstall();
+            if (installPromptElement()?.dataset.mode === 'push') {
+                localStorage.setItem(PUSH_OFFER_ACCEPTED_STORAGE_KEY, 'true');
+                window.location.assign('/minha-conta?tab=notifications');
+            } else {
+                confirmInstall();
+            }
         }
     });
 
@@ -410,6 +461,10 @@ async function initializePwa() {
             initializePushSettings(),
             syncSubscriptionOwner(),
         ]);
+
+        if (isStandalone()) {
+            window.setTimeout(showPushOffer, 1200);
+        }
     } else {
         initializePushSettings();
     }
