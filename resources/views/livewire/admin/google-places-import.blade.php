@@ -33,11 +33,14 @@
             <h2 class="text-sm font-semibold text-stone-700 uppercase tracking-wide">Configuração da Busca</h2>
 
             <div>
-                <label class="block text-sm font-medium text-stone-700 mb-1">Bairro / Label</label>
-                <input type="text"
-                       wire:model="neighborhood"
-                       placeholder="Ex: Copacabana"
-                       class="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500" />
+                <label class="block text-sm font-medium text-stone-700 mb-1">Bairro</label>
+                <select wire:model.live="neighborhoodId"
+                        class="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                    <option value="0">Selecione um bairro</option>
+                    @foreach($neighborhoods as $neighborhood)
+                        <option value="{{ $neighborhood->id }}">{{ $neighborhood->name }}</option>
+                    @endforeach
+                </select>
             </div>
 
             <div>
@@ -254,6 +257,9 @@ function googlePlacesMap(lat, lng, radius) {
                 this.marker.setLatLng([lat, lng]);
                 this.circle.setLatLng([lat, lng]);
             });
+
+            this.$watch('lat', () => this.moveMarker());
+            this.$watch('lng', () => this.moveMarker());
         },
 
         updateCircle() {

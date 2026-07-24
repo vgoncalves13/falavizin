@@ -6,8 +6,9 @@ use App\Actions\ImportBusinessFromGoogleAction;
 use App\Jobs\EnrichBusinessFromGoogle;
 use App\Models\Business;
 use App\Models\Category;
-use App\Models\Setting;
+use App\Models\Neighborhood;
 use App\Services\GooglePlacesService;
+use Illuminate\Database\Eloquent\Collection;
 use Livewire\Component;
 
 class GooglePlacesImport extends Component
@@ -19,24 +20,17 @@ class GooglePlacesImport extends Component
         'administrative_area_level_3', 'country', 'colloquial_area',
     ];
 
+    public int $neighborhoodId = 0;
+
     public float $lat = 0;
 
     public float $lng = 0;
 
     public int $radius = 1000;
 
-    public string $neighborhood = '';
-
     public int $categoryId = 0;
 
     public int $maxResults = 20;
-
-    public function mount(): void
-    {
-        $this->lat = (float) Setting::get('neighborhood_lat', 0);
-        $this->lng = (float) Setting::get('neighborhood_lng', 0);
-        $this->neighborhood = Setting::get('neighborhood_name', '');
-    }
 
     /** @var array<int, array<string, mixed>> */
     public array $results = [];
@@ -48,10 +42,28 @@ class GooglePlacesImport extends Component
 
     public bool $searched = false;
 
+    /** @var Collection<int, Neighborhood> */
+    public $neighborhoods;
+
+    public function mount(): void
+    {
+        $this->neighborhoods = Neighborhood::active()->orderBy('name')->get();
+    }
+
+    public function updatedNeighborhoodId(int $value): void
+    {
+        $neighborhood = $this->neighborhoods->firstWhere('id', $value);
+
+        if ($neighborhood) {
+            $this->lat = (float) $neighborhood->latitude;
+            $this->lng = (float) $neighborhood->longitude;
+        }
+    }
+
     public function search(): void
     {
         $this->validate([
-            'neighborhood' => ['required', 'string', 'max:100'],
+            'neighborhoodId' => ['required', 'integer', 'min:1'],
             'categoryId' => ['nullable', 'integer', 'min:0'],
             'lat' => ['required', 'numeric', 'between:-90,90'],
             'lng' => ['required', 'numeric', 'between:-180,180'],
@@ -101,6 +113,7 @@ class GooglePlacesImport extends Component
             return;
         }
 
+        $neighborhood = Neighborhood::active()->findOrFail($this->neighborhoodId);
         $action = app(ImportBusinessFromGoogleAction::class);
         $categoryId = $this->categoryId ?: Category::query()
             ->whereIn('type', ['business', 'both'])
@@ -113,7 +126,7 @@ class GooglePlacesImport extends Component
                 continue;
             }
 
-            $business = $action->execute($place, $this->neighborhood, $categoryId);
+            $business = $action->execute($place, $neighborhood, $categoryId);
 
             if ($business !== null) {
                 EnrichBusinessFromGoogle::dispatch($business->id)

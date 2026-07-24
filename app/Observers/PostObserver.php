@@ -12,16 +12,22 @@ final class PostObserver implements ShouldHandleEventsAfterCommit
 
     public function saved(Post $post): void
     {
-        $this->cache->forget($post->neighborhood_id);
+        if ($post->neighborhood_id !== null) {
+            $this->cache->forget($post->neighborhood_id);
+        }
     }
 
     public function deleted(Post $post): void
     {
-        $this->cache->forget($post->neighborhood_id);
+        if ($post->neighborhood_id !== null) {
+            $this->cache->forget($post->neighborhood_id);
+        }
     }
 
     public function restored(Post $post): void
     {
-        $this->cache->forget($post->neighborhood_id);
+        if ($post->neighborhood_id !== null) {
+            $this->cache->forget($post->neighborhood_id);
+        }
     }
 }

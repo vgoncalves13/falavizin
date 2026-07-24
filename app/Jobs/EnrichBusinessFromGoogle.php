@@ -56,6 +56,9 @@ class EnrichBusinessFromGoogle implements ShouldQueue
             $updates['opening_hours'] = $this->parseOpeningHours($details['regularOpeningHours']['weekdayDescriptions']);
         }
 
+        // Never overwrite neighborhood_id — it is set during import or backfill
+        unset($updates['neighborhood_id']);
+
         if (! empty($updates)) {
             $business->update($updates);
         }

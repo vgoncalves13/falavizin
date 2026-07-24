@@ -4,15 +4,16 @@ namespace App\Console\Commands;
 
 use App\Actions\ImportBusinessFromGoogleAction;
 use App\Models\Category;
+use App\Models\Neighborhood;
 use App\Services\GooglePlacesService;
 use Illuminate\Console\Command;
 
 class ImportBusinessesFromGoogle extends Command
 {
     protected $signature = 'businesses:import-google
-                            {--neighborhood= : Nome do bairro para label dos negócios importados}
-                            {--lat= : Latitude do centro da busca}
-                            {--lng= : Longitude do centro da busca}
+                            {--neighborhood= : ID do bairro para associar os negócios importados}
+                            {--lat= : Latitude do centro da busca (sobrepõe coordenadas do bairro)}
+                            {--lng= : Longitude do centro da busca (sobrepõe coordenadas do bairro)}
                             {--radius=1000 : Raio em metros}
                             {--limit=20 : Máximo de resultados}';
 
@@ -20,20 +21,31 @@ class ImportBusinessesFromGoogle extends Command
 
     public function handle(GooglePlacesService $service, ImportBusinessFromGoogleAction $action): int
     {
-        $neighborhood = $this->option('neighborhood');
+        $neighborhoodId = $this->option('neighborhood');
         $lat = $this->option('lat');
         $lng = $this->option('lng');
         $radius = (int) $this->option('radius');
         $limit = (int) $this->option('limit');
 
-        if (! $neighborhood) {
-            $this->error('Informe o bairro com --neighborhood="Nome do Bairro"');
+        if (! $neighborhoodId) {
+            $this->error('Informe o ID do bairro com --neighborhood=ID');
 
             return Command::FAILURE;
         }
 
+        $neighborhood = Neighborhood::active()->find($neighborhoodId);
+
+        if (! $neighborhood) {
+            $this->error("Bairro com ID {$neighborhoodId} não encontrado ou inativo.");
+
+            return Command::FAILURE;
+        }
+
+        $lat = $lat ?: $neighborhood->latitude;
+        $lng = $lng ?: $neighborhood->longitude;
+
         if (! $lat || ! $lng) {
-            $this->error('Informe as coordenadas com --lat e --lng');
+            $this->error('Bairro sem coordenadas. Informe --lat e --lng manualmente.');
 
             return Command::FAILURE;
         }
@@ -55,7 +67,7 @@ class ImportBusinessesFromGoogle extends Command
             return Command::FAILURE;
         }
 
-        $this->info("Buscando negócios próximos a ({$lat}, {$lng}) com raio de {$radius}m...");
+        $this->info("Buscando negócios próximos a {$neighborhood->name} ({$lat}, {$lng}) com raio de {$radius}m...");
 
         try {
             $results = $service->searchNearby(

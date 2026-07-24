@@ -7,6 +7,7 @@ use App\Jobs\EnrichBusinessFromGoogle;
 use App\Livewire\Admin\GooglePlacesImport;
 use App\Models\Business;
 use App\Models\Category;
+use App\Models\Neighborhood;
 use App\Models\User;
 use App\Services\GooglePlacesService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -28,6 +29,11 @@ class GooglePlacesImportTest extends TestCase
     private function makeCategory(): Category
     {
         return Category::factory()->create(['type' => 'business']);
+    }
+
+    private function makeNeighborhood(array $attributes = []): Neighborhood
+    {
+        return Neighborhood::factory()->create($attributes);
     }
 
     private function fakePlaces(): Collection
@@ -89,6 +95,7 @@ class GooglePlacesImportTest extends TestCase
     {
         $admin = $this->makeAdmin();
         $category = $this->makeCategory();
+        $neighborhood = $this->makeNeighborhood();
 
         $this->mock(GooglePlacesService::class, function (MockInterface $mock) {
             $mock->shouldReceive('searchNearby')
@@ -98,7 +105,7 @@ class GooglePlacesImportTest extends TestCase
 
         Livewire::actingAs($admin)
             ->test(GooglePlacesImport::class)
-            ->set('neighborhood', 'Copacabana')
+            ->set('neighborhoodId', $neighborhood->id)
             ->set('categoryId', $category->id)
             ->set('lat', -22.9711)
             ->set('lng', -43.1823)
@@ -112,6 +119,7 @@ class GooglePlacesImportTest extends TestCase
     {
         $admin = $this->makeAdmin();
         $category = $this->makeCategory();
+        $neighborhood = $this->makeNeighborhood();
 
         Business::factory()->create([
             'google_place_id' => 'ChIJ_place_001',
@@ -126,7 +134,7 @@ class GooglePlacesImportTest extends TestCase
 
         $component = Livewire::actingAs($admin)
             ->test(GooglePlacesImport::class)
-            ->set('neighborhood', 'Copacabana')
+            ->set('neighborhoodId', $neighborhood->id)
             ->set('categoryId', $category->id)
             ->call('search');
 
@@ -138,12 +146,16 @@ class GooglePlacesImportTest extends TestCase
         $this->assertFalse($place2['already_imported']);
     }
 
-    public function test_import_creates_businesses_with_pending_status(): void
+    public function test_import_creates_businesses_with_neighborhood(): void
     {
         Queue::fake();
 
         $admin = $this->makeAdmin();
         $category = $this->makeCategory();
+        $neighborhood = $this->makeNeighborhood([
+            'name' => 'Copacabana',
+            'city' => 'Rio de Janeiro',
+        ]);
 
         $this->mock(GooglePlacesService::class, function (MockInterface $mock) {
             $mock->shouldReceive('searchNearby')
@@ -153,7 +165,7 @@ class GooglePlacesImportTest extends TestCase
 
         Livewire::actingAs($admin)
             ->test(GooglePlacesImport::class)
-            ->set('neighborhood', 'Copacabana')
+            ->set('neighborhoodId', $neighborhood->id)
             ->set('categoryId', $category->id)
             ->call('search')
             ->set('selected', ['ChIJ_place_001', 'ChIJ_place_002'])
@@ -162,7 +174,9 @@ class GooglePlacesImportTest extends TestCase
         $this->assertDatabaseHas('businesses', [
             'google_place_id' => 'ChIJ_place_001',
             'name' => 'Padaria do João',
+            'neighborhood_id' => $neighborhood->id,
             'neighborhood' => 'Copacabana',
+            'city' => 'Rio de Janeiro',
             'status' => BusinessStatus::Approved->value,
             'claimed' => false,
             'user_id' => null,
@@ -171,6 +185,7 @@ class GooglePlacesImportTest extends TestCase
         $this->assertDatabaseHas('businesses', [
             'google_place_id' => 'ChIJ_place_002',
             'name' => 'Farmácia Central',
+            'neighborhood_id' => $neighborhood->id,
             'status' => BusinessStatus::Approved->value,
         ]);
 
@@ -190,6 +205,7 @@ class GooglePlacesImportTest extends TestCase
 
         $admin = $this->makeAdmin();
         $category = $this->makeCategory();
+        $neighborhood = $this->makeNeighborhood();
 
         Business::factory()->create([
             'google_place_id' => 'ChIJ_place_001',
@@ -204,7 +220,7 @@ class GooglePlacesImportTest extends TestCase
 
         Livewire::actingAs($admin)
             ->test(GooglePlacesImport::class)
-            ->set('neighborhood', 'Copacabana')
+            ->set('neighborhoodId', $neighborhood->id)
             ->set('categoryId', $category->id)
             ->call('search')
             ->set('selected', ['ChIJ_place_001'])
@@ -220,10 +236,9 @@ class GooglePlacesImportTest extends TestCase
 
         Livewire::actingAs($admin)
             ->test(GooglePlacesImport::class)
-            ->set('neighborhood', '')
+            ->set('neighborhoodId', 0)
             ->call('search')
-            ->assertHasErrors(['neighborhood'])
-            ->assertHasNoErrors(['categoryId']);
+            ->assertHasErrors(['neighborhoodId']);
     }
 
     public function test_after_import_already_imported_flag_is_updated(): void
@@ -232,6 +247,7 @@ class GooglePlacesImportTest extends TestCase
 
         $admin = $this->makeAdmin();
         $category = $this->makeCategory();
+        $neighborhood = $this->makeNeighborhood();
 
         $this->mock(GooglePlacesService::class, function (MockInterface $mock) {
             $mock->shouldReceive('searchNearby')
@@ -241,7 +257,7 @@ class GooglePlacesImportTest extends TestCase
 
         $component = Livewire::actingAs($admin)
             ->test(GooglePlacesImport::class)
-            ->set('neighborhood', 'Copacabana')
+            ->set('neighborhoodId', $neighborhood->id)
             ->set('categoryId', $category->id)
             ->call('search')
             ->set('selected', ['ChIJ_place_001'])
@@ -251,5 +267,20 @@ class GooglePlacesImportTest extends TestCase
         $place1 = collect($results)->firstWhere('place_id', 'ChIJ_place_001');
 
         $this->assertTrue($place1['already_imported']);
+    }
+
+    public function test_selecting_neighborhood_fills_coordinates(): void
+    {
+        $admin = $this->makeAdmin();
+        $neighborhood = $this->makeNeighborhood([
+            'latitude' => -22.9068,
+            'longitude' => -43.1729,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(GooglePlacesImport::class)
+            ->set('neighborhoodId', $neighborhood->id)
+            ->assertSet('lat', (float) $neighborhood->latitude)
+            ->assertSet('lng', (float) $neighborhood->longitude);
     }
 }

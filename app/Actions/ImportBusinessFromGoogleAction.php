@@ -5,6 +5,7 @@ namespace App\Actions;
 use App\Enums\BusinessStatus;
 use App\Models\Business;
 use App\Models\Category;
+use App\Models\Neighborhood;
 
 class ImportBusinessFromGoogleAction
 {
@@ -183,7 +184,7 @@ class ImportBusinessFromGoogleAction
     /** @var array<string, int> */
     private array $categoryCache = [];
 
-    public function execute(array $place, string $neighborhood, int $fallbackCategoryId): ?Business
+    public function execute(array $place, Neighborhood $neighborhood, int $fallbackCategoryId): ?Business
     {
         if (Business::where('google_place_id', $place['place_id'])->exists()) {
             return null;
@@ -193,9 +194,11 @@ class ImportBusinessFromGoogleAction
 
         return Business::create([
             'category_id' => $categoryId,
+            'neighborhood_id' => $neighborhood->id,
             'name' => $place['name'],
             'address' => $place['address'] ?? null,
-            'neighborhood' => $neighborhood,
+            'neighborhood' => $neighborhood->name,
+            'city' => $neighborhood->city,
             'lat' => $place['lat'] ?? null,
             'lng' => $place['lng'] ?? null,
             'phone' => $place['phone'] ?? null,
