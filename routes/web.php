@@ -9,6 +9,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ClaimBusinessController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LegacyNeighborhoodRedirectController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
@@ -22,24 +23,61 @@ use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\UserProfileController;
 use App\Livewire\Admin\AppSettings;
 use App\Livewire\Admin\GooglePlacesImport;
+use App\Models\Neighborhood;
 use Illuminate\Support\Facades\Route;
 
 // Públicas
 Route::get('/health', [HealthController::class, 'check'])->name('health.check');
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+// Neighborhood-scoped routes
+Route::prefix('{state}/{city}/{neighborhood}')
+    ->where([
+        'state' => '[a-z]{2}',
+        'city' => '[a-z0-9-]+',
+        'neighborhood' => '[a-z0-9-]+',
+    ])
+    ->middleware('neighborhood')
+    ->name('neighborhood.')
+    ->group(function (): void {
+        Route::middleware('neighborhood.active')->group(function (): void {
+            Route::get('/', [HomeController::class, 'local'])->name('home');
+            Route::get('/busca', [SearchController::class, 'index'])->name('search.index');
+            Route::get('/feed', [PostController::class, 'index'])->name('feed.index');
+            Route::get('/servicos', [BusinessController::class, 'index'])->name('businesses.index');
+            Route::get('/servicos/mapa', [BusinessController::class, 'map'])->name('businesses.map');
+            Route::get('/categoria/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
+            Route::get('/promocoes', [PromotionController::class, 'index'])->name('promotions.index');
+            Route::get('/pulso', [PulsoController::class, 'index'])->name('pulso.index');
+            Route::get('/eventos', fn (Neighborhood $neighborhood) => view('events.index', compact('neighborhood')))
+                ->name('events.index');
+        });
+
+        Route::get('/feed/{post:slug}', [PostController::class, 'show'])
+            ->scopeBindings()
+            ->name('feed.show');
+        Route::get('/servicos/{business:slug}', [BusinessController::class, 'show'])
+            ->scopeBindings()
+            ->name('businesses.show');
+    });
+
+// Legacy redirects (temporary — will be removed as tasks migrate consumers)
+// These keep the old route names for backward compatibility
+Route::get('/feed', [LegacyNeighborhoodRedirectController::class, 'index'])->defaults('type', 'feed')->name('feed.index');
+Route::get('/servicos', [LegacyNeighborhoodRedirectController::class, 'index'])->defaults('type', 'servicos')->name('businesses.index');
+Route::get('/feed/{post:slug}', [LegacyNeighborhoodRedirectController::class, 'post'])->name('feed.show');
+Route::get('/servicos/{business:slug}', [LegacyNeighborhoodRedirectController::class, 'business'])->name('businesses.show');
+
+// Original routes (temporary — kept for compatibility until tasks migrate consumers)
+Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/busca', [SearchController::class, 'index'])->name('search.index');
 Route::get('/u/{user}', [UserProfileController::class, 'show'])->name('users.show');
-Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/feed', [PostController::class, 'index'])->name('feed.index');
-Route::get('/feed/{post:slug}', [PostController::class, 'show'])->name('feed.show');
-Route::get('/servicos', [BusinessController::class, 'index'])->name('businesses.index');
-Route::get('/servicos/mapa', [BusinessController::class, 'map'])->name('businesses.map');
-Route::get('/servicos/{business:slug}', [BusinessController::class, 'show'])->name('businesses.show');
 Route::get('/categoria/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
 Route::get('/promocoes', [PromotionController::class, 'index'])->name('promotions.index');
 Route::get('/ranking', [RankingController::class, 'index'])->name('ranking.index');
 Route::get('/pulso', [PulsoController::class, 'index'])->name('pulso.index');
 Route::get('/eventos', fn () => view('events.index'))->name('events.index');
+Route::get('/servicos/mapa', [BusinessController::class, 'map'])->name('businesses.map');
 
 // Autenticadas
 Route::middleware('auth')->group(function () {

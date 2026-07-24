@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Business;
 use App\Models\Category;
+use App\Models\Neighborhood;
 use App\Models\Post;
 use App\Models\Promotion;
 use App\Models\User;
@@ -11,6 +12,7 @@ use App\Services\HomeCache;
 use Illuminate\Notifications\Events\NotificationFailed;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use NotificationChannels\WebPush\Events\NotificationFailed as WebPushFailed;
 
@@ -29,6 +31,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Route::bind('neighborhood', function (string $value, \Illuminate\Routing\Route $route): Neighborhood {
+            return Neighborhood::query()
+                ->where('state_code', strtoupper((string) $route->parameter('state')))
+                ->where('city_slug', $route->parameter('city'))
+                ->where('slug', $value)
+                ->firstOrFail();
+        });
+
         foreach ([Post::class, Business::class, Promotion::class, Category::class, User::class] as $model) {
             $model::observe(HomeCache::class);
         }

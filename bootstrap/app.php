@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Middleware\EnsureNeighborhoodIsActive;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\EnsureUserIsModerator;
 use App\Http\Middleware\LogSlowRequests;
+use App\Http\Middleware\ResolveNeighborhood;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -19,6 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => EnsureUserIsAdmin::class,
             'moderator' => EnsureUserIsModerator::class,
+            'neighborhood' => ResolveNeighborhood::class,
+            'neighborhood.active' => EnsureNeighborhoodIsActive::class,
         ]);
         $middleware->append(LogSlowRequests::class);
     })

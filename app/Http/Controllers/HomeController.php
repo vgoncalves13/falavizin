@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\PostResolutionStatus;
 use App\Models\Business;
 use App\Models\Category;
+use App\Models\Neighborhood;
 use App\Models\Post;
 use App\Models\Promotion;
 use App\Models\Setting;
@@ -111,5 +112,16 @@ class HomeController extends Controller
             'pulsoResolvedThisWeek',
             'heroStats',
         ));
+    }
+
+    public function local(): View
+    {
+        /** @var Neighborhood $neighborhood */
+        $neighborhood = request()->route('neighborhood');
+
+        $view = $this->index();
+        $view->with('neighborhood', $neighborhood);
+
+        return $view;
     }
 }
