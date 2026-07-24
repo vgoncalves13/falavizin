@@ -98,7 +98,10 @@ class BusinessReviewTest extends TestCase
         Review::create(['user_id' => $user1->id, 'business_id' => $business->id, 'rating' => 4]);
         Review::create(['user_id' => $user2->id, 'business_id' => $business->id, 'rating' => 2]);
 
-        $this->get(route('businesses.show', $business))
+        $this->get(route('neighborhood.businesses.show', [
+            ...$business->localNeighborhood->routeParameters(),
+            'business' => $business,
+        ]))
             ->assertOk()
             ->assertSee('3,0');
     }

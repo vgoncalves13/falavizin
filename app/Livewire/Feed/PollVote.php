@@ -6,6 +6,7 @@ use App\Actions\AwardPointsAction;
 use App\Enums\PointEventReason;
 use App\Models\Poll;
 use App\Models\PollVote as PollVoteModel;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 
 class PollVote extends Component
@@ -38,6 +39,8 @@ class PollVote extends Component
         if ($this->poll->isEnded()) {
             return;
         }
+
+        Gate::authorize('interact', $this->poll->post);
 
         $option = $this->poll->options()->findOrFail($optionId);
 

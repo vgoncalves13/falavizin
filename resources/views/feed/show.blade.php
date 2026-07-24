@@ -5,6 +5,13 @@
             Voltar ao Feed
         </a>
 
+        @unless($post->neighborhood->is_active)
+            <x-inactive-neighborhood-banner :neighborhood="$post->neighborhood" />
+            @push('head')
+                <meta name="robots" content="noindex,follow">
+            @endpush
+        @endunless
+
         @session('success')
             <div class="mb-4 px-4 py-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg">
                 {{ $value }}
@@ -113,7 +120,7 @@
                 <div class="text-stone-700 text-sm leading-relaxed whitespace-pre-line">{{ $post->body }}</div>
 
                 {{-- Poll --}}
-                @if($post->poll)
+                @if($post->poll && $post->acceptsCommunityInteractions())
                     <livewire:feed.poll-vote :poll="$post->poll" :key="'poll-'.$post->poll->id" />
                 @endif
 
@@ -148,10 +155,12 @@
                 {{-- Votos --}}
                 <div class="mt-6 pt-4 border-t border-stone-100 flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        @if($post->category?->slug === 'pedido' && $post->serviceCategory)
-                            <livewire:feed.interest-button :post="$post" :key="'interest-'.$post->id" />
-                        @else
-                            <livewire:feed.vote-buttons :post="$post" :key="'votes-'.$post->id" />
+                        @if($post->acceptsCommunityInteractions())
+                            @if($post->category?->slug === 'pedido' && $post->serviceCategory)
+                                <livewire:feed.interest-button :post="$post" :key="'interest-'.$post->id" />
+                            @else
+                                <livewire:feed.vote-buttons :post="$post" :key="'votes-'.$post->id" />
+                            @endif
                         @endif
                         <livewire:feed.save-button :post="$post" :key="'save-'.$post->id" />
                     </div>
@@ -170,7 +179,7 @@
                         @endauth
 
                         @can('update', $post)
-                            <a href="{{ route('feed.edit', $post) }}"
+                            <a href="{{ route('neighborhood.feed.edit', [...$post->neighborhood->routeParameters(), 'post' => $post]) }}"
                                class="inline-flex items-center gap-1.5 text-xs text-stone-400 hover:text-amber-600 transition-colors">
                                 <x-heroicon-o-pencil-square class="w-4 h-4" />
                                 Editar
@@ -178,7 +187,7 @@
                         @endcan
 
                         @can('delete', $post)
-                            <form action="{{ route('feed.destroy', $post) }}" method="POST"
+                            <form action="{{ route('neighborhood.feed.destroy', [...$post->neighborhood->routeParameters(), 'post' => $post]) }}" method="POST"
                                   onsubmit="return confirm('Remover este post?')">
                                 @csrf
                                 @method('DELETE')
@@ -195,7 +204,9 @@
         </article>
 
         {{-- Comentários --}}
-        <livewire:feed.comment-section :post="$post" :key="'comments-'.$post->id" />
+        @if($post->acceptsCommunityInteractions())
+            <livewire:feed.comment-section :post="$post" :key="'comments-'.$post->id" />
+        @endif
 
         {{-- Interessados (apenas para pedidos) --}}
         @if($post->category?->slug === 'pedido')

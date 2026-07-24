@@ -40,6 +40,12 @@ class CreatePromotionAction
 
     private function ensurePromotionCanBeCreated(Business $business): void
     {
+        if (! $business->acceptsCommunityInteractions()) {
+            throw ValidationException::withMessages([
+                'title' => 'Este bairro não está mais ativo. Não é possível criar promoções.',
+            ]);
+        }
+
         if ($business->plan === BusinessPlan::Featured) {
             return;
         }

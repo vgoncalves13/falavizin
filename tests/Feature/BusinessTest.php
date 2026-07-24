@@ -289,12 +289,18 @@ class BusinessTest extends TestCase
         $user = User::factory()->create();
         $business = Business::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->post(route('promotions.store', $business), [
+        $response = $this->actingAs($user)->post(route('neighborhood.promotions.store', [
+            ...$business->localNeighborhood->routeParameters(),
+            'business' => $business,
+        ]), [
             'title' => '30% de desconto este final de semana',
             'description' => 'Promoção especial de feriado.',
         ]);
 
-        $response->assertRedirect(route('businesses.show', $business));
+        $response->assertRedirect(route('neighborhood.businesses.show', [
+            ...$business->localNeighborhood->routeParameters(),
+            'business' => $business,
+        ]));
         $this->assertDatabaseHas('promotions', [
             'business_id' => $business->id,
             'title' => '30% de desconto este final de semana',
@@ -307,7 +313,10 @@ class BusinessTest extends TestCase
         $other = User::factory()->create();
         $business = Business::factory()->create(['user_id' => $other->id]);
 
-        $response = $this->actingAs($user)->post(route('promotions.store', $business), [
+        $response = $this->actingAs($user)->post(route('neighborhood.promotions.store', [
+            ...$business->localNeighborhood->routeParameters(),
+            'business' => $business,
+        ]), [
             'title' => '30% de desconto este final de semana',
         ]);
 

@@ -55,6 +55,8 @@ class CommentSection extends Component
             return;
         }
 
+        Gate::authorize('interact', $this->post);
+
         $key = 'add-comment:'.auth()->id();
 
         if (RateLimiter::tooManyAttempts($key, 15)) {
@@ -114,6 +116,8 @@ class CommentSection extends Component
             return;
         }
 
+        Gate::authorize('interact', $this->post);
+
         $this->validateOnly('replyBody', [
             'replyBody' => ['required', 'string', 'min:3', 'max:1000'],
         ]);
@@ -138,6 +142,8 @@ class CommentSection extends Component
 
     public function startEdit(int $commentId): void
     {
+        Gate::authorize('interact', $this->post);
+
         $comment = $this->post->comments()->findOrFail($commentId);
 
         Gate::authorize('update', $comment);
@@ -148,6 +154,8 @@ class CommentSection extends Component
 
     public function saveEdit(): void
     {
+        Gate::authorize('interact', $this->post);
+
         $comment = $this->post->comments()->findOrFail($this->editingId);
 
         Gate::authorize('update', $comment);
@@ -170,6 +178,8 @@ class CommentSection extends Component
 
     public function deleteComment(int $commentId): void
     {
+        Gate::authorize('interact', $this->post);
+
         $comment = $this->post->comments()->findOrFail($commentId);
 
         Gate::authorize('delete', $comment);
@@ -184,6 +194,8 @@ class CommentSection extends Component
 
             return;
         }
+
+        Gate::authorize('interact', $this->post);
 
         $comment = $this->post->comments()->with('user')->findOrFail($commentId);
 

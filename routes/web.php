@@ -87,6 +87,7 @@ Route::prefix('{state}/{city}/{neighborhood}')
 // These keep the old route names for backward compatibility
 Route::get('/feed', [LegacyNeighborhoodRedirectController::class, 'index'])->defaults('type', 'feed')->name('feed.index');
 Route::get('/servicos', [LegacyNeighborhoodRedirectController::class, 'index'])->defaults('type', 'servicos')->name('businesses.index');
+Route::get('/pulso', [LegacyNeighborhoodRedirectController::class, 'index'])->defaults('type', 'pulso')->name('pulso.index');
 Route::get('/servicos/mapa', [BusinessController::class, 'map'])->name('businesses.map');
 Route::get('/feed/{post:slug}', [LegacyNeighborhoodRedirectController::class, 'post'])->name('feed.show');
 Route::get('/servicos/{business:slug}', [LegacyNeighborhoodRedirectController::class, 'business'])->name('businesses.show');
@@ -98,7 +99,6 @@ Route::get('/u/{user}', [UserProfileController::class, 'show'])->name('users.sho
 Route::get('/categoria/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
 Route::get('/promocoes', [PromotionController::class, 'index'])->name('promotions.index');
 Route::get('/ranking', [RankingController::class, 'index'])->name('ranking.index');
-Route::get('/pulso', [PulsoController::class, 'index'])->name('pulso.index');
 Route::get('/eventos', fn () => view('events.index'))->name('events.index');
 
 // Neighborhood selection (authenticated, no primary-neighborhood requirement)

@@ -8,6 +8,7 @@ use App\Enums\VoteType;
 use App\Models\Post;
 use App\Models\Vote;
 use App\Notifications\PostVoteNotification;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Component;
 
@@ -22,6 +23,8 @@ class VoteButtons extends Component
 
             return;
         }
+
+        Gate::authorize('interact', $this->post);
 
         $key = 'vote:'.auth()->id();
 

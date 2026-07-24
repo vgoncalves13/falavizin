@@ -15,13 +15,26 @@ class PostPolicy
             || ($user?->is_admin ?? false);
     }
 
+    public function interact(User $user, Post $post): bool
+    {
+        return $post->acceptsCommunityInteractions();
+    }
+
     public function update(User $user, Post $post): bool
     {
+        if (! $post->acceptsCommunityInteractions() && ! $user->is_admin) {
+            return false;
+        }
+
         return $user->id === $post->user_id || $user->is_admin;
     }
 
     public function delete(User $user, Post $post): bool
     {
+        if (! $post->acceptsCommunityInteractions() && ! $user->is_admin) {
+            return false;
+        }
+
         return $user->id === $post->user_id || $user->is_admin;
     }
 }

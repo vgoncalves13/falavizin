@@ -82,7 +82,10 @@ class EditPost extends Component
             $message = 'Post atualizado com sucesso!';
         }
 
-        $this->redirect(route('feed.show', $this->post), navigate: false);
+        $this->redirect(route('neighborhood.feed.show', [
+            ...$this->post->neighborhood->routeParameters(),
+            'post' => $this->post,
+        ]), navigate: false);
         session()->flash('success', $message);
     }
 

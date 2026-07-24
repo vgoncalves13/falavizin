@@ -5,6 +5,13 @@
             Voltar aos Serviços
         </a>
 
+        @unless($business->localNeighborhood->is_active)
+            <x-inactive-neighborhood-banner :neighborhood="$business->localNeighborhood" />
+            @push('head')
+                <meta name="robots" content="noindex,follow">
+            @endpush
+        @endunless
+
         @session('success')
             <div class="mb-4 px-4 py-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg">
                 {{ $value }}
@@ -66,21 +73,21 @@
                         @endauth
 
                         @can('update', $business)
-                            <a href="{{ route('businesses.edit', $business) }}"
+                            <a href="{{ route('neighborhood.businesses.edit', [...$business->localNeighborhood->routeParameters(), 'business' => $business]) }}"
                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-stone-600 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors">
                                 <x-heroicon-o-pencil-square class="w-4 h-4" />
                                 Editar
                             </a>
                         @endcan
                         @auth
-                            @if(! $business->claimed)
+                            @if(! $business->claimed && $business->acceptsCommunityInteractions())
                                 @if($business->claim_user_id)
                                     <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-amber-600 bg-amber-50 border border-amber-200 rounded-lg">
                                         <x-heroicon-o-clock class="w-4 h-4" />
                                         Reivindicação em análise
                                     </span>
                                 @else
-                                    <form action="{{ route('businesses.claim.request', $business) }}" method="POST">
+                                    <form action="{{ route('neighborhood.businesses.claim.request', [...$business->localNeighborhood->routeParameters(), 'business' => $business]) }}" method="POST">
                                         @csrf
                                         <button type="submit"
                                                 class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg transition-colors">
@@ -238,7 +245,7 @@
         @endif
 
         {{-- Promoções --}}
-        @if($business->promotions->isNotEmpty() || auth()->user()?->can('update', $business))
+        @if(($business->promotions->isNotEmpty() || auth()->user()?->can('update', $business)) && $business->acceptsCommunityInteractions())
             <div class="bg-white rounded-xl border border-stone-200 p-6 mb-5">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-lg font-semibold text-stone-900">Promoções ativas</h2>
@@ -318,9 +325,11 @@
             </div>
         @endif
         {{-- Avaliações --}}
-        <div class="bg-white rounded-xl border border-stone-200 p-6 mb-5">
-            <livewire:business.review-section :business="$business" :key="'reviews-'.$business->id" />
-        </div>
+        @if($business->acceptsCommunityInteractions())
+            <div class="bg-white rounded-xl border border-stone-200 p-6 mb-5">
+                <livewire:business.review-section :business="$business" :key="'reviews-'.$business->id" />
+            </div>
+        @endif
 
     </div>
 

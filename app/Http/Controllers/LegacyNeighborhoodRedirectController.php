@@ -17,6 +17,7 @@ class LegacyNeighborhoodRedirectController extends Controller
         $route = match ($type) {
             'feed' => 'neighborhood.feed.index',
             'servicos' => 'neighborhood.businesses.index',
+            'pulso' => 'neighborhood.pulso.index',
             default => abort(404),
         };
 

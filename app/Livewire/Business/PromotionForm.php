@@ -44,6 +44,7 @@ class PromotionForm extends Component
     #[On('edit-promotion')]
     public function startEdit(int $id): void
     {
+        Gate::authorize('interact', $this->business);
         Gate::authorize('update', $this->business);
         $promotion = $this->business->promotions()->findOrFail($id);
 
@@ -67,6 +68,7 @@ class PromotionForm extends Component
             return;
         }
 
+        Gate::authorize('interact', $this->business);
         Gate::authorize('update', $this->business);
 
         $this->validate();

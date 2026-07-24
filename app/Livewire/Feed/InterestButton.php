@@ -5,6 +5,7 @@ namespace App\Livewire\Feed;
 use App\Models\Post;
 use App\Notifications\InterestNotification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 
 class InterestButton extends Component
@@ -24,6 +25,8 @@ class InterestButton extends Component
     public function toggle(): void
     {
         $user = Auth::user();
+
+        Gate::authorize('interact', $this->post);
 
         if ($this->isInterested) {
             $this->post->interests()->detach($user->id);

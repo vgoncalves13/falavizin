@@ -18,7 +18,10 @@ class ClaimTest extends TestCase
     {
         $business = Business::factory()->create(['claimed' => false, 'user_id' => null]);
 
-        $this->post(route('businesses.claim.request', $business))
+        $this->post(route('neighborhood.businesses.claim.request', [
+            ...$business->localNeighborhood->routeParameters(),
+            'business' => $business,
+        ]))
             ->assertRedirect(route('login'));
     }
 
@@ -31,8 +34,14 @@ class ClaimTest extends TestCase
         $business = Business::factory()->create(['claimed' => false, 'user_id' => null]);
 
         $this->actingAs($user)
-            ->post(route('businesses.claim.request', $business))
-            ->assertRedirect(route('businesses.show', $business))
+            ->post(route('neighborhood.businesses.claim.request', [
+                ...$business->localNeighborhood->routeParameters(),
+                'business' => $business,
+            ]))
+            ->assertRedirect(route('neighborhood.businesses.show', [
+                ...$business->localNeighborhood->routeParameters(),
+                'business' => $business,
+            ]))
             ->assertSessionHas('success');
 
         $this->assertDatabaseHas('businesses', [
@@ -60,7 +69,10 @@ class ClaimTest extends TestCase
         ]);
 
         $this->actingAs($otherUser)
-            ->post(route('businesses.claim.request', $business))
+            ->post(route('neighborhood.businesses.claim.request', [
+                ...$business->localNeighborhood->routeParameters(),
+                'business' => $business,
+            ]))
             ->assertSessionHas('error');
 
         $this->assertDatabaseHas('businesses', [
@@ -75,7 +87,10 @@ class ClaimTest extends TestCase
         $business = Business::factory()->claimed()->create();
 
         $this->actingAs($user)
-            ->post(route('businesses.claim.request', $business))
+            ->post(route('neighborhood.businesses.claim.request', [
+                ...$business->localNeighborhood->routeParameters(),
+                'business' => $business,
+            ]))
             ->assertSessionHas('error');
 
         $this->assertNull($business->fresh()->claim_user_id);

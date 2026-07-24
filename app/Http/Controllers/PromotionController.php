@@ -46,6 +46,7 @@ class PromotionController extends Controller
 
     public function destroy(Promotion $promotion): RedirectResponse
     {
+        Gate::authorize('interact', $promotion->business);
         Gate::authorize('update', $promotion->business);
 
         $promotion->delete();

@@ -18,7 +18,10 @@ class EditPostTest extends TestCase
     {
         $post = Post::factory()->create();
 
-        $this->get(route('feed.edit', $post))->assertRedirect(route('login'));
+        $this->get(route('neighborhood.feed.edit', [
+            ...$post->neighborhood->routeParameters(),
+            'post' => $post,
+        ]))->assertRedirect(route('login'));
     }
 
     public function test_author_can_see_edit_page(): void
@@ -27,7 +30,10 @@ class EditPostTest extends TestCase
         $post = Post::factory()->create(['user_id' => $user->id]);
 
         $this->actingAs($user)
-            ->get(route('feed.edit', $post))
+            ->get(route('neighborhood.feed.edit', [
+                ...$post->neighborhood->routeParameters(),
+                'post' => $post,
+            ]))
             ->assertStatus(200);
     }
 
@@ -37,7 +43,10 @@ class EditPostTest extends TestCase
         $post = Post::factory()->create();
 
         $this->actingAs($other)
-            ->get(route('feed.edit', $post))
+            ->get(route('neighborhood.feed.edit', [
+                ...$post->neighborhood->routeParameters(),
+                'post' => $post,
+            ]))
             ->assertForbidden();
     }
 
