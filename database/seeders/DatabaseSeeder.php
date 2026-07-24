@@ -8,6 +8,7 @@ use App\Enums\PostStatus;
 use App\Models\Business;
 use App\Models\Category;
 use App\Models\Comment;
+use App\Models\Neighborhood;
 use App\Models\Poll;
 use App\Models\PollOption;
 use App\Models\PollVote;
@@ -22,11 +23,24 @@ use RuntimeException;
 
 class DatabaseSeeder extends Seeder
 {
-    private const NEIGHBORHOOD = 'Jardim América';
+    private const NEIGHBORHOOD = 'Engenho da Rainha';
 
     public function run(): void
     {
         $this->seedCategories();
+
+        $pilotNeighborhood = Neighborhood::firstOrCreate(
+            ['slug' => 'engenho-da-rainha'],
+            [
+                'name' => self::NEIGHBORHOOD,
+                'slug' => 'engenho-da-rainha',
+                'city' => 'Rio de Janeiro',
+                'city_slug' => 'rio-de-janeiro',
+                'state_code' => 'RJ',
+                'is_active' => true,
+                'sort_order' => 1,
+            ],
+        );
 
         if (! app()->environment(['local', 'testing'])) {
             return;
@@ -46,6 +60,7 @@ class DatabaseSeeder extends Seeder
             'password' => $password,
             'is_admin' => true,
             'email_verified_at' => now(),
+            'neighborhood_id' => $pilotNeighborhood->id,
         ]);
 
         $owner = User::create([
@@ -54,6 +69,7 @@ class DatabaseSeeder extends Seeder
             'password' => $password,
             'email_verified_at' => now(),
             'neighborhood' => self::NEIGHBORHOOD,
+            'neighborhood_id' => $pilotNeighborhood->id,
         ]);
 
         $moradores = collect([
@@ -73,15 +89,16 @@ class DatabaseSeeder extends Seeder
             'password' => $password,
             'email_verified_at' => now(),
             'neighborhood' => self::NEIGHBORHOOD,
+            'neighborhood_id' => $pilotNeighborhood->id,
         ]));
 
         $allUsers = $moradores->prepend($owner);
 
-        $this->seedBusinesses($owner, $moradores, $allUsers);
-        $this->seedPosts($allUsers, $moradores);
+        $this->seedBusinesses($owner, $moradores, $allUsers, $pilotNeighborhood);
+        $this->seedPosts($allUsers, $moradores, $pilotNeighborhood);
     }
 
-    private function seedBusinesses($owner, $moradores, $allUsers): void
+    private function seedBusinesses($owner, $moradores, $allUsers, Neighborhood $neighborhood): void
     {
         $catAlimentacao = Category::where('slug', 'alimentacao')->first();
         $catSaude = Category::where('slug', 'saude')->first();
@@ -98,6 +115,7 @@ class DatabaseSeeder extends Seeder
         $businesses[] = $padaria = Business::create([
             'user_id' => $owner->id,
             'category_id' => $catAlimentacao->id,
+            'neighborhood_id' => $neighborhood->id,
             'name' => 'Padaria Pão de Mel',
             'description' => 'Desde 1998 servindo o melhor pão francês e doces artesanais do Jardim América. Café da manhã completo, salgados fresquinhos e bolo de pote que faz sucesso!',
             'phone' => ['(11) 3456-7890'],
@@ -118,6 +136,7 @@ class DatabaseSeeder extends Seeder
         $businesses[] = $farmacia = Business::create([
             'user_id' => $moradores[0]->id,
             'category_id' => $catSaude->id,
+            'neighborhood_id' => $neighborhood->id,
             'name' => 'Farmácia Saúde Total',
             'description' => 'Medicamentos, perfumaria, dermocosméticos e serviços de saúde. Aferição de pressão gratuita todos os dias. Entregamos em domicílio no bairro.',
             'phone' => ['(11) 3456-1234'],
@@ -138,6 +157,7 @@ class DatabaseSeeder extends Seeder
         $businesses[] = $petshop = Business::create([
             'user_id' => $moradores[1]->id,
             'category_id' => $catPet->id,
+            'neighborhood_id' => $neighborhood->id,
             'name' => 'Pet Shop Patinhas Felizes',
             'description' => 'Banho e tosa, consultas veterinárias, rações premium e acessórios para seu pet. Agendamento online disponível. Atendemos cães, gatos, roedores e aves.',
             'phone' => ['(11) 3456-9876'],
@@ -158,6 +178,7 @@ class DatabaseSeeder extends Seeder
         $businesses[] = $eletrica = Business::create([
             'user_id' => $moradores[2]->id,
             'category_id' => $catEletrica->id,
+            'neighborhood_id' => $neighborhood->id,
             'name' => 'Elétrica do João',
             'description' => 'Instalações elétricas residenciais e comerciais, manutenção preventiva e corretiva, SPDA (para-raios), CFTV e automação residencial. 20 anos de experiência.',
             'phone' => ['(11) 99123-4567'],
@@ -178,6 +199,7 @@ class DatabaseSeeder extends Seeder
         $businesses[] = $mercado = Business::create([
             'user_id' => null,
             'category_id' => $catMercado->id,
+            'neighborhood_id' => $neighborhood->id,
             'name' => 'Mercado Bom Preço',
             'description' => 'Supermercado completo com açougue, padaria, hortifruti e adega. Delivery disponível via WhatsApp.',
             'phone' => ['(11) 3456-0011'],
@@ -195,6 +217,7 @@ class DatabaseSeeder extends Seeder
         $businesses[] = $salao = Business::create([
             'user_id' => $moradores[3]->id,
             'category_id' => $catBeleza->id,
+            'neighborhood_id' => $neighborhood->id,
             'name' => 'Studio Glamour',
             'description' => 'Corte, coloração, escova progressiva, manicure e pedicure. Especialistas em cabelos cacheados. Agende pelo WhatsApp e ganhe 10% de desconto na primeira visita!',
             'phone' => ['(11) 97654-3210'],
@@ -215,6 +238,7 @@ class DatabaseSeeder extends Seeder
         $businesses[] = $academia = Business::create([
             'user_id' => $moradores[4]->id,
             'category_id' => $catAcademia->id,
+            'neighborhood_id' => $neighborhood->id,
             'name' => 'Academia Força & Saúde',
             'description' => 'Musculação, aeróbico, spinning, crossfit e aulas de yoga. Equipamentos novos, professores formados e vestiário completo. Primeira semana grátis!',
             'phone' => ['(11) 3456-5555'],
@@ -235,6 +259,7 @@ class DatabaseSeeder extends Seeder
         $businesses[] = $escola = Business::create([
             'user_id' => null,
             'category_id' => $catEducacao->id,
+            'neighborhood_id' => $neighborhood->id,
             'name' => 'Instituto Conecta Idiomas',
             'description' => 'Cursos de inglês, espanhol e francês para todas as idades. Turmas presenciais e online. Resultado garantido em 6 meses ou devolvemos o dinheiro.',
             'phone' => ['(11) 3456-7777'],
@@ -373,7 +398,7 @@ class DatabaseSeeder extends Seeder
         }
     }
 
-    private function seedPosts($allUsers, $moradores): void
+    private function seedPosts($allUsers, $moradores, Neighborhood $neighborhood): void
     {
         $catAviso = Category::where('slug', 'aviso')->first();
         $catProblema = Category::where('slug', 'problema')->first();
@@ -565,6 +590,7 @@ class DatabaseSeeder extends Seeder
             $postAttributes = [
                 'user_id' => $data['user']->id,
                 'category_id' => $data['category']->id,
+                'neighborhood_id' => $neighborhood->id,
                 'title' => $data['title'],
                 'body' => $data['body'],
                 'location' => $data['location'] ?? null,

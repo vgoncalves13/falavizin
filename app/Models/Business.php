@@ -24,6 +24,7 @@ class Business extends Model
     protected $fillable = [
         'user_id',
         'category_id',
+        'neighborhood_id',
         'name',
         'slug',
         'description',
@@ -88,6 +89,11 @@ class Business extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function localNeighborhood(): BelongsTo
+    {
+        return $this->belongsTo(Neighborhood::class, 'neighborhood_id');
     }
 
     /**
@@ -192,5 +198,25 @@ class Business extends Model
     public function scopeInNeighborhood(Builder $query, string $neighborhood): Builder
     {
         return $query->where('neighborhood', 'like', "%{$neighborhood}%");
+    }
+
+    public function scopeForNeighborhood(Builder $query, Neighborhood|int $neighborhood): Builder
+    {
+        return $query->where('neighborhood_id', $neighborhood instanceof Neighborhood
+            ? $neighborhood->getKey()
+            : $neighborhood);
+    }
+
+    public function acceptsCommunityInteractions(): bool
+    {
+        return (bool) $this->localNeighborhood?->is_active;
+    }
+
+    public function canonicalUrl(bool $absolute = true): string
+    {
+        return route('neighborhood.businesses.show', [
+            ...$this->localNeighborhood->routeParameters(),
+            'business' => $this,
+        ], $absolute);
     }
 }

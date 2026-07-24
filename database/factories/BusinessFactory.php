@@ -6,6 +6,7 @@ use App\Enums\BusinessPlan;
 use App\Enums\BusinessStatus;
 use App\Models\Business;
 use App\Models\Category;
+use App\Models\Neighborhood;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -19,12 +20,13 @@ class BusinessFactory extends Factory
         return [
             'user_id' => User::factory(),
             'category_id' => Category::factory(),
+            'neighborhood_id' => Neighborhood::factory(),
             'name' => fake()->company(),
             'description' => fake()->paragraph(),
             'phone' => [fake()->phoneNumber()],
             'whatsapp' => fake()->optional()->phoneNumber(),
             'address' => fake()->streetAddress(),
-            'neighborhood' => fake()->citySuffix(),
+            'neighborhood' => 'Engenho da Rainha',
             'city' => fake()->city(),
             'plan' => BusinessPlan::Free,
             'status' => BusinessStatus::Approved,

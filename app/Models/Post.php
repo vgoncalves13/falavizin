@@ -26,6 +26,7 @@ class Post extends Model
         'user_id',
         'category_id',
         'service_category_id',
+        'neighborhood_id',
         'title',
         'slug',
         'body',
@@ -78,6 +79,11 @@ class Post extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function neighborhood(): BelongsTo
+    {
+        return $this->belongsTo(Neighborhood::class);
     }
 
     public function serviceCategory(): BelongsTo
@@ -139,8 +145,28 @@ class Post extends Model
             );
     }
 
+    public function scopeForNeighborhood(Builder $query, Neighborhood|int $neighborhood): Builder
+    {
+        return $query->where('neighborhood_id', $neighborhood instanceof Neighborhood
+            ? $neighborhood->getKey()
+            : $neighborhood);
+    }
+
     public function isSponsoredActive(): bool
     {
         return $this->is_sponsored && ($this->sponsored_until === null || $this->sponsored_until->isFuture());
+    }
+
+    public function acceptsCommunityInteractions(): bool
+    {
+        return (bool) $this->neighborhood?->is_active;
+    }
+
+    public function canonicalUrl(bool $absolute = true): string
+    {
+        return route('neighborhood.feed.show', [
+            ...$this->neighborhood->routeParameters(),
+            'post' => $this,
+        ], $absolute);
     }
 }
