@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Actions\ImportBusinessFromGoogleAction;
 use App\Jobs\EnrichBusinessFromGoogle;
 use App\Models\Business;
+use App\Models\Category;
 use App\Models\Neighborhood;
 use App\Services\GooglePlacesService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -30,7 +32,7 @@ class EnrichBusinessFromGoogleTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('429');
 
-        $job->handle(app(GooglePlacesService::class));
+        $job->handle(app(GooglePlacesService::class), app(ImportBusinessFromGoogleAction::class));
     }
 
     public function test_job_does_not_overwrite_neighborhood_id_when_already_set(): void
@@ -57,13 +59,80 @@ class EnrichBusinessFromGoogleTest extends TestCase
             ], 200),
         ]);
 
-        $job->handle(app(GooglePlacesService::class));
+        $job->handle(app(GooglePlacesService::class), app(ImportBusinessFromGoogleAction::class));
 
         $business->refresh();
 
         $this->assertSame($neighborhood->id, $business->neighborhood_id);
         $this->assertSame(['(21) 3333-4444'], $business->phone);
         $this->assertSame('https://example.com', $business->website);
+    }
+
+    public function test_job_repairs_category_and_lowercase_google_hours(): void
+    {
+        $food = Category::factory()->create(['slug' => 'alimentacao', 'type' => 'both']);
+        $health = Category::factory()->create(['slug' => 'saude', 'type' => 'business']);
+        $business = Business::factory()->create([
+            'category_id' => $food->id,
+            'google_place_id' => 'place-to-repair',
+            'opening_hours' => array_fill(0, 7, [
+                'day' => 'Inválido',
+                'open' => '',
+                'close' => '',
+                'closed' => true,
+            ]),
+        ]);
+
+        $service = $this->mock(GooglePlacesService::class, function (MockInterface $mock): void {
+            $mock->shouldReceive('getPlaceDetails')->once()->andReturn([
+                'types' => ['pharmacy', 'store'],
+                'regularOpeningHours' => [
+                    'weekdayDescriptions' => [
+                        'segunda-feira: 08:00 – 18:00',
+                        'terça-feira: Fechado',
+                        'quarta-feira: Aberto 24 horas',
+                    ],
+                ],
+            ]);
+        });
+
+        (new EnrichBusinessFromGoogle($business->id))->handle(
+            $service,
+            app(ImportBusinessFromGoogleAction::class),
+        );
+
+        $business->refresh();
+
+        $this->assertSame($health->id, $business->category_id);
+        $this->assertSame([$health->id], $business->categories()->pluck('categories.id')->all());
+        $this->assertSame('08:00', $business->opening_hours[0]['open']);
+        $this->assertSame('18:00', $business->opening_hours[0]['close']);
+        $this->assertTrue($business->opening_hours[1]['closed']);
+        $this->assertSame('00:00', $business->opening_hours[2]['open']);
+        $this->assertSame('23:59', $business->opening_hours[2]['close']);
+    }
+
+    public function test_job_clears_broken_hours_when_google_has_no_schedule(): void
+    {
+        $business = Business::factory()->create([
+            'google_place_id' => 'place-without-schedule',
+            'opening_hours' => [[
+                'day' => 'Segunda-feira',
+                'open' => '',
+                'close' => '',
+                'closed' => true,
+            ]],
+        ]);
+        $service = $this->mock(GooglePlacesService::class, function (MockInterface $mock): void {
+            $mock->shouldReceive('getPlaceDetails')->once()->andReturn([]);
+        });
+
+        (new EnrichBusinessFromGoogle($business->id))->handle(
+            $service,
+            app(ImportBusinessFromGoogleAction::class),
+        );
+
+        $this->assertNull($business->fresh()->opening_hours);
     }
 
     public function test_job_imports_at_most_nine_photos(): void
@@ -85,7 +154,10 @@ class EnrichBusinessFromGoogleTest extends TestCase
             'https://images.test/*' => Http::response(file_get_contents($image->getRealPath()), 200),
         ]);
 
-        (new EnrichBusinessFromGoogle($business->id))->handle($service);
+        (new EnrichBusinessFromGoogle($business->id))->handle(
+            $service,
+            app(ImportBusinessFromGoogleAction::class),
+        );
 
         $this->assertCount(9, $business->photos);
     }

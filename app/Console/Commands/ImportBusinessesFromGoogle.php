@@ -56,12 +56,11 @@ class ImportBusinessesFromGoogle extends Command
             return Command::FAILURE;
         }
 
-        $defaultCategory = Category::query()
+        $hasCategories = Category::query()
             ->whereIn('type', ['business', 'both'])
-            ->orderBy('sort_order')
-            ->first();
+            ->exists();
 
-        if (! $defaultCategory) {
+        if (! $hasCategories) {
             $this->error('Nenhuma categoria de negócio encontrada. Execute o seeder primeiro.');
 
             return Command::FAILURE;
@@ -92,7 +91,7 @@ class ImportBusinessesFromGoogle extends Command
         $skipped = 0;
 
         foreach ($results as $place) {
-            $business = $action->execute($place, $neighborhood, $defaultCategory->id);
+            $business = $action->execute($place, $neighborhood, 0);
 
             if ($business !== null) {
                 $imported++;

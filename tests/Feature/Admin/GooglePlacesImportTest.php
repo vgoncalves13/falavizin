@@ -190,6 +190,7 @@ class GooglePlacesImportTest extends TestCase
         ]);
 
         $this->assertDatabaseCount('businesses', 2);
+        $this->assertDatabaseCount('business_categories', 2);
         $this->assertSame(
             ['(21) 99999-1111'],
             Business::where('google_place_id', 'ChIJ_place_001')->firstOrFail()->phone,
@@ -232,6 +233,47 @@ class GooglePlacesImportTest extends TestCase
 
         // Should still be only 1 (the pre-existing one — no new import)
         $this->assertDatabaseCount('businesses', 1);
+    }
+
+    public function test_import_matches_google_type_and_uses_outros_as_fallback(): void
+    {
+        Queue::fake();
+
+        $admin = $this->makeAdmin();
+        $neighborhood = $this->makeNeighborhood();
+        $food = Category::factory()->create(['slug' => 'alimentacao', 'type' => 'both']);
+        $other = Category::where('slug', 'outros')->firstOrFail();
+
+        $this->mock(GooglePlacesService::class, function (MockInterface $mock) {
+            $mock->shouldReceive('searchNearby')
+                ->once()
+                ->andReturn($this->fakePlaces()->push([
+                    'place_id' => 'ChIJ_place_unknown',
+                    'name' => 'Local sem correspondência',
+                    'types' => ['establishment'],
+                    'already_imported' => false,
+                ]));
+        });
+
+        Livewire::actingAs($admin)
+            ->test(GooglePlacesImport::class)
+            ->set('neighborhoodId', $neighborhood->id)
+            ->call('search')
+            ->set('selected', ['ChIJ_place_001', 'ChIJ_place_unknown'])
+            ->call('import');
+
+        $this->assertDatabaseHas('businesses', [
+            'google_place_id' => 'ChIJ_place_001',
+            'category_id' => $food->id,
+        ]);
+        $this->assertDatabaseHas('businesses', [
+            'google_place_id' => 'ChIJ_place_unknown',
+            'category_id' => $other->id,
+        ]);
+        $this->assertDatabaseHas('business_categories', [
+            'business_id' => Business::where('google_place_id', 'ChIJ_place_001')->value('id'),
+            'category_id' => $food->id,
+        ]);
     }
 
     public function test_search_requires_neighborhood(): void

@@ -41,7 +41,9 @@ class ImportBusinessFromGoogleAction
         // Internet / telecom
         'internet_cafe' => 'internet',
         'telecommunications' => 'internet',
+        'telecommunications_service_provider' => 'internet',
         'cell_phone_store' => 'internet',
+        'electronics_store' => 'internet',
 
         // Saúde
         'pharmacy' => 'saude',
@@ -69,6 +71,8 @@ class ImportBusinessFromGoogleAction
         // Mercado
         'supermarket' => 'mercado',
         'grocery_store' => 'mercado',
+        'food_store' => 'mercado',
+        'market' => 'mercado',
         'convenience_store' => 'mercado',
         'department_store' => 'mercado',
         'shopping_mall' => 'mercado',
@@ -192,7 +196,7 @@ class ImportBusinessFromGoogleAction
 
         $categoryId = $this->resolveCategoryId($place['types'] ?? [], $fallbackCategoryId);
 
-        return Business::create([
+        $business = Business::create([
             'category_id' => $categoryId,
             'neighborhood_id' => $neighborhood->id,
             'name' => $place['name'],
@@ -208,9 +212,13 @@ class ImportBusinessFromGoogleAction
             'claimed' => false,
             'user_id' => null,
         ]);
+
+        $business->categories()->sync([$categoryId]);
+
+        return $business;
     }
 
-    private function resolveCategoryId(array $types, int $fallbackCategoryId): int
+    public function resolveCategoryId(array $types, int $fallbackCategoryId): int
     {
         foreach ($types as $type) {
             $slug = self::TYPE_TO_CATEGORY[$type] ?? null;

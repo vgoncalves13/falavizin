@@ -18,6 +18,9 @@ class GooglePlacesImport extends Component
         'neighborhood', 'political', 'natural_feature', 'route', 'street_address',
         'postal_code', 'administrative_area_level_1', 'administrative_area_level_2',
         'administrative_area_level_3', 'country', 'colloquial_area',
+        'apartment_building', 'apartment_complex', 'condominium_complex', 'housing_complex',
+        'place_of_worship', 'church', 'hindu_temple', 'mosque', 'synagogue',
+        'city_park', 'park', 'playground', 'town_square',
     ];
 
     public int $neighborhoodId = 0;
@@ -115,10 +118,6 @@ class GooglePlacesImport extends Component
 
         $neighborhood = Neighborhood::active()->findOrFail($this->neighborhoodId);
         $action = app(ImportBusinessFromGoogleAction::class);
-        $categoryId = $this->categoryId ?: Category::query()
-            ->whereIn('type', ['business', 'both'])
-            ->orderBy('sort_order')
-            ->value('id');
         $imported = 0;
 
         foreach ($this->results as $place) {
@@ -126,7 +125,7 @@ class GooglePlacesImport extends Component
                 continue;
             }
 
-            $business = $action->execute($place, $neighborhood, $categoryId);
+            $business = $action->execute($place, $neighborhood, $this->categoryId);
 
             if ($business !== null) {
                 EnrichBusinessFromGoogle::dispatch($business->id)

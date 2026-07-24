@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Actions\ImportBusinessFromGoogleAction;
 use App\Models\Business;
 use App\Models\BusinessPhoto;
 use App\Services\GooglePlacesService;
@@ -26,7 +27,7 @@ class EnrichBusinessFromGoogle implements ShouldQueue
 
     public function __construct(public readonly int $businessId) {}
 
-    public function handle(GooglePlacesService $service): void
+    public function handle(GooglePlacesService $service, ImportBusinessFromGoogleAction $categoryMapper): void
     {
         $business = Business::find($this->businessId);
 
@@ -43,6 +44,14 @@ class EnrichBusinessFromGoogle implements ShouldQueue
         }
 
         $updates = [];
+        $categoryId = null;
+
+        if (! $business->categories()->exists()) {
+            $categoryId = empty($details['types'])
+                ? $business->category_id
+                : $categoryMapper->resolveCategoryId($details['types'], 0);
+            $updates['category_id'] = $categoryId;
+        }
 
         if (empty($business->phone) && ! empty($details['nationalPhoneNumber'])) {
             $updates['phone'] = [$details['nationalPhoneNumber']];
@@ -52,8 +61,11 @@ class EnrichBusinessFromGoogle implements ShouldQueue
             $updates['website'] = $details['websiteUri'];
         }
 
-        if (empty($business->opening_hours) && ! empty($details['regularOpeningHours']['weekdayDescriptions'])) {
-            $updates['opening_hours'] = $this->parseOpeningHours($details['regularOpeningHours']['weekdayDescriptions']);
+        if (! $this->hasUsableOpeningHours($business->opening_hours)) {
+            $weekdayDescriptions = $details['regularOpeningHours']['weekdayDescriptions'] ?? [];
+            $updates['opening_hours'] = $weekdayDescriptions === []
+                ? null
+                : $this->parseOpeningHours($weekdayDescriptions);
         }
 
         // Never overwrite neighborhood_id — it is set during import or backfill
@@ -63,7 +75,19 @@ class EnrichBusinessFromGoogle implements ShouldQueue
             $business->update($updates);
         }
 
+        if ($categoryId) {
+            $business->categories()->sync([$categoryId]);
+        }
+
         $this->importPhotos($business, $service, $details);
+    }
+
+    private function hasUsableOpeningHours(?array $openingHours): bool
+    {
+        return collect($openingHours)->contains(fn ($hours): bool => is_array($hours)
+            && ! ($hours['closed'] ?? true)
+            && ! empty($hours['open'])
+            && ! empty($hours['close']));
     }
 
     /**
@@ -81,22 +105,27 @@ class EnrichBusinessFromGoogle implements ShouldQueue
         foreach ($weekdayDescriptions as $desc) {
             $parts = explode(': ', $desc, 2);
             if (count($parts) === 2) {
-                $byDay[trim($parts[0])] = trim($parts[1]);
+                $byDay[mb_strtolower(trim($parts[0]))] = trim($parts[1]);
             }
         }
 
         $result = [];
         foreach ($days as $day) {
-            $value = $byDay[$day] ?? null;
+            $value = $byDay[mb_strtolower($day)] ?? null;
             $closed = $value === null || in_array(strtolower($value), ['fechado', 'closed']);
             $open = '';
             $close = '';
 
             if (! $closed) {
-                // Google uses U+2009 (thin space) + U+2013 (en dash) as time separator
-                $times = preg_split('/\s*[\x{2013}\x{2014}]\s*/u', $value, 2);
-                $open = trim($times[0] ?? '');
-                $close = trim($times[1] ?? '');
+                if (in_array(mb_strtolower($value), ['aberto 24 horas', 'open 24 hours'])) {
+                    $open = '00:00';
+                    $close = '23:59';
+                } else {
+                    // Google uses U+2009 (thin space) + U+2013 (en dash) as time separator
+                    $times = preg_split('/\s*[\x{2013}\x{2014}]\s*/u', $value, 2);
+                    $open = trim($times[0] ?? '');
+                    $close = trim($times[1] ?? '');
+                }
             }
 
             $result[] = compact('day', 'open', 'close', 'closed');
