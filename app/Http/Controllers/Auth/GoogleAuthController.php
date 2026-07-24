@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Actions\HandleGoogleAuthentication;
 use App\Http\Controllers\Controller;
+use App\Models\Neighborhood;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -21,6 +22,12 @@ class GoogleAuthController extends Controller
         if ($intended && Str::startsWith($intended, '/') && ! Str::startsWith($intended, '//')) {
             session()->put('url.intended', $intended);
         }
+
+        $neighborhood = Neighborhood::query()
+            ->active()
+            ->find(session('current_neighborhood_id'));
+
+        session()->put('oauth_neighborhood_id', $neighborhood?->id);
 
         return Socialite::driver('google')
             ->scopes(['openid', 'profile', 'email'])
@@ -61,13 +68,21 @@ class GoogleAuthController extends Controller
                 ->with('error', 'Não foi possível obter seu e-mail do Google. Tente novamente ou utilize seu e-mail.');
         }
 
+        $neighborhood = Neighborhood::query()
+            ->active()
+            ->find(session('oauth_neighborhood_id'));
+
         try {
-            $user = $action->execute($googleUser);
+            $user = $action->execute($googleUser, $neighborhood);
         } catch (\Throwable $e) {
             Log::error('Google auth user resolution failed', ['error' => $e->getMessage()]);
 
             return redirect()->route('login')
                 ->with('error', 'Não foi possível entrar com o Google. Tente novamente ou utilize seu e-mail.');
+        }
+
+        if (! $user->primaryNeighborhood && ! $user->neighborhood) {
+            return redirect()->route('neighborhoods.select');
         }
 
         Auth::login($user, remember: true);

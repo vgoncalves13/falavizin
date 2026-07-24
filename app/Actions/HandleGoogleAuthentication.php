@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Models\Neighborhood;
 use App\Models\SocialAccount;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -10,7 +11,7 @@ use Laravel\Socialite\Contracts\User as SocialiteUser;
 
 class HandleGoogleAuthentication
 {
-    public function execute(SocialiteUser $googleUser): User
+    public function execute(SocialiteUser $googleUser, ?Neighborhood $neighborhood = null): User
     {
         $providerUserId = $googleUser->getId();
         $email = strtolower(trim($googleUser->getEmail() ?? ''));
@@ -35,8 +36,8 @@ class HandleGoogleAuthentication
             return $existingAccount->user;
         }
 
-        return DB::transaction(function () use ($googleUser, $providerUserId, $email) {
-            $user = $this->findOrCreateUser($email, $googleUser);
+        return DB::transaction(function () use ($googleUser, $providerUserId, $email, $neighborhood) {
+            $user = $this->findOrCreateUser($email, $googleUser, $neighborhood);
 
             SocialAccount::create([
                 'user_id' => $user->id,
@@ -56,7 +57,7 @@ class HandleGoogleAuthentication
         });
     }
 
-    private function findOrCreateUser(string $email, SocialiteUser $googleUser): User
+    private function findOrCreateUser(string $email, SocialiteUser $googleUser, ?Neighborhood $neighborhood): User
     {
         if ($email) {
             $existingUser = User::query()->where('email', $email)->first();
@@ -75,13 +76,20 @@ class HandleGoogleAuthentication
             }
         }
 
-        $user = User::create([
+        $userData = [
             'name' => $googleUser->getName() ?? $googleUser->getNickname() ?? 'Usuário',
             'email' => $email,
             'email_verified_at' => now(),
             'password' => null,
             'avatar_url' => $googleUser->getAvatar(),
-        ]);
+        ];
+
+        if ($neighborhood) {
+            $userData['neighborhood_id'] = $neighborhood->id;
+            $userData['neighborhood'] = $neighborhood->name;
+        }
+
+        $user = User::create($userData);
 
         Log::info('Social user created', [
             'provider' => 'google',

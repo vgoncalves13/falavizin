@@ -70,6 +70,42 @@
             <x-input-error :messages="$errors->get('email')" class="mt-1.5" />
         </div>
 
+        {{-- Bairro --}}
+        <div class="fade-5b">
+            @php
+                $currentNeighborhoodId = old('neighborhood_id', session('current_neighborhood_id'));
+                $hasContext = $currentNeighborhoodId && $neighborhoods->contains('id', (int) $currentNeighborhoodId);
+            @endphp
+
+            @if($hasContext)
+                @php
+                    $selectedNeighborhood = $neighborhoods->firstWhere('id', (int) $currentNeighborhoodId);
+                @endphp
+                <label class="g-label">Bairro</label>
+                <div style="display:flex;align-items:center;gap:.5rem;padding:.625rem .875rem;background:#fefce8;border:1px solid #fde68a;border-radius:.5rem;font-size:.875rem;color:#92400e;">
+                    <x-heroicon-o-map-pin class="w-4 h-4" />
+                    <span>{{ $selectedNeighborhood->name }}</span>
+                </div>
+                <input type="hidden" name="neighborhood_id" value="{{ $currentNeighborhoodId }}" />
+            @else
+                <label for="neighborhood_id" class="g-label">Bairro</label>
+                <select
+                    id="neighborhood_id"
+                    name="neighborhood_id"
+                    required
+                    class="g-input"
+                >
+                    <option value="">Selecione seu bairro</option>
+                    @foreach($neighborhoods as $neighborhood)
+                        <option value="{{ $neighborhood->id }}" {{ old('neighborhood_id') == $neighborhood->id ? 'selected' : '' }}>
+                            {{ $neighborhood->name }}
+                        </option>
+                    @endforeach
+                </select>
+            @endif
+            <x-input-error :messages="$errors->get('neighborhood_id')" class="mt-1.5" />
+        </div>
+
         {{-- Senha --}}
         <div class="fade-6">
             <label for="password" class="g-label">Senha</label>

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\Neighborhood;
 use App\Models\SocialAccount;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -24,18 +25,22 @@ class GoogleAuthTest extends TestCase
 
     public function test_google_callback_creates_new_user(): void
     {
+        $neighborhood = Neighborhood::factory()->create();
         $socialiteUser = $this->createSocialiteUser();
 
         Socialite::shouldReceive('driver->user')
             ->andReturn($socialiteUser);
 
-        $response = $this->get(route('auth.google.callback'));
+        $response = $this->withSession(['oauth_neighborhood_id' => $neighborhood->id])
+            ->get(route('auth.google.callback'));
 
         $response->assertRedirect(route('home'));
 
         $this->assertDatabaseHas('users', [
             'email' => 'novo@gmail.com',
             'name' => 'Novo Usuário',
+            'neighborhood_id' => $neighborhood->id,
+            'neighborhood' => $neighborhood->name,
         ]);
 
         $this->assertDatabaseHas('social_accounts', [
@@ -121,26 +126,32 @@ class GoogleAuthTest extends TestCase
 
     public function test_google_callback_preserves_intended_url(): void
     {
+        $neighborhood = Neighborhood::factory()->create();
         $socialiteUser = $this->createSocialiteUser();
 
         Socialite::shouldReceive('driver->user')
             ->andReturn($socialiteUser);
 
-        $response = $this->withSession(['url.intended' => '/feed/algum-post'])
-            ->get(route('auth.google.callback'));
+        $response = $this->withSession([
+            'url.intended' => '/feed/algum-post',
+            'oauth_neighborhood_id' => $neighborhood->id,
+        ])->get(route('auth.google.callback'));
 
         $response->assertRedirect('/feed/algum-post');
     }
 
     public function test_google_callback_rejects_external_redirect(): void
     {
+        $neighborhood = Neighborhood::factory()->create();
         $socialiteUser = $this->createSocialiteUser();
 
         Socialite::shouldReceive('driver->user')
             ->andReturn($socialiteUser);
 
-        $response = $this->withSession(['url.intended' => 'https://evil.com/steal'])
-            ->get(route('auth.google.callback'));
+        $response = $this->withSession([
+            'url.intended' => 'https://evil.com/steal',
+            'oauth_neighborhood_id' => $neighborhood->id,
+        ])->get(route('auth.google.callback'));
 
         $response->assertRedirect(route('home'));
     }
@@ -280,16 +291,81 @@ class GoogleAuthTest extends TestCase
 
     public function test_traditional_register_still_works(): void
     {
+        $neighborhood = Neighborhood::factory()->create();
+
         $response = $this->post(route('register'), [
             'name' => 'Novo User',
             'email' => 'novo@test.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
+            'neighborhood_id' => $neighborhood->id,
         ]);
 
         $response->assertRedirect(route('home'));
         $this->assertAuthenticated();
         $this->assertDatabaseHas('users', ['email' => 'novo@test.com']);
+    }
+
+    public function test_google_callback_revalidates_a_neighborhood_deactivated_during_oauth(): void
+    {
+        $neighborhood = Neighborhood::factory()->inactive()->create();
+        Socialite::shouldReceive('driver->user')->andReturn($this->createSocialiteUser());
+
+        $this->withSession(['oauth_neighborhood_id' => $neighborhood->id])
+            ->get(route('auth.google.callback'))
+            ->assertRedirect(route('neighborhoods.select'));
+    }
+
+    public function test_google_callback_does_not_overwrite_existing_user_neighborhood(): void
+    {
+        $originalNeighborhood = Neighborhood::factory()->create(['name' => 'Original']);
+        $user = User::factory()->create([
+            'email' => 'existing@gmail.com',
+            'neighborhood_id' => $originalNeighborhood->id,
+            'neighborhood' => $originalNeighborhood->name,
+        ]);
+        SocialAccount::create([
+            'user_id' => $user->id,
+            'provider' => 'google',
+            'provider_user_id' => 'google-123',
+            'provider_email' => 'existing@gmail.com',
+        ]);
+
+        $newNeighborhood = Neighborhood::factory()->create(['name' => 'Novo']);
+        $socialiteUser = $this->createSocialiteUser(
+            id: 'google-123',
+            email: 'existing@gmail.com',
+        );
+
+        Socialite::shouldReceive('driver->user')
+            ->andReturn($socialiteUser);
+
+        $this->withSession(['oauth_neighborhood_id' => $newNeighborhood->id])
+            ->get(route('auth.google.callback'));
+
+        $user->refresh();
+        $this->assertEquals($originalNeighborhood->id, $user->neighborhood_id);
+        $this->assertEquals($originalNeighborhood->name, $user->neighborhood);
+    }
+
+    public function test_google_redirect_preserves_neighborhood_in_session(): void
+    {
+        $neighborhood = Neighborhood::factory()->create();
+
+        $this->withSession(['current_neighborhood_id' => $neighborhood->id])
+            ->get(route('auth.google.redirect'));
+
+        $this->assertEquals($neighborhood->id, session('oauth_neighborhood_id'));
+    }
+
+    public function test_google_redirect_ignores_inactive_neighborhood(): void
+    {
+        $neighborhood = Neighborhood::factory()->inactive()->create();
+
+        $this->withSession(['current_neighborhood_id' => $neighborhood->id])
+            ->get(route('auth.google.redirect'));
+
+        $this->assertNull(session('oauth_neighborhood_id'));
     }
 
     private function createSocialiteUser(
