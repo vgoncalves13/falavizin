@@ -49,7 +49,7 @@ class PostController extends Controller
 
     public function create(): View
     {
-        $neighborhood = request()->route('neighborhood');
+        $neighborhood = request()->route('neighborhood') ?? request()->user()->primaryNeighborhood;
 
         return view('feed.create', compact('neighborhood'));
     }

@@ -10,7 +10,7 @@
         </h1>
 
         <div class="bg-white rounded-xl border border-stone-200 p-6">
-            <livewire:feed.create-post />
+            <livewire:feed.create-post :neighborhood="$neighborhood" />
         </div>
     </div>
 </x-app-layout>

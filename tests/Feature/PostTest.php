@@ -78,11 +78,22 @@ class PostTest extends TestCase
     public function test_authenticated_user_can_see_create_post_page(): void
     {
         $user = User::factory()->create();
-        $neighborhood = Neighborhood::factory()->create();
+        $neighborhood = Neighborhood::factory()->create(['name' => 'Copacabana']);
 
         $response = $this->actingAs($user)->get(route('neighborhood.feed.create', $neighborhood->routeParameters()));
 
-        $response->assertStatus(200);
+        $response->assertOk()->assertSee('Publicando em Copacabana');
+    }
+
+    public function test_legacy_create_post_page_uses_primary_neighborhood(): void
+    {
+        $neighborhood = Neighborhood::factory()->create(['name' => 'Tijuca']);
+        $user = User::factory()->create(['neighborhood_id' => $neighborhood->id]);
+
+        $this->actingAs($user)
+            ->get(route('feed.create'))
+            ->assertOk()
+            ->assertSee('Publicando em Tijuca');
     }
 
     public function test_authenticated_user_can_create_post(): void
