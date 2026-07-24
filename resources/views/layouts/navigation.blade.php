@@ -134,8 +134,8 @@
                                         <x-dropdown-link :href="route('admin.google-places-import')">
                                             Importar Google Places
                                         </x-dropdown-link>
-                                        <x-dropdown-link :href="route('admin.settings')">
-                                            Configurações
+                                        <x-dropdown-link :href="route('admin.neighborhoods')">
+                                            Bairros
                                         </x-dropdown-link>
                                     @endif
                                 @endif
@@ -275,9 +275,10 @@
                            class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">
                             Importar Google Places
                         </a>
-                        <a href="{{ route('admin.settings') }}"
+                        <a href="{{ route('admin.neighborhoods') }}"
                            class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100">
-                            Configurações
+                            <x-heroicon-o-map-pin class="w-4 h-4" />
+                            Bairros
                         </a>
                     @endif
                 @endif

@@ -22,8 +22,8 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\UserProfileController;
-use App\Livewire\Admin\AppSettings;
 use App\Livewire\Admin\GooglePlacesImport;
+use App\Livewire\Admin\NeighborhoodManager;
 use App\Models\Neighborhood;
 use Illuminate\Support\Facades\Route;
 
@@ -166,7 +166,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/reivindicacoes/{business}/aprovar', [ModerationController::class, 'approveClaim'])->name('claims.approve');
     Route::post('/reivindicacoes/{business}/rejeitar', [ModerationController::class, 'rejectClaim'])->name('claims.reject');
     Route::get('/importar-google-places', GooglePlacesImport::class)->name('google-places-import');
-    Route::get('/configuracoes', AppSettings::class)->name('settings');
+    Route::get('/bairros', NeighborhoodManager::class)->name('neighborhoods');
     Route::get('/estatisticas', [StatsController::class, 'index'])->name('stats');
     Route::post('/negocio/{business}/aprovar-upgrade', [BusinessController::class, 'approveUpgrade'])->name('businesses.upgrade.approve');
     Route::post('/negocio/{business}/dispensar-upgrade', [BusinessController::class, 'dismissUpgrade'])->name('businesses.upgrade.dismiss');
