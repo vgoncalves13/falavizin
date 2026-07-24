@@ -1,7 +1,7 @@
 @php
     $displayNeighborhood = $currentNeighborhood ?? auth()->user()?->primaryNeighborhood ?? null;
 @endphp
-<nav x-data="{ open: false, searchOpen: false, moreOpen: false }" class="bg-white border-b border-stone-200 sticky top-0 z-50" aria-label="Navegação principal">
+<nav x-data="{ open: false, searchOpen: false }" class="bg-white border-b border-stone-200 sticky top-0 z-50" aria-label="Navegação principal">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <!-- Logo -->
@@ -15,44 +15,40 @@
                 <div class="hidden md:flex items-center gap-1">
                     @if($displayNeighborhood)
                         <a href="{{ route('neighborhood.feed.index', $displayNeighborhood->routeParameters()) }}"
-                           class="px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 {{ request()->routeIs('neighborhood.feed.*') ? 'bg-amber-50 text-amber-700' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50' }}">
-                            Feed
+                           class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 {{ request()->routeIs('neighborhood.feed.*') ? 'bg-amber-50 text-amber-700' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50' }}">
+                            <x-heroicon-o-newspaper class="w-4 h-4" />
+                            <span class="hidden lg:inline">Feed</span>
                         </a>
                         <a href="{{ route('neighborhood.businesses.index', $displayNeighborhood->routeParameters()) }}"
-                           class="px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 {{ request()->routeIs('neighborhood.businesses.*') ? 'bg-amber-50 text-amber-700' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50' }}">
-                            Serviços
+                           class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 {{ request()->routeIs('neighborhood.businesses.*') ? 'bg-amber-50 text-amber-700' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50' }}">
+                            <x-heroicon-o-building-storefront class="w-4 h-4" />
+                            <span class="hidden lg:inline">Serviços</span>
                         </a>
                         <a href="{{ route('neighborhood.promotions.index', $displayNeighborhood->routeParameters()) }}"
-                           class="px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 {{ request()->routeIs('neighborhood.promotions.*') ? 'bg-amber-50 text-amber-700' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50' }}">
-                            Promoções
+                           class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 {{ request()->routeIs('neighborhood.promotions.*') ? 'bg-amber-50 text-amber-700' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50' }}">
+                            <x-heroicon-o-tag class="w-4 h-4" />
+                            <span class="hidden lg:inline">Promoções</span>
                         </a>
                     @endif
 
-                    <!-- Mais dropdown -->
-                    <div class="relative" x-on:click.outside="moreOpen = false">
-                        <button @click="moreOpen = !moreOpen"
-                            class="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-50 transition-colors duration-150">
-                            Mais
-                            <x-heroicon-o-chevron-down class="w-3.5 h-3.5 transition-transform duration-150" x-bind:class="moreOpen && 'rotate-180'" />
-                        </button>
-                        <div x-show="moreOpen" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
-                             class="absolute left-0 mt-1 w-48 bg-white rounded-xl shadow-lg border border-stone-200 py-1 z-50">
-                            <a href="{{ route('ranking.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm text-stone-700 hover:bg-stone-50">
-                                <x-heroicon-o-trophy class="w-4 h-4 text-stone-400" />
-                                Ranking
-                            </a>
-                            @if($displayNeighborhood)
-                                <a href="{{ route('neighborhood.pulso.index', $displayNeighborhood->routeParameters()) }}" class="flex items-center gap-2 px-3 py-2 text-sm text-stone-700 hover:bg-stone-50">
-                                    <x-heroicon-o-signal class="w-4 h-4 text-stone-400" />
-                                    Pulso
-                                </a>
-                                <a href="{{ route('neighborhood.events.index', $displayNeighborhood->routeParameters()) }}" class="flex items-center gap-2 px-3 py-2 text-sm text-stone-700 hover:bg-stone-50">
-                                    <x-heroicon-o-calendar-days class="w-4 h-4 text-stone-400" />
-                                    Eventos
-                                </a>
-                            @endif
-                        </div>
-                    </div>
+                    <!-- Secondary links: icons only on md, full on lg+ -->
+                    <a href="{{ route('ranking.index') }}"
+                       class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 {{ request()->routeIs('ranking.*') ? 'bg-amber-50 text-amber-700' : 'text-stone-500 hover:text-stone-700 hover:bg-stone-50' }}">
+                        <x-heroicon-o-trophy class="w-4 h-4" />
+                        <span class="hidden lg:inline">Ranking</span>
+                    </a>
+                    @if($displayNeighborhood)
+                        <a href="{{ route('neighborhood.pulso.index', $displayNeighborhood->routeParameters()) }}"
+                           class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 {{ request()->routeIs('neighborhood.pulso.*') ? 'bg-amber-50 text-amber-700' : 'text-stone-500 hover:text-stone-700 hover:bg-stone-50' }}">
+                            <x-heroicon-o-signal class="w-4 h-4" />
+                            <span class="hidden lg:inline">Pulso</span>
+                        </a>
+                        <a href="{{ route('neighborhood.events.index', $displayNeighborhood->routeParameters()) }}"
+                           class="hidden lg:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 {{ request()->routeIs('neighborhood.events.*') ? 'bg-amber-50 text-amber-700' : 'text-stone-500 hover:text-stone-700 hover:bg-stone-50' }}">
+                            <x-heroicon-o-calendar-days class="w-4 h-4" />
+                            Eventos
+                        </a>
+                    @endif
                 </div>
             </div>
 
