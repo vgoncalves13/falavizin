@@ -32,6 +32,9 @@ class NeighborhoodNavigationTest extends TestCase
         $this->get(route('neighborhood.home', $active->routeParameters()))
             ->assertOk()
             ->assertSee('Copacabana', false)
+            ->assertSee('data-neighborhood-search', false)
+            ->assertSee('data-neighborhood-list', false)
+            ->assertSee('x-model.debounce.150ms="query"', false)
             ->assertDontSee('Inativo', false);
     }
 
