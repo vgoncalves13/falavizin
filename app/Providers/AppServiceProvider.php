@@ -8,7 +8,12 @@ use App\Models\Neighborhood;
 use App\Models\Post;
 use App\Models\Promotion;
 use App\Models\User;
-use App\Services\HomeCache;
+use App\Observers\BusinessObserver;
+use App\Observers\CategoryObserver;
+use App\Observers\NeighborhoodObserver;
+use App\Observers\PostObserver;
+use App\Observers\PromotionObserver;
+use App\Observers\UserObserver;
 use Illuminate\Notifications\Events\NotificationFailed;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
@@ -39,9 +44,12 @@ class AppServiceProvider extends ServiceProvider
                 ->firstOrFail();
         });
 
-        foreach ([Post::class, Business::class, Promotion::class, Category::class, User::class] as $model) {
-            $model::observe(HomeCache::class);
-        }
+        Post::observe(PostObserver::class);
+        Business::observe(BusinessObserver::class);
+        Promotion::observe(PromotionObserver::class);
+        Category::observe(CategoryObserver::class);
+        User::observe(UserObserver::class);
+        Neighborhood::observe(NeighborhoodObserver::class);
 
         Event::listen(NotificationFailed::class, function (NotificationFailed $event): void {
             if (method_exists($event->notification, 'releaseDeliveryReservation')) {

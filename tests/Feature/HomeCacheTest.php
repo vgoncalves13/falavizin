@@ -3,8 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
+use App\Models\Neighborhood;
 use App\Models\Post;
 use App\Models\User;
+use App\Services\NeighborhoodCache;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
@@ -13,32 +15,56 @@ class HomeCacheTest extends TestCase
 {
     use DatabaseMigrations;
 
-    public function test_domain_changes_invalidate_home_cache_after_commit(): void
+    public function test_post_change_invalidates_only_its_neighborhood_cache(): void
     {
-        Cache::clear();
-        $user = User::factory()->create();
+        $first = Neighborhood::factory()->create();
+        $second = Neighborhood::factory()->create();
+        $user = User::factory()->create(['neighborhood_id' => $first->id]);
         $category = Category::factory()->create();
-        $postData = [
-            'user_id' => $user->id,
-            'category_id' => $category->id,
-            'status' => 'approved',
-        ];
-        $firstPost = Post::factory()->create($postData);
+        $cache = app(NeighborhoodCache::class);
 
-        $this->get(route('home'))
-            ->assertOk()
-            ->assertSee($firstPost->title);
+        $cache->remember($first, NeighborhoodCache::HOME_POSTS, fn () => 'first');
+        $cache->remember($second, NeighborhoodCache::HOME_POSTS, fn () => 'second');
 
-        $secondPost = Post::factory()->create($postData);
+        Post::factory()
+            ->for($first, 'neighborhood')
+            ->for($user)
+            ->for($category)
+            ->create();
 
-        $this->get(route('home'))
-            ->assertOk()
-            ->assertSee($secondPost->title)
-            ->assertViewHas('heroStats', fn (array $stats) => $stats['posts'] === 2);
+        $this->assertFalse(Cache::has($cache->key($first, NeighborhoodCache::HOME_POSTS)));
+        $this->assertTrue(Cache::has($cache->key($second, NeighborhoodCache::HOME_POSTS)));
+    }
 
-        $view = file_get_contents(resource_path('views/home/index.blade.php'));
+    public function test_user_neighborhood_change_invalidates_both_old_and_new(): void
+    {
+        $oldNeighborhood = Neighborhood::factory()->create();
+        $newNeighborhood = Neighborhood::factory()->create();
+        $user = User::factory()->create(['neighborhood_id' => $oldNeighborhood->id]);
+        $cache = app(NeighborhoodCache::class);
 
-        $this->assertIsString($view);
-        $this->assertStringNotContainsString('App\\Models', $view);
+        $cache->remember($oldNeighborhood, NeighborhoodCache::HOME_POSTS, fn () => 'old');
+        $cache->remember($newNeighborhood, NeighborhoodCache::HOME_POSTS, fn () => 'new');
+
+        $user->update(['neighborhood_id' => $newNeighborhood->id]);
+
+        $this->assertFalse(Cache::has($cache->key($oldNeighborhood, NeighborhoodCache::HOME_POSTS)));
+        $this->assertFalse(Cache::has($cache->key($newNeighborhood, NeighborhoodCache::HOME_POSTS)));
+    }
+
+    public function test_category_change_invalidates_all_neighborhoods(): void
+    {
+        $first = Neighborhood::factory()->create();
+        $second = Neighborhood::factory()->create();
+        $category = Category::factory()->create();
+        $cache = app(NeighborhoodCache::class);
+
+        $cache->remember($first, NeighborhoodCache::HOME_CATEGORIES, fn () => 'first');
+        $cache->remember($second, NeighborhoodCache::HOME_CATEGORIES, fn () => 'second');
+
+        $category->update(['name' => 'Updated']);
+
+        $this->assertFalse(Cache::has($cache->key($first, NeighborhoodCache::HOME_CATEGORIES)));
+        $this->assertFalse(Cache::has($cache->key($second, NeighborhoodCache::HOME_CATEGORIES)));
     }
 }
