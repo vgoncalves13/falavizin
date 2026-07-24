@@ -4,8 +4,9 @@ namespace App\Observers;
 
 use App\Models\User;
 use App\Services\NeighborhoodCache;
+use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
 
-final class UserObserver
+final class UserObserver implements ShouldHandleEventsAfterCommit
 {
     public function __construct(private NeighborhoodCache $cache) {}
 
@@ -27,11 +28,15 @@ final class UserObserver
 
     public function deleted(User $user): void
     {
-        $this->cache->forget($user->neighborhood_id);
+        if ($user->neighborhood_id) {
+            $this->cache->forget($user->neighborhood_id);
+        }
     }
 
     public function restored(User $user): void
     {
-        $this->cache->forget($user->neighborhood_id);
+        if ($user->neighborhood_id) {
+            $this->cache->forget($user->neighborhood_id);
+        }
     }
 }

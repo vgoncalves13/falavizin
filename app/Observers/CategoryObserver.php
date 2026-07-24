@@ -4,8 +4,9 @@ namespace App\Observers;
 
 use App\Models\Category;
 use App\Services\NeighborhoodCache;
+use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
 
-final class CategoryObserver
+final class CategoryObserver implements ShouldHandleEventsAfterCommit
 {
     public function __construct(private NeighborhoodCache $cache) {}
 

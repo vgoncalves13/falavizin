@@ -28,6 +28,8 @@ final class NeighborhoodCache
 
     public const HOME_STATS = 'home:stats';
 
+    public const NEIGHBORHOODS_ACTIVE = 'neighborhoods:active';
+
     public const PULSE_PREFIX = 'pulso';
 
     private const KEYS = [
@@ -65,6 +67,11 @@ final class NeighborhoodCache
     public function forgetAll(): void
     {
         Neighborhood::query()->pluck('id')->each(fn (int $id) => $this->forget($id));
+    }
+
+    public function forgetActive(): void
+    {
+        Cache::forget(self::NEIGHBORHOODS_ACTIVE);
     }
 
     public static function keys(): array
