@@ -41,6 +41,7 @@ consultas sem filtro podem misturar conteúdo.
 - Usuários autenticados que acessarem a raiz serão redirecionados ao bairro
   principal.
 - Cada negócio pertence a um único bairro no MVP.
+- O bairro de posts e negócios é imutável após a criação neste ciclo.
 - Administração e moderação permanecem globais.
 - O administrador pode criar, ordenar, ativar e desativar bairros.
 - Novos usuários recebem como principal o bairro ativo durante o cadastro.
@@ -142,6 +143,15 @@ As páginas de descoberta e conteúdo ficarão sob:
 Eventos, Pulso, busca e formulários de criação seguirão o mesmo prefixo quando
 dependem de um bairro.
 
+Rotas globais e fixas serão registradas antes desse grupo dinâmico. O grupo
+usará as constraints:
+
+```text
+state: [a-z]{2}
+city: [a-z0-9-]+
+neighborhood: [a-z0-9-]+
+```
+
 `ResolveNeighborhood` resolverá a combinação de UF, cidade e bairro,
 compartilhará o bairro atual com as views e registrará o último bairro
 visitado. `EnsureNeighborhoodIsActive` protegerá listagens e formulários. Isso
@@ -171,10 +181,12 @@ Permanecem sem prefixo:
   principal, último bairro ativo ou primeiro bairro ativo, nessa ordem.
 - Um conteúdo solicitado sob o bairro errado retorna `404`.
 - Um bairro inativo não aparece em diretórios ou seletores, não oferece
-  listagens e não aceita conteúdo ou interação novos.
+  listagens e não aceita conteúdo ou interação comunitária novos.
 - Posts e negócios históricos de um bairro inativo continuam acessíveis por
   sua URL canônica em modo de leitura, com o aviso “Este bairro não está mais
   ativo”.
+- Favoritar, salvar e denunciar conteúdo histórico continuam permitidos porque
+  alteram somente a coleção pessoal ou o fluxo de segurança, não a comunidade.
 
 ## Seleção e persistência do bairro
 
@@ -238,15 +250,28 @@ validado da rota.
 `CreatePostAction` e `CreateBusinessAction` receberão o bairro explicitamente.
 O bairro principal do autor não será usado como fallback silencioso.
 
+O bairro gravado no post ou negócio não poderá ser alterado por usuário ou
+administrador neste ciclo. Uma correção exige recriar o cadastro no bairro
+correto. Transferência administrativa, redirects de URLs transferidas e
+invalidação dupla de cache ficam fora do escopo até existir uma necessidade
+real.
+
 O Google Places Import exigirá um bairro ativo, associará os negócios importados
 a ele e usará suas coordenadas como centro da busca quando estiverem
 preenchidas.
 
 As rotas de publicação usarão rate limit por usuário: cinco posts a cada dez
-minutos e três negócios por hora. A criação de post rejeitará uma repetição
+minutos e três negócios por dia. A criação de post rejeitará uma repetição
 exata de título e corpo pelo mesmo autor, inclusive em outro bairro, dentro de
 uma janela curta de 15 minutos. O bairro fará parte dos dados exibidos em
 denúncias e logs de moderação.
+
+`Post::acceptsCommunityInteractions()` e
+`Business::acceptsCommunityInteractions()` centralizarão a verificação do
+bairro ativo. As Actions ou Policies de comentário, resposta, reação, voto,
+avaliação, promoção e manifestação de interesse usarão essa regra e negarão a
+operação com mensagem explícita. Nenhuma confiará apenas no middleware da
+página. Favoritos, itens salvos e denúncias são as exceções deliberadas.
 
 ## Consultas e isolamento
 
@@ -299,10 +324,12 @@ home:{neighborhood_id}:promotions
 home:{neighborhood_id}:recent-posts
 ```
 
-O `HomeCache` atual será renomeado para `NeighborhoodCache` e continuará como
-o único observer responsável pelos caches locais da home e do Pulso. Ele
-receberá o bairro e invalidará somente seu conjunto conhecido de chaves. Não
-será usado `Cache::flush()` nem tags, pois o driver atual é `file`.
+O `HomeCache` atual será convertido em `NeighborhoodCache`, um serviço sem
+responsabilidade de observer. Observers específicos de Post, Business,
+Promotion, Category, User e Neighborhood delegarão a invalidação a esse
+serviço. Ele receberá o bairro e invalidará somente seu conjunto conhecido de
+chaves. Não será usado `Cache::flush()` nem tags, pois o driver atual é
+`file`.
 
 O cache local será invalidado quando:
 
@@ -381,6 +408,10 @@ UF, cidade e slugs só poderão ser alterados antes de o bairro possuir conteúd
 evitando quebrar URLs públicas. Também não será permitido desativar o último
 bairro ativo.
 
+A Action de desativação usará transação e `lockForUpdate()` sobre os bairros
+ativos antes de contar e alterar registros. Duas solicitações concorrentes não
+poderão desativar todos os bairros.
+
 A configuração global atual de nome e coordenadas do bairro será substituída
 por essa tela. Os valores de `neighborhood_name`, `neighborhood_lat` e
 `neighborhood_lng` serão usados para criar o bairro piloto e depois deixarão de
@@ -391,6 +422,8 @@ ser consultados.
 - Listagens, seleções e gravações validam que o bairro existe e está ativo.
 - IDs enviados pelo navegador nunca substituem o bairro validado pela rota.
 - Usuários só alteram seu próprio bairro principal.
+- Actions e Policies de interação revalidam o estado do bairro, inclusive em
+  chamadas Livewire, AJAX, jobs ou chamadas internas.
 - Posts e negócios precisam pertencer ao bairro da URL.
 - Slugs compostos inválidos e conteúdo cruzado retornam `404`.
 - Desativar um bairro não apaga nem transfere conteúdo.
@@ -411,8 +444,10 @@ A mudança seguirá expand, backfill e contract em releases separadas.
 ### Release de expansão
 
 1. Criar `neighborhoods`.
-2. Criar Engenho da Rainha de forma idempotente na própria migração, sem
-   depender da execução manual de seed em produção.
+2. Criar Engenho da Rainha com Query Builder, valores literais e
+   `insertOrIgnore()`, sem usar o model e sem depender da execução manual de
+   seed em produção. Coordenadas válidas das configurações atuais serão
+   copiadas; na ausência delas, latitude e longitude ficam `null`.
 3. Adicionar `neighborhood_id` nullable a usuários, posts e negócios.
 4. Fazer backfill de todos os registros atuais para Engenho da Rainha.
 5. Publicar o código que lê o relacionamento novo e grava tanto o relacionamento
@@ -464,6 +499,7 @@ Testes automatizados cobrirão:
 - criação, edição, ativação, desativação e ordenação por administrador;
 - proibição de gerenciamento por usuário comum;
 - backfill para Engenho da Rainha;
+- upgrade real partindo do esquema anterior com usuários, posts e negócios;
 - compatibilidade de leitura e escrita durante a fase expand;
 - verificação de registros órfãos antes da fase contract;
 - redirecionamento da raiz para o bairro principal;
@@ -481,10 +517,21 @@ Testes automatizados cobrirão:
 - links de notificações para o bairro correto;
 - comportamento de bairro desativado;
 - acesso somente leitura ao conteúdo histórico de bairro inativo;
+- bloqueio das interações por Actions e Policies, com favoritos, salvos e
+  denúncias ainda permitidos;
 - rate limit e rejeição de publicação duplicada;
+- concorrência ao tentar desativar os últimos bairros ativos;
 - preservação e revalidação segura do contexto OAuth;
 - construção centralizada de URLs em processos enfileirados;
 - manutenção das permissões globais de admin e moderação.
+
+Um teste de integração de migration montará o esquema imediatamente anterior à
+expansão, criará usuários, posts e negócios sem as novas foreign keys,
+executará a migration e confirmará o bairro piloto, o backfill e a ausência de
+órfãos. Quando a release de contrato for criada, o mesmo cenário será estendido
+para executar e validar sua migration. A suíte também cobrirá callback Google
+depois da desativação do bairro e job criado antes da expansão, mas processado
+depois do backfill.
 
 Também serão executados pelo Sail:
 
@@ -502,6 +549,7 @@ vendor/bin/sail npm run build
 - O bairro atual está sempre claro no desktop e mobile.
 - Trocar de bairro não muda o bairro principal.
 - Publicações e negócios são associados ao bairro selecionado.
+- O bairro de publicações e negócios não pode ser alterado após a criação.
 - Nenhuma consulta ou cache local mistura bairros.
 - Links públicos e notificações abrem o bairro correto.
 - Conteúdo histórico de bairro inativo permanece acessível e somente leitura.
@@ -520,6 +568,7 @@ vendor/bin/sail npm run build
 - bancos ou domínios separados;
 - mudança automática do bairro principal;
 - transferência em massa de conteúdo entre bairros;
+- transferência individual de post ou negócio entre bairros;
 - bloqueio de usuário em um bairro específico;
 - aplicativo ou experiência PWA específica por bairro.
 
