@@ -41,6 +41,12 @@
       "sourceType": "github",
       "computedHash": "4d178add3e08ee9c5baf19dff7e2705ff09448e761e551c372bcfc8cd9134293"
     },
+    "subagent-driven-development": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/subagent-driven-development/SKILL.md",
+      "computedHash": "f32739563160d3612fe2febd0dad4a9cc8a6d1ea7dfcda59f245b3a4b968f7cf"
+    },
     "tailwind-best-practices": {
       "source": "AsyrafHussin/agent-skills",
       "sourceType": "github",
