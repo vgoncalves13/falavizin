@@ -45,6 +45,10 @@ class GooglePlacesImport extends Component
 
     public bool $searched = false;
 
+    public bool $loadingMore = false;
+
+    public ?string $nextPageToken = null;
+
     /** @var Collection<int, Neighborhood> */
     public $neighborhoods;
 
@@ -74,12 +78,15 @@ class GooglePlacesImport extends Component
             'maxResults' => ['required', 'integer', 'min:1', 'max:20'],
         ]);
 
-        $results = app(GooglePlacesService::class)->searchNearby(
+        $response = app(GooglePlacesService::class)->searchNearby(
             lat: $this->lat,
             lng: $this->lng,
             radius: $this->radius,
             maxResults: $this->maxResults,
         );
+
+        $results = $response['results'];
+        $this->nextPageToken = $response['nextPageToken'];
 
         $placeIds = $results->pluck('place_id')->filter()->all();
         $existing = Business::whereIn('google_place_id', $placeIds)
@@ -95,6 +102,45 @@ class GooglePlacesImport extends Component
 
         $this->selected = [];
         $this->searched = true;
+    }
+
+    public function loadMore(): void
+    {
+        if ($this->nextPageToken === null) {
+            return;
+        }
+
+        $this->loadingMore = true;
+
+        $response = app(GooglePlacesService::class)->searchNearby(
+            lat: $this->lat,
+            lng: $this->lng,
+            radius: $this->radius,
+            maxResults: $this->maxResults,
+            pageToken: $this->nextPageToken,
+        );
+
+        $newResults = $response['results'];
+        $this->nextPageToken = $response['nextPageToken'];
+
+        $placeIds = $newResults->pluck('place_id')->filter()->all();
+        $existing = Business::whereIn('google_place_id', $placeIds)
+            ->pluck('google_place_id')
+            ->all();
+
+        $existingPlaceIds = collect($this->results)->pluck('place_id')->filter()->all();
+
+        foreach ($newResults as $place) {
+            if (in_array($place['place_id'], $existingPlaceIds)) {
+                continue;
+            }
+
+            $place['already_imported'] = in_array($place['place_id'], $existing);
+            $place['is_likely_business'] = $this->isLikelyBusiness($place['types']);
+            $this->results[] = $place;
+        }
+
+        $this->loadingMore = false;
     }
 
     public function selectAll(): void

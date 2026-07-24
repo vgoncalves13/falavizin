@@ -11,6 +11,7 @@ use App\Http\Requests\StoreBusinessRequest;
 use App\Http\Requests\UpdateBusinessRequest;
 use App\Models\Business;
 use App\Models\BusinessAnalytics;
+use App\Models\Neighborhood;
 use App\Models\Setting;
 use App\Models\User;
 use App\Notifications\PlanUpgradeApprovedNotification;
@@ -199,5 +200,19 @@ class BusinessController extends Controller
 
         return redirect()->route('admin.moderation.index')
             ->with('success', "Solicitação de upgrade de \"{$business->name}\" dispensada.");
+    }
+
+    public function destroy(Business $business): RedirectResponse
+    {
+        Gate::authorize('delete', $business);
+
+        /** @var Neighborhood $neighborhood */
+        $neighborhood = request()->route('neighborhood');
+        $name = $business->name;
+
+        $business->delete();
+
+        return redirect()->route('neighborhood.businesses.index', $neighborhood->routeParameters())
+            ->with('success', "Negócio \"{$name}\" removido com sucesso.");
     }
 }

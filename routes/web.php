@@ -74,6 +74,8 @@ Route::prefix('{state}/{city}/{neighborhood}')
             Route::get('/feed/{post:slug}/editar', [PostController::class, 'edit'])->scopeBindings()->name('feed.edit');
             Route::delete('/feed/{post:slug}', [PostController::class, 'destroy'])->scopeBindings()->name('feed.destroy');
 
+            Route::delete('/servicos/{business:slug}', [BusinessController::class, 'destroy'])->scopeBindings()->name('businesses.destroy');
+
             Route::post('/servicos/{business}/reivindicar', [ClaimBusinessController::class, 'request'])
                 ->middleware('throttle:5,60')
                 ->name('businesses.claim.request');

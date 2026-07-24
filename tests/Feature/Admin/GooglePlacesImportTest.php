@@ -11,7 +11,6 @@ use App\Models\Neighborhood;
 use App\Models\User;
 use App\Services\GooglePlacesService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
 use Mockery\MockInterface;
@@ -36,32 +35,35 @@ class GooglePlacesImportTest extends TestCase
         return Neighborhood::factory()->create($attributes);
     }
 
-    private function fakePlaces(): Collection
+    private function fakePlaces(): array
     {
-        return collect([
-            [
-                'place_id' => 'ChIJ_place_001',
-                'name' => 'Padaria do João',
-                'address' => 'Rua das Flores, 100 — Copacabana',
-                'lat' => -22.9711,
-                'lng' => -43.1823,
-                'phone' => '(21) 99999-1111',
-                'website' => null,
-                'types' => ['bakery'],
-                'already_imported' => false,
-            ],
-            [
-                'place_id' => 'ChIJ_place_002',
-                'name' => 'Farmácia Central',
-                'address' => 'Av. Principal, 200 — Copacabana',
-                'lat' => -22.9720,
-                'lng' => -43.1830,
-                'phone' => null,
-                'website' => 'https://farmacentral.com',
-                'types' => ['pharmacy'],
-                'already_imported' => false,
-            ],
-        ]);
+        return [
+            'results' => collect([
+                [
+                    'place_id' => 'ChIJ_place_001',
+                    'name' => 'Padaria do João',
+                    'address' => 'Rua das Flores, 100 — Copacabana',
+                    'lat' => -22.9711,
+                    'lng' => -43.1823,
+                    'phone' => '(21) 99999-1111',
+                    'website' => null,
+                    'types' => ['bakery'],
+                    'already_imported' => false,
+                ],
+                [
+                    'place_id' => 'ChIJ_place_002',
+                    'name' => 'Farmácia Central',
+                    'address' => 'Av. Principal, 200 — Copacabana',
+                    'lat' => -22.9720,
+                    'lng' => -43.1830,
+                    'phone' => null,
+                    'website' => 'https://farmacentral.com',
+                    'types' => ['pharmacy'],
+                    'already_imported' => false,
+                ],
+            ]),
+            'nextPageToken' => null,
+        ];
     }
 
     public function test_admin_can_access_the_import_page(): void
@@ -245,14 +247,16 @@ class GooglePlacesImportTest extends TestCase
         $other = Category::where('slug', 'outros')->firstOrFail();
 
         $this->mock(GooglePlacesService::class, function (MockInterface $mock) {
+            $places = $this->fakePlaces();
+            $places['results'] = $places['results']->push([
+                'place_id' => 'ChIJ_place_unknown',
+                'name' => 'Local sem correspondência',
+                'types' => ['establishment'],
+                'already_imported' => false,
+            ]);
             $mock->shouldReceive('searchNearby')
                 ->once()
-                ->andReturn($this->fakePlaces()->push([
-                    'place_id' => 'ChIJ_place_unknown',
-                    'name' => 'Local sem correspondência',
-                    'types' => ['establishment'],
-                    'already_imported' => false,
-                ]));
+                ->andReturn($places);
         });
 
         Livewire::actingAs($admin)

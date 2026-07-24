@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 
 class GooglePlacesService
@@ -52,7 +51,8 @@ class GooglePlacesService
         float $radius = 1000,
         array $includedTypes = [],
         int $maxResults = 20,
-    ): Collection {
+        ?string $pageToken = null,
+    ): array {
         $key = config('services.rapidapi.key');
         $host = config('services.rapidapi.google_places_host');
 
@@ -70,6 +70,10 @@ class GooglePlacesService
             $body['includedTypes'] = $includedTypes;
         }
 
+        if ($pageToken !== null) {
+            $body['pageToken'] = $pageToken;
+        }
+
         $response = Http::connectTimeout(5)->timeout(20)->withHeaders([
             'x-rapidapi-key' => $key,
             'x-rapidapi-host' => $host,
@@ -82,8 +86,9 @@ class GooglePlacesService
         }
 
         $places = $response->json('places', []);
+        $nextPageToken = $response->json('nextPageToken');
 
-        return collect($places)->map(fn (array $place) => [
+        $results = collect($places)->map(fn (array $place) => [
             'place_id' => $place['id'] ?? null,
             'name' => $place['displayName']['text'] ?? 'Sem nome',
             'address' => $place['formattedAddress'] ?? null,
@@ -94,5 +99,10 @@ class GooglePlacesService
             'types' => $place['types'] ?? [],
             'already_imported' => false,
         ])->filter(fn (array $p) => ! empty($p['place_id']))->values();
+
+        return [
+            'results' => $results,
+            'nextPageToken' => $nextPageToken,
+        ];
     }
 }
