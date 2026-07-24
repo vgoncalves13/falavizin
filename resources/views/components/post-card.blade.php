@@ -9,16 +9,7 @@
         {{ !$post->is_sponsored && $post->category?->slug !== 'pedido' ? 'border-stone-200' : '' }}
         hover:shadow-md transition-shadow duration-200 cursor-pointer overflow-hidden"
 >
-    {{-- Post image --}}
-    @if($post->image)
-        <div class="h-44 overflow-hidden">
-            <img
-                src="{{ Storage::url($post->image) }}"
-                alt="{{ $post->title }}"
-                class="w-full h-full object-cover"
-            />
-        </div>
-    @endif
+    <x-post-gallery :images="$post->imagePaths()" :title="$post->title" />
 
     <div class="p-5">
         <div class="flex items-start gap-4">

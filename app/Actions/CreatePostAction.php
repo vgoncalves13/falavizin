@@ -26,7 +26,7 @@ class CreatePostAction
         User $user,
         Neighborhood $neighborhood,
         array $data,
-        ?TemporaryUploadedFile $image = null,
+        array $images = [],
         ?Carbon $eventStartsAt = null,
         ?Carbon $eventEndsAt = null,
         ?array $pollData = null,
@@ -50,14 +50,15 @@ class CreatePostAction
             throw ValidationException::withMessages(['title' => 'Esta publicação já foi enviada recentemente.']);
         }
 
-        $imagePath = null;
-
-        if ($image) {
-            $imagePath = $image->store('posts', 'public');
-        }
+        $imagePaths = [];
 
         try {
-            $post = DB::transaction(function () use ($user, $neighborhood, $data, $imagePath, $eventStartsAt, $eventEndsAt, $pollData): Post {
+            foreach ($images as $image) {
+                throw_unless($image instanceof TemporaryUploadedFile);
+                $imagePaths[] = $image->store('posts', 'public');
+            }
+
+            $post = DB::transaction(function () use ($user, $neighborhood, $data, $imagePaths, $eventStartsAt, $eventEndsAt, $pollData): Post {
                 $post = $user->posts()->create([
                     'category_id' => $data['category_id'],
                     'service_category_id' => $data['service_category_id'] ?? null,
@@ -65,7 +66,8 @@ class CreatePostAction
                     'title' => $data['title'],
                     'body' => $data['body'],
                     'location' => $data['location'] ?? null,
-                    'image' => $imagePath,
+                    'image' => $imagePaths[0] ?? null,
+                    'images' => $imagePaths ?: null,
                     'event_starts_at' => $eventStartsAt,
                     'event_ends_at' => $eventEndsAt,
                     'status' => PostStatus::Pending,
@@ -87,8 +89,8 @@ class CreatePostAction
                 return $post;
             });
         } catch (Throwable $exception) {
-            if ($imagePath) {
-                Storage::disk('public')->delete($imagePath);
+            if ($imagePaths !== []) {
+                Storage::disk('public')->delete($imagePaths);
             }
 
             throw $exception;

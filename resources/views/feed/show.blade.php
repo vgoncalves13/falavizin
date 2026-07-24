@@ -55,16 +55,7 @@
         @endauth
 
         <article class="bg-white rounded-xl border {{ $post->is_sponsored ? 'border-amber-300' : 'border-stone-200' }} mb-6 overflow-hidden">
-            {{-- Post image --}}
-            @if($post->image)
-                <div class="w-full max-h-80 overflow-hidden">
-                    <img
-                        src="{{ Storage::url($post->image) }}"
-                        alt="{{ $post->title }}"
-                        class="w-full object-cover"
-                    />
-                </div>
-            @endif
+            <x-post-gallery :images="$post->imagePaths()" :title="$post->title" detail />
 
             <div class="p-6">
                 {{-- Meta --}}

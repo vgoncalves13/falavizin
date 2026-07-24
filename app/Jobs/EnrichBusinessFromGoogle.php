@@ -121,6 +121,10 @@ class EnrichBusinessFromGoogle implements ShouldQueue
         $sortOrder = 0;
 
         foreach ($photos as $photo) {
+            if ($sortOrder >= 9) {
+                break;
+            }
+
             $photoName = $photo['name'] ?? null;
 
             if (! $photoName) {

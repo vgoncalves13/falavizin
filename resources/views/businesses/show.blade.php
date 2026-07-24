@@ -26,11 +26,11 @@
         {{-- Header / Cover --}}
         <div class="bg-white rounded-xl border border-stone-200 overflow-hidden mb-5">
             @if($business->coverPhoto)
-                <div class="aspect-video max-h-72 overflow-hidden">
+                <div class="h-56 w-full overflow-hidden sm:h-72">
                     <img
                         src="{{ Storage::url($business->coverPhoto->path) }}"
                         alt="{{ $business->name }}"
-                        class="w-full h-full object-cover"
+                        class="block h-full w-full object-cover"
                     />
                 </div>
             @endif

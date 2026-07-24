@@ -102,43 +102,61 @@
             @error('body') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
         </div>
 
-        {{-- Imagem --}}
-        <div
-            x-data="{ preview: null }"
-            x-on:livewire-upload-start="$el.querySelector('label').classList.add('opacity-50')"
-            x-on:livewire-upload-finish="$el.querySelector('label').classList.remove('opacity-50')"
-        >
+        {{-- Imagens --}}
+        <div>
             <label class="block text-sm font-medium text-stone-700 mb-1.5">
-                Imagem <span class="text-stone-400 font-normal">(opcional)</span>
+                Fotos <span class="text-stone-400 font-normal">(opcional · até 4)</span>
             </label>
-            <label
-                class="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-stone-300 rounded-lg cursor-pointer bg-stone-50 hover:bg-stone-100 transition-colors duration-150"
-                x-show="!preview"
-            >
-                <x-heroicon-o-photo class="w-8 h-8 text-stone-400 mb-2" />
-                <span class="text-xs text-stone-500">JPG, PNG ou WebP · máx. 2MB</span>
-                <input
-                    type="file"
-                    wire:model="image"
-                    accept="image/jpeg,image/png,image/webp"
-                    class="hidden"
-                    x-on:change="
-                        const file = $event.target.files[0];
-                        if (file) { const reader = new FileReader(); reader.onload = e => preview = e.target.result; reader.readAsDataURL(file); }
-                    "
-                />
-            </label>
-            <div x-show="preview" class="relative rounded-lg overflow-hidden">
-                <img :src="preview" class="w-full h-48 object-cover rounded-lg" />
-                <button
-                    type="button"
-                    x-on:click="preview = null; $wire.set('image', null)"
-                    class="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-colors"
-                >
-                    <x-heroicon-o-x-mark class="w-4 h-4" />
-                </button>
+
+            @if(count($images) < 4)
+                <label class="flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-stone-300 bg-stone-50 transition-colors duration-150 hover:bg-stone-100">
+                    <x-heroicon-o-photo class="mb-2 h-8 w-8 text-stone-400" />
+                    <span class="text-xs font-medium text-stone-600">Escolher fotos</span>
+                    <span class="mt-1 text-xs text-stone-400">JPG, PNG ou WebP · 2MB por foto</span>
+                    <input
+                        type="file"
+                        wire:model="images"
+                        accept="image/jpeg,image/png,image/webp"
+                        multiple
+                        class="hidden"
+                    />
+                </label>
+            @endif
+
+            <div wire:loading wire:target="images" class="mt-2 text-xs font-medium text-amber-700">
+                Carregando fotos...
             </div>
-            @error('image') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+
+            @if($images)
+                <div class="mt-3 grid grid-cols-2 gap-2">
+                    @foreach($images as $index => $image)
+                        <div wire:key="post-image-{{ $index }}" class="relative aspect-square overflow-hidden rounded-lg bg-stone-100">
+                            @if(str_starts_with((string) $image->getMimeType(), 'image/'))
+                                <img
+                                    src="{{ $image->temporaryUrl() }}"
+                                    alt="Prévia da foto {{ $index + 1 }}"
+                                    class="h-full w-full object-cover"
+                                />
+                            @else
+                                <div class="flex h-full items-center justify-center text-stone-400">
+                                    <x-heroicon-o-document class="h-8 w-8" />
+                                </div>
+                            @endif
+                            <button
+                                type="button"
+                                wire:click="removeImage({{ $index }})"
+                                class="absolute right-2 top-2 rounded-full bg-black/60 p-1.5 text-white transition-colors hover:bg-black/75"
+                                aria-label="Remover foto {{ $index + 1 }}"
+                            >
+                                <x-heroicon-o-x-mark class="h-4 w-4" />
+                            </button>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
+            @error('images') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+            @error('images.*') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
         </div>
 
         {{-- Localização --}}

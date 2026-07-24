@@ -7,7 +7,10 @@ use App\Models\Business;
 use App\Models\Neighborhood;
 use App\Services\GooglePlacesService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Mockery\MockInterface;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -61,5 +64,29 @@ class EnrichBusinessFromGoogleTest extends TestCase
         $this->assertSame($neighborhood->id, $business->neighborhood_id);
         $this->assertSame(['(21) 3333-4444'], $business->phone);
         $this->assertSame('https://example.com', $business->website);
+    }
+
+    public function test_job_imports_at_most_nine_photos(): void
+    {
+        Storage::fake('public');
+
+        $business = Business::factory()->create(['google_place_id' => 'place-with-photos']);
+        $photos = array_map(
+            fn (int $index): array => ['name' => "places/example/photos/{$index}"],
+            range(1, 10),
+        );
+        $service = $this->mock(GooglePlacesService::class, function (MockInterface $mock) use ($photos): void {
+            $mock->shouldReceive('getPlaceDetails')->once()->andReturn(['photos' => $photos]);
+            $mock->shouldReceive('getPhotoUri')->times(9)->andReturn('https://images.test/photo.jpg');
+        });
+        $image = UploadedFile::fake()->image('photo.jpg');
+
+        Http::fake([
+            'https://images.test/*' => Http::response(file_get_contents($image->getRealPath()), 200),
+        ]);
+
+        (new EnrichBusinessFromGoogle($business->id))->handle($service);
+
+        $this->assertCount(9, $business->photos);
     }
 }

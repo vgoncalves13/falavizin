@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Neighborhood;
 use Carbon\Carbon;
 use Livewire\Component;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 
 class CreatePost extends Component
@@ -25,7 +26,8 @@ class CreatePost extends Component
 
     public ?int $serviceCategoryId = null;
 
-    public $image = null;
+    /** @var array<int, TemporaryUploadedFile> */
+    public array $images = [];
 
     public string $eventStartsAt = '';
 
@@ -53,7 +55,8 @@ class CreatePost extends Component
             'categoryId' => ['required', 'integer', 'exists:categories,id'],
             'serviceCategoryId' => ['nullable', 'integer', 'exists:categories,id'],
             'location' => ['nullable', 'string', 'max:255'],
-            'image' => ['nullable', 'image', 'max:2048', 'mimes:jpg,jpeg,png,webp'],
+            'images' => ['array', 'max:4'],
+            'images.*' => ['image', 'max:2048', 'mimes:jpg,jpeg,png,webp'],
             'eventStartsAt' => ['nullable', 'date'],
             'eventEndsAt' => ['nullable', 'date'],
             'pollQuestion' => ['nullable', 'string', 'min:5', 'max:255', 'required_if:hasPoll,true'],
@@ -70,9 +73,10 @@ class CreatePost extends Component
             'body.required' => 'O conteúdo é obrigatório.',
             'body.min' => 'O conteúdo deve ter pelo menos 10 caracteres.',
             'categoryId.required' => 'Selecione uma categoria.',
-            'image.image' => 'O arquivo deve ser uma imagem.',
-            'image.max' => 'A imagem deve ter no máximo 2MB.',
-            'image.mimes' => 'Formatos aceitos: JPG, PNG, WebP.',
+            'images.max' => 'Você pode enviar no máximo 4 fotos.',
+            'images.*.image' => 'Cada arquivo deve ser uma imagem.',
+            'images.*.max' => 'Cada imagem deve ter no máximo 2MB.',
+            'images.*.mimes' => 'Formatos aceitos: JPG, PNG, WebP.',
             'pollQuestion.required_if' => 'A pergunta da enquete é obrigatória.',
             'pollQuestion.min' => 'A pergunta deve ter pelo menos 5 caracteres.',
             'pollOptions.*.required_if' => 'Preencha todas as opções da enquete.',
@@ -92,6 +96,16 @@ class CreatePost extends Component
 
         array_splice($this->pollOptions, $index, 1);
         $this->pollOptions = array_values($this->pollOptions);
+    }
+
+    public function removeImage(int $index): void
+    {
+        if (! array_key_exists($index, $this->images)) {
+            return;
+        }
+
+        array_splice($this->images, $index, 1);
+        $this->resetValidation();
     }
 
     public function save(): void
@@ -117,7 +131,7 @@ class CreatePost extends Component
                 'service_category_id' => $this->serviceCategoryId,
                 'location' => $this->location ?: null,
             ],
-            image: $this->image,
+            images: $this->images,
             eventStartsAt: $this->eventStartsAt ? Carbon::parse($this->eventStartsAt) : null,
             eventEndsAt: $this->eventEndsAt ? Carbon::parse($this->eventEndsAt) : null,
             pollData: $pollData,

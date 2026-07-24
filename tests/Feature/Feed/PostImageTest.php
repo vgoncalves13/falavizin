@@ -35,7 +35,8 @@ class PostImageTest extends TestCase
         );
 
         $this->assertNull($post->image);
-        $this->assertDatabaseHas('posts', ['title' => 'Post sem imagem', 'image' => null]);
+        $this->assertSame([], $post->imagePaths());
+        $this->assertDatabaseHas('posts', ['title' => 'Post sem imagem', 'image' => null, 'images' => null]);
     }
 
     public function test_post_image_field_is_nullable_in_database(): void
@@ -52,39 +53,78 @@ class PostImageTest extends TestCase
         $this->assertNull($post->fresh()->image);
     }
 
-    public function test_post_with_image_stores_path(): void
+    public function test_post_can_store_up_to_four_images(): void
     {
         Storage::fake('public');
 
         $user = User::factory()->create();
         $category = Category::factory()->create(['type' => 'post']);
-        $file = UploadedFile::fake()->image('photo.jpg', 800, 600);
+        $neighborhood = Neighborhood::factory()->create();
+        $files = collect(range(1, 4))
+            ->map(fn (int $index) => UploadedFile::fake()->image("photo-{$index}.jpg", 800, 600))
+            ->all();
 
-        // Manually store the file as CreatePostAction would
-        $path = Storage::disk('public')->put('posts', $file);
+        Livewire::actingAs($user)
+            ->test(CreatePost::class, ['neighborhood' => $neighborhood])
+            ->set('title', 'Post com quatro imagens')
+            ->set('body', 'Conteúdo do post com quatro imagens.')
+            ->set('categoryId', $category->id)
+            ->set('images', $files)
+            ->call('save')
+            ->assertHasNoErrors();
 
-        $post = Post::factory()->create([
-            'user_id' => $user->id,
-            'category_id' => $category->id,
-            'image' => $path,
-        ]);
+        $post = Post::where('title', 'Post com quatro imagens')->firstOrFail();
 
-        $this->assertNotNull($post->image);
-        Storage::disk('public')->assertExists($path);
+        $this->assertCount(4, $post->imagePaths());
+        $this->assertSame($post->imagePaths()[0], $post->image);
+
+        foreach ($post->imagePaths() as $path) {
+            Storage::disk('public')->assertExists($path);
+        }
+    }
+
+    public function test_post_rejects_more_than_four_images(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create(['type' => 'post']);
+        $neighborhood = Neighborhood::factory()->create();
+        $files = collect(range(1, 5))
+            ->map(fn (int $index) => UploadedFile::fake()->image("photo-{$index}.jpg"))
+            ->all();
+
+        Livewire::actingAs($user)
+            ->test(CreatePost::class, ['neighborhood' => $neighborhood])
+            ->set('title', 'Post com imagens demais')
+            ->set('body', 'Conteúdo válido para testar o limite.')
+            ->set('categoryId', $category->id)
+            ->set('images', $files)
+            ->call('save')
+            ->assertHasErrors(['images' => 'max']);
     }
 
     public function test_image_validation_rejects_non_image_files(): void
     {
         $user = User::factory()->create();
         $category = Category::factory()->create(['type' => 'post']);
+        $neighborhood = Neighborhood::factory()->create();
 
         Livewire::actingAs($user)
-            ->test(CreatePost::class)
+            ->test(CreatePost::class, ['neighborhood' => $neighborhood])
             ->set('title', 'Post com arquivo inválido')
             ->set('body', 'Conteúdo do post aqui para teste.')
             ->set('categoryId', $category->id)
-            ->set('image', UploadedFile::fake()->create('document.pdf', 100, 'application/pdf'))
+            ->set('images', [UploadedFile::fake()->create('document.pdf', 100, 'application/pdf')])
             ->call('save')
-            ->assertHasErrors(['image']);
+            ->assertHasErrors(['images.0']);
+    }
+
+    public function test_legacy_single_image_remains_visible(): void
+    {
+        $post = Post::factory()->create([
+            'image' => 'posts/legacy.jpg',
+            'images' => null,
+        ]);
+
+        $this->assertSame(['posts/legacy.jpg'], $post->imagePaths());
     }
 }

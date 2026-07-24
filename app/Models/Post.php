@@ -32,6 +32,7 @@ class Post extends Model
         'body',
         'location',
         'image',
+        'images',
         'event_starts_at',
         'event_ends_at',
         'is_sponsored',
@@ -52,6 +53,7 @@ class Post extends Model
             'reported_at' => 'datetime',
             'event_starts_at' => 'datetime',
             'event_ends_at' => 'datetime',
+            'images' => 'array',
             'is_sponsored' => 'boolean',
             'sponsored_until' => 'datetime',
             'resolution_status' => PostResolutionStatus::class,
@@ -160,6 +162,14 @@ class Post extends Model
     public function acceptsCommunityInteractions(): bool
     {
         return (bool) $this->neighborhood?->is_active;
+    }
+
+    /** @return array<int, string> */
+    public function imagePaths(): array
+    {
+        $images = array_values(array_filter($this->images ?? []));
+
+        return $images !== [] ? $images : array_values(array_filter([$this->image]));
     }
 
     public function canonicalUrl(bool $absolute = true): string
