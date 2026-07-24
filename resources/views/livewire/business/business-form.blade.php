@@ -41,18 +41,10 @@
         </div>
 
         {{-- Bairro --}}
-        <div>
-            <label for="neighborhood" class="block text-sm font-medium text-stone-700 mb-1.5">
-                Bairro <span class="text-red-500">*</span>
-            </label>
-            <input
-                type="text"
-                id="neighborhood"
-                wire:model="neighborhood"
-                placeholder="Ex: Engenho da Rainha"
-                class="w-full rounded-lg border-stone-300 text-stone-900 text-sm focus:ring-amber-500 focus:border-amber-500"
-            />
-            @error('neighborhood') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+        <div class="rounded-xl border border-[#FD5C3E]/25 bg-[#FD5C3E]/5 px-4 py-3">
+            <p class="text-sm font-semibold text-stone-900">
+                Cadastrando em {{ $neighborhood->name }}
+            </p>
         </div>
 
         {{-- WhatsApp --}}

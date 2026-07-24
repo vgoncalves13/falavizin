@@ -4,14 +4,16 @@ namespace App\Livewire\Feed;
 
 use App\Actions\CreatePostAction;
 use App\Models\Category;
+use App\Models\Neighborhood;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
 class CreatePost extends Component
 {
     use WithFileUploads;
+
+    public Neighborhood $neighborhood;
 
     public string $title = '';
 
@@ -37,6 +39,11 @@ class CreatePost extends Component
     public array $pollOptions = ['', ''];
 
     public string $pollEndsAt = '';
+
+    public function mount(Neighborhood $neighborhood): void
+    {
+        $this->neighborhood = $neighborhood;
+    }
 
     protected function rules(): array
     {
@@ -89,17 +96,7 @@ class CreatePost extends Component
 
     public function save(): void
     {
-        $key = 'create-post:'.auth()->id();
-
-        if (RateLimiter::tooManyAttempts($key, 5)) {
-            $this->addError('title', 'Você publicou muitos posts recentemente. Aguarde alguns minutos.');
-
-            return;
-        }
-
         $this->validate();
-
-        RateLimiter::hit($key, 3600);
 
         $pollData = null;
         if ($this->hasPoll && $this->pollQuestion) {
@@ -112,6 +109,7 @@ class CreatePost extends Component
 
         (new CreatePostAction)->execute(
             user: auth()->user(),
+            neighborhood: $this->neighborhood,
             data: [
                 'title' => $this->title,
                 'body' => $this->body,
@@ -125,7 +123,7 @@ class CreatePost extends Component
             pollData: $pollData,
         );
 
-        $this->redirect(route('feed.index'), navigate: false);
+        $this->redirect(route('neighborhood.feed.index', $this->neighborhood->routeParameters()), navigate: false);
         session()->flash('success', 'Post enviado! Aguarda aprovação do admin.');
     }
 
@@ -141,6 +139,7 @@ class CreatePost extends Component
             ->orderBy('sort_order')
             ->get();
 
-        return view('livewire.feed.create-post', compact('categories', 'serviceCategories'));
+        return view('livewire.feed.create-post', compact('categories', 'serviceCategories'))
+            ->with('neighborhood', $this->neighborhood);
     }
 }

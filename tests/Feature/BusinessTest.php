@@ -6,6 +6,7 @@ use App\Enums\BusinessStatus;
 use App\Livewire\Business\BusinessForm;
 use App\Models\Business;
 use App\Models\Category;
+use App\Models\Neighborhood;
 use App\Models\Promotion;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -18,7 +19,9 @@ class BusinessTest extends TestCase
 
     public function test_businesses_index_is_accessible_to_guests(): void
     {
-        $response = $this->get(route('businesses.index'));
+        $neighborhood = Neighborhood::factory()->create();
+
+        $response = $this->get(route('neighborhood.businesses.index', $neighborhood->routeParameters()));
 
         $response->assertStatus(200);
     }
@@ -63,7 +66,10 @@ class BusinessTest extends TestCase
     {
         $business = Business::factory()->create();
 
-        $response = $this->get(route('businesses.show', $business));
+        $response = $this->get(route('neighborhood.businesses.show', [
+            ...$business->localNeighborhood->routeParameters(),
+            'business' => $business,
+        ]));
 
         $response->assertStatus(200);
     }
@@ -72,7 +78,10 @@ class BusinessTest extends TestCase
     {
         $business = Business::factory()->create(['status' => BusinessStatus::Pending]);
 
-        $this->get(route('businesses.show', $business))->assertForbidden();
+        $this->get(route('neighborhood.businesses.show', [
+            ...$business->localNeighborhood->routeParameters(),
+            'business' => $business,
+        ]))->assertForbidden();
     }
 
     public function test_owner_and_admin_can_view_pending_business(): void
@@ -84,8 +93,14 @@ class BusinessTest extends TestCase
             'status' => BusinessStatus::Pending,
         ]);
 
-        $this->actingAs($owner)->get(route('businesses.show', $business))->assertOk();
-        $this->actingAs($admin)->get(route('businesses.show', $business))->assertOk();
+        $this->actingAs($owner)->get(route('neighborhood.businesses.show', [
+            ...$business->localNeighborhood->routeParameters(),
+            'business' => $business,
+        ]))->assertOk();
+        $this->actingAs($admin)->get(route('neighborhood.businesses.show', [
+            ...$business->localNeighborhood->routeParameters(),
+            'business' => $business,
+        ]))->assertOk();
     }
 
     public function test_map_popups_render_business_data_as_text(): void
@@ -102,7 +117,9 @@ class BusinessTest extends TestCase
 
     public function test_create_business_page_requires_authentication(): void
     {
-        $response = $this->get(route('businesses.create'));
+        $neighborhood = Neighborhood::factory()->create();
+
+        $response = $this->get(route('neighborhood.businesses.create', $neighborhood->routeParameters()));
 
         $response->assertRedirect(route('login'));
     }
@@ -110,8 +127,9 @@ class BusinessTest extends TestCase
     public function test_authenticated_user_can_see_create_business_page(): void
     {
         $user = User::factory()->create();
+        $neighborhood = Neighborhood::factory()->create();
 
-        $response = $this->actingAs($user)->get(route('businesses.create'));
+        $response = $this->actingAs($user)->get(route('neighborhood.businesses.create', $neighborhood->routeParameters()));
 
         $response->assertStatus(200);
     }
@@ -120,11 +138,11 @@ class BusinessTest extends TestCase
     {
         $user = User::factory()->create();
         $category = Category::factory()->create(['type' => 'business']);
+        $neighborhood = Neighborhood::factory()->create();
 
-        $response = $this->actingAs($user)->post(route('businesses.store'), [
+        $response = $this->actingAs($user)->post(route('neighborhood.businesses.store', $neighborhood->routeParameters()), [
             'name' => 'Padaria do João',
             'category_ids' => [$category->id],
-            'neighborhood' => 'Centro',
             'description' => 'A melhor padaria do bairro.',
             'phone' => '(21) 3333-4444',
         ]);
@@ -133,6 +151,7 @@ class BusinessTest extends TestCase
         $this->assertDatabaseHas('businesses', [
             'name' => 'Padaria do João',
             'user_id' => $user->id,
+            'neighborhood_id' => $neighborhood->id,
             'status' => BusinessStatus::Pending->value,
             'claimed' => true,
         ]);
@@ -143,17 +162,18 @@ class BusinessTest extends TestCase
     {
         $user = User::factory()->create();
         $category = Category::factory()->create(['type' => 'business']);
+        $neighborhood = Neighborhood::factory()->create();
 
         Livewire::actingAs($user)
-            ->test(BusinessForm::class)
+            ->test(BusinessForm::class, ['neighborhood' => $neighborhood])
             ->set('name', 'Mercado 24 Horas')
             ->set('categoryIds', [$category->id])
-            ->set('neighborhood', 'Centro')
             ->set('whatsapp', '(21) 9 9999-9999')
             ->call('save');
 
         $business = Business::where('name', 'Mercado 24 Horas')->firstOrFail();
-        $this->assertSame('Centro', $business->neighborhood);
+        $this->assertSame($neighborhood->name, $business->neighborhood);
+        $this->assertSame($neighborhood->id, $business->neighborhood_id);
         $this->assertSame('(21) 9 9999-9999', $business->whatsapp);
     }
 
@@ -172,9 +192,10 @@ class BusinessTest extends TestCase
 
     public function test_business_store_requires_authentication(): void
     {
-        $response = $this->post(route('businesses.store'), [
+        $neighborhood = Neighborhood::factory()->create();
+
+        $response = $this->post(route('neighborhood.businesses.store', $neighborhood->routeParameters()), [
             'name' => 'Padaria do João',
-            'neighborhood' => 'Centro',
             'category_ids' => [1],
         ]);
 
@@ -184,10 +205,11 @@ class BusinessTest extends TestCase
     public function test_business_store_validates_required_fields(): void
     {
         $user = User::factory()->create();
+        $neighborhood = Neighborhood::factory()->create();
 
-        $response = $this->actingAs($user)->post(route('businesses.store'), []);
+        $response = $this->actingAs($user)->post(route('neighborhood.businesses.store', $neighborhood->routeParameters()), []);
 
-        $response->assertSessionHasErrors(['name', 'category_ids', 'neighborhood']);
+        $response->assertSessionHasErrors(['name', 'category_ids']);
     }
 
     public function test_owner_can_edit_business(): void
@@ -214,9 +236,10 @@ class BusinessTest extends TestCase
     public function test_non_owner_cannot_update_business_through_livewire(): void
     {
         $business = Business::factory()->create();
+        $neighborhood = $business->localNeighborhood;
 
         Livewire::actingAs(User::factory()->create())
-            ->test(BusinessForm::class, ['business' => $business])
+            ->test(BusinessForm::class, ['business' => $business, 'neighborhood' => $neighborhood])
             ->set('name', 'Alteração indevida')
             ->call('save')
             ->assertForbidden();
@@ -233,7 +256,6 @@ class BusinessTest extends TestCase
         $response = $this->actingAs($user)->put(route('businesses.update', $business), [
             'name' => 'Padaria do João Atualizada',
             'category_ids' => [$category->id],
-            'neighborhood' => 'Vila Nova',
         ]);
 
         $response->assertRedirect();
@@ -249,7 +271,6 @@ class BusinessTest extends TestCase
         $response = $this->actingAs($admin)->put(route('businesses.update', $business), [
             'name' => 'Editado pelo Admin',
             'category_ids' => [$category->id],
-            'neighborhood' => 'Centro',
         ]);
 
         $response->assertRedirect();

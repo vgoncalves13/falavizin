@@ -53,6 +53,12 @@ Route::prefix('{state}/{city}/{neighborhood}')
                 ->name('events.index');
         });
 
+        Route::middleware(['auth', 'neighborhood.active'])->group(function (): void {
+            Route::get('/criar-post', [PostController::class, 'create'])->name('feed.create');
+            Route::get('/cadastrar-negocio', [BusinessController::class, 'create'])->name('businesses.create');
+            Route::post('/cadastrar-negocio', [BusinessController::class, 'store'])->name('businesses.store');
+        });
+
         Route::get('/feed/{post:slug}', [PostController::class, 'show'])
             ->scopeBindings()
             ->name('feed.show');
@@ -65,6 +71,7 @@ Route::prefix('{state}/{city}/{neighborhood}')
 // These keep the old route names for backward compatibility
 Route::get('/feed', [LegacyNeighborhoodRedirectController::class, 'index'])->defaults('type', 'feed')->name('feed.index');
 Route::get('/servicos', [LegacyNeighborhoodRedirectController::class, 'index'])->defaults('type', 'servicos')->name('businesses.index');
+Route::get('/servicos/mapa', [BusinessController::class, 'map'])->name('businesses.map');
 Route::get('/feed/{post:slug}', [LegacyNeighborhoodRedirectController::class, 'post'])->name('feed.show');
 Route::get('/servicos/{business:slug}', [LegacyNeighborhoodRedirectController::class, 'business'])->name('businesses.show');
 
@@ -77,7 +84,6 @@ Route::get('/promocoes', [PromotionController::class, 'index'])->name('promotion
 Route::get('/ranking', [RankingController::class, 'index'])->name('ranking.index');
 Route::get('/pulso', [PulsoController::class, 'index'])->name('pulso.index');
 Route::get('/eventos', fn () => view('events.index'))->name('events.index');
-Route::get('/servicos/mapa', [BusinessController::class, 'map'])->name('businesses.map');
 
 // Autenticadas
 Route::middleware('auth')->group(function () {

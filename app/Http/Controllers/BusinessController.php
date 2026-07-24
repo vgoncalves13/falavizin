@@ -63,8 +63,17 @@ class BusinessController extends Controller
         ]);
     }
 
-    public function show(Business $business): View
+    public function show(): View
     {
+        $neighborhood = request()->route('neighborhood');
+        $slug = request()->route('business');
+
+        $query = Business::query()->where('slug', $slug);
+        if ($neighborhood) {
+            $query->where('neighborhood_id', $neighborhood->id);
+        }
+        $business = $query->firstOrFail();
+
         Gate::authorize('view', $business);
 
         $canManage = auth()->user()?->can('update', $business);
@@ -84,23 +93,37 @@ class BusinessController extends Controller
 
     public function create(): View
     {
-        return view('businesses.create');
+        $neighborhood = request()->route('neighborhood');
+
+        return view('businesses.create', compact('neighborhood'));
     }
 
     public function store(StoreBusinessRequest $request): RedirectResponse
     {
+        $neighborhood = request()->route('neighborhood');
+
         $business = (new CreateBusinessAction)->execute(
             user: auth()->user(),
+            neighborhood: $neighborhood,
             data: $request->validated(),
             coverPhoto: $request->file('cover_photo'),
         );
 
-        return redirect()->route('businesses.index')
+        return redirect()->route('neighborhood.businesses.index', $neighborhood->routeParameters())
             ->with('success', 'Negócio enviado! Aguarda aprovação do admin.');
     }
 
-    public function edit(Business $business): View
+    public function edit(): View
     {
+        $neighborhood = request()->route('neighborhood');
+        $slug = request()->route('business');
+
+        $query = Business::query()->where('slug', $slug);
+        if ($neighborhood) {
+            $query->where('neighborhood_id', $neighborhood->id);
+        }
+        $business = $query->firstOrFail();
+
         Gate::authorize('update', $business);
 
         $business->load(['category', 'coverPhoto']);
@@ -108,8 +131,17 @@ class BusinessController extends Controller
         return view('businesses.edit', compact('business'));
     }
 
-    public function update(UpdateBusinessRequest $request, Business $business): RedirectResponse
+    public function update(UpdateBusinessRequest $request): RedirectResponse
     {
+        $neighborhood = request()->route('neighborhood');
+        $slug = request()->route('business');
+
+        $query = Business::query()->where('slug', $slug);
+        if ($neighborhood) {
+            $query->where('neighborhood_id', $neighborhood->id);
+        }
+        $business = $query->firstOrFail();
+
         (new UpdateBusinessAction)->execute(
             business: $business,
             data: $request->validated(),

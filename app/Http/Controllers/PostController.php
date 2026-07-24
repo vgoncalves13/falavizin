@@ -14,8 +14,17 @@ class PostController extends Controller
         return view('feed.index');
     }
 
-    public function show(Post $post): View
+    public function show(): View
     {
+        $neighborhood = request()->route('neighborhood');
+        $slug = request()->route('post');
+
+        $query = Post::query()->where('slug', $slug);
+        if ($neighborhood) {
+            $query->where('neighborhood_id', $neighborhood->id);
+        }
+        $post = $query->firstOrFail();
+
         Gate::authorize('view', $post);
 
         $post->load(['user', 'category', 'serviceCategory', 'votes', 'poll.options', 'poll.votes', 'interests.businesses']);
@@ -35,21 +44,44 @@ class PostController extends Controller
 
     public function create(): View
     {
-        return view('feed.create');
+        $neighborhood = request()->route('neighborhood');
+
+        return view('feed.create', compact('neighborhood'));
     }
 
-    public function edit(Post $post): View
+    public function edit(): View
     {
+        $neighborhood = request()->route('neighborhood');
+        $slug = request()->route('post');
+
+        $query = Post::query()->where('slug', $slug);
+        if ($neighborhood) {
+            $query->where('neighborhood_id', $neighborhood->id);
+        }
+        $post = $query->firstOrFail();
+
         return view('feed.edit', compact('post'));
     }
 
-    public function destroy(Post $post): RedirectResponse
+    public function destroy(): RedirectResponse
     {
+        $neighborhood = request()->route('neighborhood');
+        $slug = request()->route('post');
+
+        $query = Post::query()->where('slug', $slug);
+        if ($neighborhood) {
+            $query->where('neighborhood_id', $neighborhood->id);
+        }
+        $post = $query->firstOrFail();
+
         Gate::authorize('delete', $post);
 
         $post->delete();
 
-        return redirect()->route('feed.index')
-            ->with('success', 'Post removido.');
+        $redirectRoute = $neighborhood
+            ? route('neighborhood.feed.index', $neighborhood->routeParameters())
+            : route('feed.index');
+
+        return redirect($redirectRoute)->with('success', 'Post removido.');
     }
 }

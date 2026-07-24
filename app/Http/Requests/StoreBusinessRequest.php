@@ -31,7 +31,6 @@ class StoreBusinessRequest extends FormRequest
             $phones.'.*' => ['nullable', 'string', 'max:20'],
             'whatsapp' => ['nullable', 'string', 'max:20'],
             'address' => ['nullable', 'string', 'max:255'],
-            'neighborhood' => ['required', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
             'website' => ['nullable', 'url', 'max:255'],
             $openingHours => ['nullable', 'array'],
@@ -57,7 +56,6 @@ class StoreBusinessRequest extends FormRequest
             'name.min' => 'O nome deve ter pelo menos 3 caracteres.',
             $category.'.required' => 'Selecione ao menos uma categoria.',
             $category.'.min' => 'Selecione ao menos uma categoria.',
-            'neighborhood.required' => 'O bairro é obrigatório.',
             $coverPhoto.'.image' => 'O arquivo deve ser uma imagem.',
             $coverPhoto.'.max' => 'A imagem não pode ter mais de 5MB.',
         ];

@@ -5,6 +5,7 @@ namespace Tests\Feature\Feed;
 use App\Actions\CreatePostAction;
 use App\Livewire\Feed\CreatePost;
 use App\Models\Category;
+use App\Models\Neighborhood;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,9 +22,11 @@ class PostImageTest extends TestCase
     {
         $user = User::factory()->create();
         $category = Category::factory()->create(['type' => 'post']);
+        $neighborhood = Neighborhood::factory()->create();
 
         $post = (new CreatePostAction)->execute(
             user: $user,
+            neighborhood: $neighborhood,
             data: [
                 'title' => 'Post sem imagem',
                 'body' => 'Conteúdo do post sem imagem aqui.',

@@ -23,18 +23,23 @@ class UpdateBusinessAction
 
         try {
             DB::transaction(function () use ($business, $data, $preparedCover, $existingCover, &$newPath): void {
-                $business->update([
+                $updateData = [
                     'category_id' => $data['category_ids'][0],
                     'name' => $data['name'],
                     'description' => $data['description'] ?? null,
                     'phone' => $data['phone'] ?? null,
                     'whatsapp' => $data['whatsapp'] ?? null,
                     'address' => $data['address'] ?? null,
-                    'neighborhood' => $data['neighborhood'],
                     'city' => $data['city'] ?? '',
                     'opening_hours' => $data['opening_hours'] ?? null,
                     'website' => $data['website'] ?? null,
-                ]);
+                ];
+
+                if (isset($data['neighborhood'])) {
+                    $updateData['neighborhood'] = $data['neighborhood'];
+                }
+
+                $business->update($updateData);
 
                 $business->categories()->sync($data['category_ids']);
 

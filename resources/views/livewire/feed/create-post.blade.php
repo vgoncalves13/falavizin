@@ -1,5 +1,12 @@
 <div>
     <form wire:submit="save" class="space-y-5">
+        {{-- Bairro --}}
+        <div class="rounded-xl border border-[#FD5C3E]/25 bg-[#FD5C3E]/5 px-4 py-3">
+            <p class="text-sm font-semibold text-stone-900">
+                Publicando em {{ $neighborhood->name }}
+            </p>
+        </div>
+
         {{-- Categoria --}}
         <div x-data="{ categorySlug: '' }">
             <label for="category" class="block text-sm font-medium text-stone-700 mb-1.5">

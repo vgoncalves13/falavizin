@@ -4,13 +4,16 @@ namespace App\Actions;
 
 use App\Enums\BusinessStatus;
 use App\Models\Business;
+use App\Models\Neighborhood;
 use App\Models\User;
 use App\Notifications\NewContentNotification;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
 use RuntimeException;
@@ -18,22 +21,34 @@ use Throwable;
 
 class CreateBusinessAction
 {
-    public function execute(User $user, array $data, ?UploadedFile $coverPhoto = null): Business
+    public function execute(User $user, Neighborhood $neighborhood, array $data, ?UploadedFile $coverPhoto = null): Business
     {
+        throw_unless($neighborhood->is_active, ValidationException::withMessages([
+            'name' => 'Este bairro não está mais ativo.',
+        ]));
+
+        $rateKey = "create-business:{$user->getKey()}";
+        if (RateLimiter::tooManyAttempts($rateKey, 3)) {
+            throw ValidationException::withMessages([
+                'name' => 'Você atingiu o limite diário de cadastros de negócios.',
+            ]);
+        }
+
         $preparedCover = $coverPhoto ? $this->prepareCoverPhoto($coverPhoto) : null;
         $storedPath = null;
 
         try {
-            $business = DB::transaction(function () use ($user, $data, $preparedCover, &$storedPath): Business {
+            $business = DB::transaction(function () use ($user, $neighborhood, $data, $preparedCover, &$storedPath): Business {
                 $business = $user->businesses()->create([
                     'category_id' => $data['category_ids'][0],
+                    'neighborhood_id' => $neighborhood->id,
                     'name' => $data['name'],
                     'description' => $data['description'] ?? null,
                     'phone' => $data['phone'] ?? null,
                     'whatsapp' => $data['whatsapp'] ?? null,
                     'address' => $data['address'] ?? null,
-                    'neighborhood' => $data['neighborhood'],
-                    'city' => $data['city'] ?? '',
+                    'neighborhood' => $neighborhood->name,
+                    'city' => $data['city'] ?? $neighborhood->city,
                     'opening_hours' => $data['opening_hours'] ?? null,
                     'website' => $data['website'] ?? null,
                     'status' => BusinessStatus::Pending,
@@ -66,6 +81,8 @@ class CreateBusinessAction
 
             throw $exception;
         }
+
+        RateLimiter::hit($rateKey, 86_400);
 
         $this->notifyAdmins($business->name);
 

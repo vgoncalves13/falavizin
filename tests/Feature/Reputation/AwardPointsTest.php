@@ -6,6 +6,7 @@ use App\Actions\AwardPointsAction;
 use App\Actions\CreatePostAction;
 use App\Enums\PointEventReason;
 use App\Models\Category;
+use App\Models\Neighborhood;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -78,9 +79,11 @@ class AwardPointsTest extends TestCase
     {
         $user = User::factory()->create(['points' => 0]);
         $category = Category::factory()->create(['type' => 'post']);
+        $neighborhood = Neighborhood::factory()->create();
 
         (new CreatePostAction)->execute(
             user: $user,
+            neighborhood: $neighborhood,
             data: [
                 'title' => 'Post de teste de pontos',
                 'body' => 'Conteúdo do post aqui para teste.',

@@ -4,6 +4,7 @@ namespace Tests\Feature\Feed;
 
 use App\Actions\CreatePostAction;
 use App\Models\Category;
+use App\Models\Neighborhood;
 use App\Models\Post;
 use App\Models\User;
 use Carbon\Carbon;
@@ -18,12 +19,14 @@ class EventPostTest extends TestCase
     {
         $user = User::factory()->create();
         $category = Category::factory()->create(['slug' => 'evento', 'type' => 'post']);
+        $neighborhood = Neighborhood::factory()->create();
 
         $startsAt = Carbon::now()->addDays(3);
         $endsAt = Carbon::now()->addDays(3)->addHours(2);
 
         $post = (new CreatePostAction)->execute(
             user: $user,
+            neighborhood: $neighborhood,
             data: [
                 'title' => 'Evento do bairro',
                 'body' => 'Venha participar do nosso evento comunitário.',
@@ -80,9 +83,11 @@ class EventPostTest extends TestCase
     {
         $user = User::factory()->create();
         $category = Category::factory()->create(['slug' => 'evento', 'type' => 'post']);
+        $neighborhood = Neighborhood::factory()->create();
 
         $post = (new CreatePostAction)->execute(
             user: $user,
+            neighborhood: $neighborhood,
             data: [
                 'title' => 'Evento sem data definida',
                 'body' => 'Evento sem datas preenchidas aqui.',

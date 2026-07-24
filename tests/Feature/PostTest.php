@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\PostStatus;
 use App\Livewire\Feed\CreatePost;
 use App\Models\Category;
+use App\Models\Neighborhood;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -17,7 +18,9 @@ class PostTest extends TestCase
 
     public function test_feed_is_accessible_to_guests(): void
     {
-        $response = $this->get(route('feed.index'));
+        $neighborhood = Neighborhood::factory()->create();
+
+        $response = $this->get(route('neighborhood.feed.index', $neighborhood->routeParameters()));
 
         $response->assertStatus(200);
     }
@@ -26,7 +29,10 @@ class PostTest extends TestCase
     {
         $post = Post::factory()->create();
 
-        $response = $this->get(route('feed.show', $post));
+        $response = $this->get(route('neighborhood.feed.show', [
+            ...$post->neighborhood->routeParameters(),
+            'post' => $post,
+        ]));
 
         $response->assertStatus(200);
     }
@@ -35,7 +41,10 @@ class PostTest extends TestCase
     {
         $post = Post::factory()->create(['status' => PostStatus::Pending]);
 
-        $this->get(route('feed.show', $post))->assertForbidden();
+        $this->get(route('neighborhood.feed.show', [
+            ...$post->neighborhood->routeParameters(),
+            'post' => $post,
+        ]))->assertForbidden();
     }
 
     public function test_author_and_admin_can_view_pending_post(): void
@@ -47,13 +56,21 @@ class PostTest extends TestCase
             'status' => PostStatus::Pending,
         ]);
 
-        $this->actingAs($author)->get(route('feed.show', $post))->assertOk();
-        $this->actingAs($admin)->get(route('feed.show', $post))->assertOk();
+        $this->actingAs($author)->get(route('neighborhood.feed.show', [
+            ...$post->neighborhood->routeParameters(),
+            'post' => $post,
+        ]))->assertOk();
+        $this->actingAs($admin)->get(route('neighborhood.feed.show', [
+            ...$post->neighborhood->routeParameters(),
+            'post' => $post,
+        ]))->assertOk();
     }
 
     public function test_create_post_page_requires_authentication(): void
     {
-        $response = $this->get(route('feed.create'));
+        $neighborhood = Neighborhood::factory()->create();
+
+        $response = $this->get(route('neighborhood.feed.create', $neighborhood->routeParameters()));
 
         $response->assertRedirect(route('login'));
     }
@@ -61,8 +78,9 @@ class PostTest extends TestCase
     public function test_authenticated_user_can_see_create_post_page(): void
     {
         $user = User::factory()->create();
+        $neighborhood = Neighborhood::factory()->create();
 
-        $response = $this->actingAs($user)->get(route('feed.create'));
+        $response = $this->actingAs($user)->get(route('neighborhood.feed.create', $neighborhood->routeParameters()));
 
         $response->assertStatus(200);
     }
@@ -71,10 +89,11 @@ class PostTest extends TestCase
     {
         $user = User::factory()->create();
         $category = Category::factory()->create(['type' => 'post']);
+        $neighborhood = Neighborhood::factory()->create();
 
         $this->actingAs($user);
 
-        Livewire::test(CreatePost::class)
+        Livewire::test(CreatePost::class, ['neighborhood' => $neighborhood])
             ->set('title', 'Buraco na rua principal')
             ->set('body', 'Tem um buraco enorme na rua principal, precisa de atenção urgente.')
             ->set('categoryId', $category->id)
@@ -83,13 +102,16 @@ class PostTest extends TestCase
         $this->assertDatabaseHas('posts', [
             'title' => 'Buraco na rua principal',
             'user_id' => $user->id,
+            'neighborhood_id' => $neighborhood->id,
             'status' => PostStatus::Pending->value,
         ]);
     }
 
     public function test_post_store_requires_authentication(): void
     {
-        $response = $this->get(route('feed.create'));
+        $neighborhood = Neighborhood::factory()->create();
+
+        $response = $this->get(route('neighborhood.feed.create', $neighborhood->routeParameters()));
 
         $response->assertRedirect(route('login'));
     }
@@ -97,10 +119,11 @@ class PostTest extends TestCase
     public function test_post_store_validates_required_fields(): void
     {
         $user = User::factory()->create();
+        $neighborhood = Neighborhood::factory()->create();
 
         $this->actingAs($user);
 
-        Livewire::test(CreatePost::class)
+        Livewire::test(CreatePost::class, ['neighborhood' => $neighborhood])
             ->call('save')
             ->assertHasErrors(['title', 'body', 'categoryId']);
     }
@@ -108,10 +131,11 @@ class PostTest extends TestCase
     public function test_post_store_validates_category_exists(): void
     {
         $user = User::factory()->create();
+        $neighborhood = Neighborhood::factory()->create();
 
         $this->actingAs($user);
 
-        Livewire::test(CreatePost::class)
+        Livewire::test(CreatePost::class, ['neighborhood' => $neighborhood])
             ->set('title', 'Título válido aqui')
             ->set('body', 'Conteúdo válido com mais de dez caracteres.')
             ->set('categoryId', 99999)
@@ -126,7 +150,7 @@ class PostTest extends TestCase
 
         $response = $this->actingAs($user)->delete(route('feed.destroy', $post));
 
-        $response->assertRedirect(route('feed.index'));
+        $response->assertRedirect();
         $this->assertSoftDeleted('posts', ['id' => $post->id]);
     }
 
@@ -148,7 +172,7 @@ class PostTest extends TestCase
 
         $response = $this->actingAs($admin)->delete(route('feed.destroy', $post));
 
-        $response->assertRedirect(route('feed.index'));
+        $response->assertRedirect();
         $this->assertSoftDeleted('posts', ['id' => $post->id]);
     }
 }

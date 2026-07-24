@@ -5,6 +5,7 @@ namespace App\Actions;
 use App\Enums\PointEventReason;
 use App\Enums\PostStatus;
 use App\Models\Category;
+use App\Models\Neighborhood;
 use App\Models\Post;
 use App\Models\User;
 use App\Notifications\NewContentNotification;
@@ -13,7 +14,9 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Throwable;
 
@@ -21,12 +24,32 @@ class CreatePostAction
 {
     public function execute(
         User $user,
+        Neighborhood $neighborhood,
         array $data,
         ?TemporaryUploadedFile $image = null,
         ?Carbon $eventStartsAt = null,
         ?Carbon $eventEndsAt = null,
         ?array $pollData = null,
     ): Post {
+        throw_unless($neighborhood->is_active, ValidationException::withMessages([
+            'title' => 'Este bairro não está mais ativo.',
+        ]));
+
+        $rateKey = "create-post:{$user->getKey()}";
+        if (RateLimiter::tooManyAttempts($rateKey, 5)) {
+            throw ValidationException::withMessages(['title' => 'Aguarde antes de publicar novamente.']);
+        }
+
+        $duplicateExists = $user->posts()->withTrashed()
+            ->where('title', $data['title'])
+            ->where('body', $data['body'])
+            ->where('created_at', '>=', now()->subMinutes(15))
+            ->exists();
+
+        if ($duplicateExists) {
+            throw ValidationException::withMessages(['title' => 'Esta publicação já foi enviada recentemente.']);
+        }
+
         $imagePath = null;
 
         if ($image) {
@@ -34,10 +57,11 @@ class CreatePostAction
         }
 
         try {
-            $post = DB::transaction(function () use ($user, $data, $imagePath, $eventStartsAt, $eventEndsAt, $pollData): Post {
+            $post = DB::transaction(function () use ($user, $neighborhood, $data, $imagePath, $eventStartsAt, $eventEndsAt, $pollData): Post {
                 $post = $user->posts()->create([
                     'category_id' => $data['category_id'],
                     'service_category_id' => $data['service_category_id'] ?? null,
+                    'neighborhood_id' => $neighborhood->id,
                     'title' => $data['title'],
                     'body' => $data['body'],
                     'location' => $data['location'] ?? null,
@@ -69,6 +93,8 @@ class CreatePostAction
 
             throw $exception;
         }
+
+        RateLimiter::hit($rateKey, 600);
 
         $this->notifyAdmins($post->title);
         $this->notifyMerchants($post);
@@ -104,9 +130,10 @@ class CreatePostAction
 
         $merchants = User::query()
             ->whereHas('businesses', function ($q) use ($post) {
-                $q->whereHas('categories', function ($cq) use ($post) {
-                    $cq->where('categories.id', $post->service_category_id);
-                });
+                $q->where('neighborhood_id', $post->neighborhood_id)
+                    ->whereHas('categories', function ($cq) use ($post) {
+                        $cq->where('categories.id', $post->service_category_id);
+                    });
             })
             ->where('id', '!=', $post->user_id)
             ->get();

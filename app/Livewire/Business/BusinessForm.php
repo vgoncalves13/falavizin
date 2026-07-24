@@ -6,7 +6,7 @@ use App\Actions\CreateBusinessAction;
 use App\Actions\UpdateBusinessAction;
 use App\Models\Business;
 use App\Models\Category;
-use App\Models\Setting;
+use App\Models\Neighborhood;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
@@ -17,6 +17,8 @@ class BusinessForm extends Component
     use WithFileUploads;
 
     public ?Business $business = null;
+
+    public Neighborhood $neighborhood;
 
     public string $name = '';
 
@@ -32,8 +34,6 @@ class BusinessForm extends Component
 
     public string $address = '';
 
-    public string $neighborhood = '';
-
     public string $city = '';
 
     public string $website = '';
@@ -48,8 +48,10 @@ class BusinessForm extends Component
         'Quinta-feira', 'Sexta-feira', 'Sábado', 'Domingo',
     ];
 
-    public function mount(?Business $business = null): void
+    public function mount(Neighborhood $neighborhood, ?Business $business = null): void
     {
+        $this->neighborhood = $neighborhood;
+
         if ($business?->exists) {
             $this->business = $business;
             $this->name = $business->name;
@@ -58,12 +60,10 @@ class BusinessForm extends Component
             $this->phones = $business->phone ?: [''];
             $this->whatsapp = $business->whatsapp ?? '';
             $this->address = $business->address ?? '';
-            $this->neighborhood = $business->neighborhood;
             $this->city = $business->city ?? '';
             $this->website = $business->website ?? '';
             $this->openingHours = $this->initOpeningHours($business->opening_hours);
         } else {
-            $this->neighborhood = Setting::get('neighborhood_name', '');
             $this->openingHours = $this->initOpeningHours(null);
         }
     }
@@ -94,7 +94,6 @@ class BusinessForm extends Component
             'categoryIds.*' => ['integer', 'exists:categories,id'],
             'description' => ['nullable', 'string', 'max:2000'],
             'whatsapp' => ['nullable', 'string', 'max:20'],
-            'neighborhood' => ['required', 'string', 'max:255'],
             'coverPhoto' => ['nullable', 'image', 'max:5120'],
         ];
 
@@ -117,7 +116,6 @@ class BusinessForm extends Component
             'name.min' => 'O nome deve ter pelo menos 3 caracteres.',
             'categoryIds.required' => 'Selecione ao menos uma categoria.',
             'categoryIds.min' => 'Selecione ao menos uma categoria.',
-            'neighborhood.required' => 'Informe o bairro.',
             'coverPhoto.image' => 'O arquivo deve ser uma imagem.',
             'coverPhoto.max' => 'A imagem não pode ter mais de 5MB.',
         ];
@@ -170,7 +168,6 @@ class BusinessForm extends Component
             'category_ids' => $this->categoryIds,
             'description' => $this->description ?: null,
             'whatsapp' => $this->whatsapp ?: null,
-            'neighborhood' => $this->neighborhood,
         ];
 
         if ($this->business?->exists) {
@@ -199,11 +196,12 @@ class BusinessForm extends Component
         } else {
             (new CreateBusinessAction)->execute(
                 user: auth()->user(),
+                neighborhood: $this->neighborhood,
                 data: $data,
                 coverPhoto: $uploadedPhoto,
             );
             session()->flash('success', 'Negócio enviado! Aguarda aprovação do admin.');
-            $this->redirect(route('businesses.index'));
+            $this->redirect(route('neighborhood.businesses.index', $this->neighborhood->routeParameters()));
         }
     }
 
@@ -214,6 +212,7 @@ class BusinessForm extends Component
             ->orderBy('sort_order')
             ->get();
 
-        return view('livewire.business.business-form', compact('categories'));
+        return view('livewire.business.business-form', compact('categories'))
+            ->with('neighborhood', $this->neighborhood);
     }
 }

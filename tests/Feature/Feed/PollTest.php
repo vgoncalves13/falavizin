@@ -5,6 +5,7 @@ namespace Tests\Feature\Feed;
 use App\Actions\CreatePostAction;
 use App\Enums\PointEventReason;
 use App\Models\Category;
+use App\Models\Neighborhood;
 use App\Models\Poll;
 use App\Models\PollOption;
 use App\Models\PollVote;
@@ -23,9 +24,11 @@ class PollTest extends TestCase
     {
         $user = User::factory()->create();
         $category = Category::factory()->create(['type' => 'post']);
+        $neighborhood = Neighborhood::factory()->create();
 
         $post = (new CreatePostAction)->execute(
             user: $user,
+            neighborhood: $neighborhood,
             data: [
                 'title' => 'Post com enquete',
                 'body' => 'Conteúdo do post com enquete aqui.',

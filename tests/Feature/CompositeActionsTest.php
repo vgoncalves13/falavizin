@@ -7,6 +7,7 @@ use App\Actions\CreatePostAction;
 use App\Actions\UpdateBusinessAction;
 use App\Models\Business;
 use App\Models\Category;
+use App\Models\Neighborhood;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -21,10 +22,12 @@ class CompositeActionsTest extends TestCase
     {
         $user = User::factory()->create(['points' => 0]);
         $category = Category::factory()->create(['type' => 'post']);
+        $neighborhood = Neighborhood::factory()->create();
 
         try {
             (new CreatePostAction)->execute(
                 user: $user,
+                neighborhood: $neighborhood,
                 data: [
                     'category_id' => $category->id,
                     'title' => 'Post que deve falhar',
@@ -49,6 +52,7 @@ class CompositeActionsTest extends TestCase
     {
         $user = User::factory()->create();
         $category = Category::factory()->create(['type' => 'business']);
+        $neighborhood = Neighborhood::factory()->create();
         $business = Business::factory()->create([
             'user_id' => $user->id,
             'category_id' => $category->id,
@@ -58,11 +62,12 @@ class CompositeActionsTest extends TestCase
         $data = [
             'category_ids' => [$category->id],
             'name' => 'Nome alterado',
-            'neighborhood' => 'Centro',
+            'neighborhood' => $neighborhood->name,
+            'city' => $neighborhood->city,
         ];
 
         foreach ([
-            fn () => (new CreateBusinessAction)->execute($user, $data, $invalidImage),
+            fn () => (new CreateBusinessAction)->execute($user, $neighborhood, $data, $invalidImage),
             fn () => (new UpdateBusinessAction)->execute($business, $data, $invalidImage),
         ] as $operation) {
             try {
@@ -83,14 +88,17 @@ class CompositeActionsTest extends TestCase
 
         $user = User::factory()->create();
         $category = Category::factory()->create(['type' => 'business']);
+        $neighborhood = Neighborhood::factory()->create();
         $data = [
             'category_ids' => [$category->id],
             'name' => 'Padaria segura',
-            'neighborhood' => 'Centro',
+            'neighborhood' => $neighborhood->name,
+            'city' => $neighborhood->city,
         ];
 
         $business = (new CreateBusinessAction)->execute(
             $user,
+            $neighborhood,
             $data,
             UploadedFile::fake()->image('first.jpg'),
         );
