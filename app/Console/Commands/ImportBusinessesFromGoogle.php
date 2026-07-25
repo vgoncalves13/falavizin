@@ -69,13 +69,12 @@ class ImportBusinessesFromGoogle extends Command
         $this->info("Buscando negócios próximos a {$neighborhood->name} ({$lat}, {$lng}) com raio de {$radius}m...");
 
         try {
-            $response = $service->searchNearby(
+            $results = $service->searchNearby(
                 lat: (float) $lat,
                 lng: (float) $lng,
                 radius: $radius,
                 maxResults: $limit,
             );
-            $results = $response['results'];
         } catch (\RuntimeException $e) {
             $this->error('Falha na requisição: '.$e->getMessage());
 

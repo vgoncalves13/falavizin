@@ -213,21 +213,6 @@
                     </table>
                 </div>
             @endif
-
-            @if($nextPageToken)
-                <div class="px-5 py-4 border-t border-stone-100 text-center">
-                    <button wire:click="loadMore"
-                            wire:loading.attr="disabled"
-                            wire:target="loadMore"
-                            class="inline-flex items-center gap-2 px-5 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 text-sm font-medium rounded-lg transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed">
-                        <span wire:loading wire:target="loadMore">
-                            <x-heroicon-o-arrow-path class="w-4 h-4 animate-spin" />
-                        </span>
-                        <x-heroicon-o-arrow-down class="w-4 h-4" wire:loading.remove wire:target="loadMore" />
-                        Carregar mais negócios
-                    </button>
-                </div>
-            @endif
         </div>
     @endif
 </div>
