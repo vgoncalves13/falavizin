@@ -1,4 +1,4 @@
-<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8" wire:poll.3s="pollProgress">
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold text-stone-900" style="font-family: var(--font-display)">
             Importar via Google Places
@@ -59,7 +59,7 @@
 
             <div>
                 <label class="block text-sm font-medium text-stone-700 mb-1">
-                    Raio: <span x-text="$wire.radius"></span> m
+                    Raio da região: <span x-text="$wire.radius"></span> m
                 </label>
                 <input type="range"
                        wire:model.number="radius"
@@ -98,6 +98,7 @@
                        class="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500" />
             </div>
 
+            {{-- Quick search button --}}
             <button wire:click="search"
                     wire:loading.attr="disabled"
                     class="w-full bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
@@ -107,6 +108,49 @@
                 <x-heroicon-o-magnifying-glass class="w-4 h-4" wire:loading.remove wire:target="search" />
                 Buscar negócios
             </button>
+
+            {{-- Separator --}}
+            <div class="border-t border-stone-100 pt-4">
+                <h3 class="text-sm font-semibold text-stone-700 uppercase tracking-wide mb-3">Importação Completa</h3>
+
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600 mb-1">Budget de requisições</label>
+                        <input type="number"
+                               wire:model.number="budget"
+                               min="10" max="10000"
+                               class="w-full rounded-lg border border-stone-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500" />
+                        <p class="text-xs text-stone-400 mt-0.5">Max: 15.000/mês, 5/s</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600 mb-1">Raio mínimo (m)</label>
+                        <input type="number"
+                               wire:model.number="minRadius"
+                               min="50" max="1000"
+                               class="w-full rounded-lg border border-stone-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500" />
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600 mb-1">Profundidade máxima</label>
+                        <input type="number"
+                               wire:model.number="maxDepth"
+                               min="1" max="6"
+                               class="w-full rounded-lg border border-stone-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500" />
+                    </div>
+
+                    <button wire:click="startImport"
+                            wire:loading.attr="disabled"
+                            disabled="{{ $importStatus === 'running' ? 'disabled' : '' }}"
+                            class="w-full bg-stone-800 hover:bg-stone-900 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                        <span wire:loading wire:target="startImport">
+                            <x-heroicon-o-arrow-path class="w-4 h-4 animate-spin" />
+                        </span>
+                        <x-heroicon-o-rocket-launch class="w-4 h-4" wire:loading.remove wire:target="startImport" />
+                        Iniciar importação completa
+                    </button>
+                </div>
+            </div>
         </div>
 
         {{-- Map --}}
@@ -117,6 +161,111 @@
             </p>
         </div>
     </div>
+
+    {{-- Progress panel --}}
+    @if($importStatus !== 'idle')
+        <div class="bg-white rounded-xl border border-stone-200 overflow-hidden mb-6">
+            <div class="px-5 py-4 border-b border-stone-100 flex items-center justify-between">
+                <h2 class="text-sm font-semibold text-stone-700 flex items-center gap-2">
+                    @if($importStatus === 'running')
+                        <x-heroicon-o-arrow-path class="w-4 h-4 animate-spin text-amber-600" />
+                        Importação em andamento
+                    @elseif($importStatus === 'completed')
+                        <x-heroicon-o-check-circle class="w-4 h-4 text-green-600" />
+                        Importação concluída
+                    @elseif($importStatus === 'cancelled')
+                        <x-heroicon-o-x-circle class="w-4 h-4 text-stone-400" />
+                        Importação cancelada
+                    @elseif($importStatus === 'failed')
+                        <x-heroicon-o-exclamation-circle class="w-4 h-4 text-red-600" />
+                        Importação falhou
+                    @endif
+                </h2>
+                @if($importStatus === 'running')
+                    <button wire:click="cancelImport"
+                            class="text-xs text-red-600 hover:text-red-700 font-medium">
+                        Cancelar
+                    </button>
+                @endif
+            </div>
+
+            @if($importStats)
+                <div class="px-5 py-4">
+                    {{-- Progress bar --}}
+                    @if($importStatus === 'running' && ($importStats['cells_total'] ?? 0) > 0)
+                        @php
+                            $total = $importStats['cells_total'] ?? 1;
+                            $processed = ($importStats['cells_processed'] ?? 0) + ($importStats['cells_saturated'] ?? 0);
+                            $percent = min(100, round(($processed / $total) * 100));
+                        @endphp
+                        <div class="mb-4">
+                            <div class="flex justify-between text-xs text-stone-500 mb-1">
+                                <span>Progresso</span>
+                                <span>{{ $percent }}%</span>
+                            </div>
+                            <div class="w-full bg-stone-100 rounded-full h-2">
+                                <div class="bg-amber-600 h-2 rounded-full transition-all duration-500" style="width: {{ $percent }}%"></div>
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- Stats grid --}}
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div class="bg-stone-50 rounded-lg p-3">
+                            <p class="text-xs text-stone-500">Requisições</p>
+                            <p class="text-lg font-bold text-stone-900">
+                                {{ $importStats['requests_made'] ?? 0 }}
+                                <span class="text-xs font-normal text-stone-400">/ {{ $importStats['requests_budget'] ?? 0 }}</span>
+                            </p>
+                        </div>
+                        <div class="bg-stone-50 rounded-lg p-3">
+                            <p class="text-xs text-stone-500">Células</p>
+                            <p class="text-lg font-bold text-stone-900">
+                                {{ ($importStats['cells_processed'] ?? 0) + ($importStats['cells_saturated'] ?? 0) }}
+                                <span class="text-xs font-normal text-stone-400">/ {{ $importStats['cells_total'] ?? 0 }}</span>
+                            </p>
+                        </div>
+                        <div class="bg-stone-50 rounded-lg p-3">
+                            <p class="text-xs text-stone-500">Resultados brutos</p>
+                            <p class="text-lg font-bold text-stone-900">{{ $importStats['results_raw'] ?? 0 }}</p>
+                        </div>
+                        <div class="bg-stone-50 rounded-lg p-3">
+                            <p class="text-xs text-stone-500">Únicos</p>
+                            <p class="text-lg font-bold text-amber-700">{{ $importStats['results_unique'] ?? 0 }}</p>
+                        </div>
+                        <div class="bg-stone-50 rounded-lg p-3">
+                            <p class="text-xs text-stone-500">Duplicados</p>
+                            <p class="text-lg font-bold text-stone-500">{{ $importStats['results_duplicate'] ?? 0 }}</p>
+                        </div>
+                        <div class="bg-stone-50 rounded-lg p-3">
+                            <p class="text-xs text-stone-500">Fora da região</p>
+                            <p class="text-lg font-bold text-stone-500">{{ $importStats['results_outside'] ?? 0 }}</p>
+                        </div>
+                        <div class="bg-stone-50 rounded-lg p-3">
+                            <p class="text-xs text-stone-500">Já cadastrados</p>
+                            <p class="text-lg font-bold text-stone-500">{{ $importStats['results_already_imported'] ?? 0 }}</p>
+                        </div>
+                        <div class="bg-stone-50 rounded-lg p-3">
+                            <p class="text-xs text-stone-500">Saturadas</p>
+                            <p class="text-lg font-bold text-stone-500">{{ $importStats['cells_saturated'] ?? 0 }}</p>
+                        </div>
+                        @if(($importStats['errors'] ?? 0) > 0)
+                            <div class="bg-red-50 rounded-lg p-3">
+                                <p class="text-xs text-red-600">Erros</p>
+                                <p class="text-lg font-bold text-red-700">{{ $importStats['errors'] }}</p>
+                            </div>
+                        @endif
+                        @if(($importStats['queries_cached'] ?? 0) > 0)
+                            <div class="bg-green-50 rounded-lg p-3">
+                                <p class="text-xs text-green-600">Cache hits</p>
+                                <p class="text-lg font-bold text-green-700">{{ $importStats['queries_cached'] }}</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
+        </div>
+    @endif
 
     {{-- Results --}}
     @if($searched)
@@ -165,11 +314,11 @@
                             @foreach($results as $place)
                                 @php
                                     $genericTypes = ['establishment', 'point_of_interest', 'food', 'store'];
-                                    $primaryType = collect($place['types'])->first(fn($t) => ! in_array($t, $genericTypes)) ?? ($place['types'][0] ?? null);
+                                    $primaryType = collect($place['types'] ?? [])->first(fn($t) => ! in_array($t, $genericTypes)) ?? (($place['types'] ?? [])[0] ?? null);
                                 @endphp
-                                <tr class="{{ $place['already_imported'] ? 'opacity-50' : (! $place['is_likely_business'] ? 'bg-red-50/50' : 'hover:bg-stone-50') }} transition-colors">
+                                <tr class="{{ ($place['already_imported'] ?? false) ? 'opacity-50' : (! ($place['is_likely_business'] ?? true) ? 'bg-red-50/50' : 'hover:bg-stone-50') }} transition-colors">
                                     <td class="px-5 py-3">
-                                        @if(! $place['already_imported'])
+                                        @if(! ($place['already_imported'] ?? false))
                                             <input type="checkbox"
                                                    wire:model="selected"
                                                    value="{{ $place['place_id'] }}"
@@ -186,7 +335,7 @@
                                         @endif
                                     </td>
                                     <td class="px-5 py-3">
-                                        @if(! $place['is_likely_business'])
+                                        @if(! ($place['is_likely_business'] ?? true))
                                             <span class="inline-flex items-center gap-1 text-xs font-medium text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">
                                                 <x-heroicon-o-exclamation-triangle class="w-3 h-3" />
                                                 Não comercial
@@ -197,7 +346,7 @@
                                     </td>
                                     <td class="px-5 py-3 text-stone-500 text-xs">{{ $place['address'] ?? '—' }}</td>
                                     <td class="px-5 py-3">
-                                        @if($place['already_imported'])
+                                        @if($place['already_imported'] ?? false)
                                             <span class="inline-flex items-center gap-1 text-xs font-medium text-stone-400 bg-stone-100 px-2 py-0.5 rounded-full">
                                                 <x-heroicon-o-check class="w-3 h-3" /> Já importado
                                             </span>

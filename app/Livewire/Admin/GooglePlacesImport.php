@@ -3,9 +3,12 @@
 namespace App\Livewire\Admin;
 
 use App\Actions\ImportBusinessFromGoogleAction;
+use App\Actions\StartImportAction;
+use App\Enums\ImportRunStatus;
 use App\Jobs\EnrichBusinessFromGoogle;
 use App\Models\Business;
 use App\Models\Category;
+use App\Models\ImportRun;
 use App\Models\Neighborhood;
 use App\Services\GooglePlacesService;
 use Illuminate\Database\Eloquent\Collection;
@@ -48,9 +51,23 @@ class GooglePlacesImport extends Component
     /** @var Collection<int, Neighborhood> */
     public $neighborhoods;
 
+    // Advanced import properties
+    public int $budget = 200;
+
+    public int $minRadius = 100;
+
+    public int $maxDepth = 4;
+
+    public ?int $importRunId = null;
+
+    public ?array $importStats = null;
+
+    public string $importStatus = 'idle';
+
     public function mount(): void
     {
         $this->neighborhoods = Neighborhood::active()->orderBy('name')->get();
+        $this->checkActiveImport();
     }
 
     public function updatedNeighborhoodId(int $value): void
@@ -136,7 +153,6 @@ class GooglePlacesImport extends Component
 
         $this->selected = [];
 
-        // Re-mark already imported
         $placeIds = collect($this->results)->pluck('place_id')->filter()->all();
         $existing = Business::whereIn('google_place_id', $placeIds)->pluck('google_place_id')->all();
 
@@ -147,6 +163,133 @@ class GooglePlacesImport extends Component
         })->all();
 
         session()->flash('success', "{$imported} negócio(s) importado(s) com sucesso.");
+    }
+
+    public function startImport(): void
+    {
+        $this->validate([
+            'neighborhoodId' => ['required', 'integer', 'min:1'],
+            'budget' => ['required', 'integer', 'min:10', 'max:10000'],
+            'minRadius' => ['required', 'integer', 'min:50', 'max:1000'],
+            'maxDepth' => ['required', 'integer', 'min:1', 'max:6'],
+            'radius' => ['required', 'integer', 'min:100', 'max:50000'],
+        ]);
+
+        $neighborhood = Neighborhood::active()->findOrFail($this->neighborhoodId);
+
+        $importRun = app(StartImportAction::class)->execute($neighborhood, [
+            'budget' => $this->budget,
+            'min_radius' => $this->minRadius,
+            'max_depth' => $this->maxDepth,
+            'region_radius' => $this->radius,
+        ]);
+
+        $this->importRunId = $importRun->id;
+        $this->importStatus = 'running';
+        $this->importStats = $importRun->statsSnapshot();
+    }
+
+    public function pollProgress(): void
+    {
+        if ($this->importRunId === null) {
+            return;
+        }
+
+        $importRun = ImportRun::find($this->importRunId);
+
+        if (! $importRun) {
+            $this->importStatus = 'idle';
+            $this->importRunId = null;
+
+            return;
+        }
+
+        $this->importStatus = match ($importRun->status) {
+            ImportRunStatus::Running => 'running',
+            ImportRunStatus::Completed => 'completed',
+            ImportRunStatus::Cancelled => 'cancelled',
+            ImportRunStatus::Failed => 'failed',
+            default => 'idle',
+        };
+
+        $this->importStats = $importRun->statsSnapshot();
+
+        if ($importRun->status === ImportRunStatus::Completed) {
+            $this->loadImportResults($importRun);
+        }
+    }
+
+    public function cancelImport(): void
+    {
+        if ($this->importRunId === null) {
+            return;
+        }
+
+        $importRun = ImportRun::find($this->importRunId);
+
+        if ($importRun && $importRun->status->isActive()) {
+            $importRun->markCancelled();
+            $this->importStatus = 'cancelled';
+        }
+    }
+
+    private function loadImportResults(ImportRun $importRun): void
+    {
+        $config = $importRun->config;
+        $neighborhood = $importRun->neighborhood;
+
+        if (! $neighborhood) {
+            return;
+        }
+
+        $allPlaceIds = [];
+        foreach ($importRun->cells ?? [] as $cell) {
+            if (isset($cell['result']['place_ids'])) {
+                $allPlaceIds = array_merge($allPlaceIds, $cell['result']['place_ids']);
+            }
+        }
+
+        $allPlaceIds = array_unique(array_merge($allPlaceIds, $importRun->seen_place_ids ?? []));
+
+        if (empty($allPlaceIds)) {
+            return;
+        }
+
+        $existing = Business::whereIn('google_place_id', $allPlaceIds)
+            ->pluck('google_place_id')
+            ->all();
+
+        $newPlaceIds = array_values(array_diff($allPlaceIds, $existing));
+
+        $this->results = array_map(fn (string $id) => [
+            'place_id' => $id,
+            'name' => '(encontrado na importação completa)',
+            'address' => null,
+            'lat' => null,
+            'lng' => null,
+            'phone' => null,
+            'website' => null,
+            'types' => [],
+            'already_imported' => false,
+            'is_likely_business' => true,
+        ], $newPlaceIds);
+
+        $this->searched = true;
+    }
+
+    private function checkActiveImport(): void
+    {
+        $activeRun = ImportRun::query()
+            ->where('status', ImportRunStatus::Running)
+            ->latest()
+            ->first();
+
+        if ($activeRun) {
+            $this->importRunId = $activeRun->id;
+            $this->importStatus = 'running';
+            $this->importStats = $activeRun->statsSnapshot();
+            $this->neighborhoodId = $activeRun->neighborhood_id;
+        }
     }
 
     public function render()
