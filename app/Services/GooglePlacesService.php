@@ -46,13 +46,21 @@ class GooglePlacesService
         return $response->json('photoUri');
     }
 
+    /**
+     * Search nearby with full control over parameters.
+     *
+     * @return array{results: Collection, isTruncated: bool}
+     */
     public function searchNearby(
         float $lat,
         float $lng,
         float $radius = 1000,
         array $includedTypes = [],
+        array $includedPrimaryTypes = [],
+        array $excludedTypes = [],
+        string $rankPreference = 'DISTANCE',
         int $maxResults = 20,
-    ): Collection {
+    ): array {
         $key = config('services.rapidapi.key');
         $host = config('services.rapidapi.google_places_host');
 
@@ -64,10 +72,21 @@ class GooglePlacesService
                 ],
             ],
             'maxResultCount' => min($maxResults, 20),
+            'rankPreference' => $rankPreference,
+            'languageCode' => 'pt-BR',
+            'regionCode' => 'BR',
         ];
 
         if (! empty($includedTypes)) {
             $body['includedTypes'] = $includedTypes;
+        }
+
+        if (! empty($includedPrimaryTypes)) {
+            $body['includedPrimaryTypes'] = $includedPrimaryTypes;
+        }
+
+        if (! empty($excludedTypes)) {
+            $body['excludedTypes'] = $excludedTypes;
         }
 
         $response = Http::connectTimeout(5)->timeout(20)->withHeaders([
@@ -78,10 +97,17 @@ class GooglePlacesService
         ])->post("https://{$host}/v1/places:searchNearby", $body);
 
         if (! $response->successful()) {
-            throw new \RuntimeException('Falha na requisição à Google Places API: '.$response->status());
+            $status = $response->status();
+
+            if ($status === 429) {
+                throw new \RuntimeException('Rate limit atingido (HTTP 429)');
+            }
+
+            throw new \RuntimeException("Falha na API Google Places (HTTP {$status})");
         }
 
         $places = $response->json('places', []);
+        $isTruncated = count($places) >= 20;
 
         $results = collect($places)->map(fn (array $place) => [
             'place_id' => $place['id'] ?? null,
@@ -95,6 +121,30 @@ class GooglePlacesService
             'already_imported' => false,
         ])->filter(fn (array $p) => ! empty($p['place_id']))->values();
 
-        return $results;
+        return [
+            'results' => $results,
+            'isTruncated' => $isTruncated,
+        ];
+    }
+
+    /**
+     * Legacy searchNearby for backward compatibility.
+     */
+    public function searchNearbySimple(
+        float $lat,
+        float $lng,
+        float $radius = 1000,
+        array $includedTypes = [],
+        int $maxResults = 20,
+    ): Collection {
+        $response = $this->searchNearby(
+            lat: $lat,
+            lng: $lng,
+            radius: $radius,
+            includedTypes: $includedTypes,
+            maxResults: $maxResults,
+        );
+
+        return $response['results'];
     }
 }

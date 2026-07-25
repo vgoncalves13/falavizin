@@ -98,7 +98,7 @@ class GooglePlacesImportTest extends TestCase
         $neighborhood = $this->makeNeighborhood();
 
         $this->mock(GooglePlacesService::class, function (MockInterface $mock) {
-            $mock->shouldReceive('searchNearby')
+            $mock->shouldReceive('searchNearbySimple')
                 ->once()
                 ->andReturn($this->fakePlaces());
         });
@@ -127,7 +127,7 @@ class GooglePlacesImportTest extends TestCase
         ]);
 
         $this->mock(GooglePlacesService::class, function (MockInterface $mock) {
-            $mock->shouldReceive('searchNearby')
+            $mock->shouldReceive('searchNearbySimple')
                 ->once()
                 ->andReturn($this->fakePlaces());
         });
@@ -158,7 +158,7 @@ class GooglePlacesImportTest extends TestCase
         ]);
 
         $this->mock(GooglePlacesService::class, function (MockInterface $mock) {
-            $mock->shouldReceive('searchNearby')
+            $mock->shouldReceive('searchNearbySimple')
                 ->once()
                 ->andReturn($this->fakePlaces());
         });
@@ -218,7 +218,7 @@ class GooglePlacesImportTest extends TestCase
         ]);
 
         $this->mock(GooglePlacesService::class, function (MockInterface $mock) {
-            $mock->shouldReceive('searchNearby')
+            $mock->shouldReceive('searchNearbySimple')
                 ->once()
                 ->andReturn($this->fakePlaces());
         });
@@ -245,7 +245,7 @@ class GooglePlacesImportTest extends TestCase
         $other = Category::where('slug', 'outros')->firstOrFail();
 
         $this->mock(GooglePlacesService::class, function (MockInterface $mock) {
-            $mock->shouldReceive('searchNearby')
+            $mock->shouldReceive('searchNearbySimple')
                 ->once()
                 ->andReturn($this->fakePlaces()->push([
                     'place_id' => 'ChIJ_place_unknown',
@@ -296,7 +296,7 @@ class GooglePlacesImportTest extends TestCase
         $neighborhood = $this->makeNeighborhood();
 
         $this->mock(GooglePlacesService::class, function (MockInterface $mock) {
-            $mock->shouldReceive('searchNearby')
+            $mock->shouldReceive('searchNearbySimple')
                 ->once()
                 ->andReturn($this->fakePlaces());
         });

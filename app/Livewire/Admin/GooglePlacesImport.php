@@ -74,7 +74,7 @@ class GooglePlacesImport extends Component
             'maxResults' => ['required', 'integer', 'min:1', 'max:20'],
         ]);
 
-        $results = app(GooglePlacesService::class)->searchNearby(
+        $results = app(GooglePlacesService::class)->searchNearbySimple(
             lat: $this->lat,
             lng: $this->lng,
             radius: $this->radius,

@@ -69,7 +69,7 @@ class ImportBusinessesFromGoogle extends Command
         $this->info("Buscando negócios próximos a {$neighborhood->name} ({$lat}, {$lng}) com raio de {$radius}m...");
 
         try {
-            $results = $service->searchNearby(
+            $results = $service->searchNearbySimple(
                 lat: (float) $lat,
                 lng: (float) $lng,
                 radius: $radius,
