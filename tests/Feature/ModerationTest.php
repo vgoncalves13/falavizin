@@ -21,9 +21,9 @@ class ModerationTest extends TestCase
 {
     use RefreshDatabase;
 
-    // --- Fase 2: conteúdo criado fica pending ---
+    // --- Fase 1 (MVP): conteúdo criado já aprovado ---
 
-    public function test_new_post_is_created_as_pending(): void
+    public function test_new_post_is_created_as_approved(): void
     {
         $user = User::factory()->create();
         $category = Category::factory()->create(['type' => 'post']);
@@ -39,7 +39,7 @@ class ModerationTest extends TestCase
 
         $this->assertDatabaseHas('posts', [
             'title' => 'Buraco na rua principal',
-            'status' => PostStatus::Pending->value,
+            'status' => PostStatus::Approved->value,
         ]);
     }
 
