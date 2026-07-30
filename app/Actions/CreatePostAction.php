@@ -70,7 +70,8 @@ class CreatePostAction
                     'images' => $imagePaths ?: null,
                     'event_starts_at' => $eventStartsAt,
                     'event_ends_at' => $eventEndsAt,
-                    'status' => PostStatus::Pending,
+                    'status' => PostStatus::Approved,
+                    'approved_at' => now(),
                 ]);
 
                 if ($pollData && ! empty($pollData['question']) && ! empty($pollData['options'])) {

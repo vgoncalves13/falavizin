@@ -114,7 +114,7 @@ class PostTest extends TestCase
             'title' => 'Buraco na rua principal',
             'user_id' => $user->id,
             'neighborhood_id' => $neighborhood->id,
-            'status' => PostStatus::Pending->value,
+            'status' => PostStatus::Approved->value,
         ]);
     }
 

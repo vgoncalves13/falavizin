@@ -137,15 +137,6 @@
                                     <div class="flex items-center gap-2 mb-1 flex-wrap">
                                         <x-category-badge :category="$post->category" />
                                         <span class="text-xs text-stone-400">{{ $post->created_at->diffForHumans() }}</span>
-                                        @if($post->status->value === 'pending')
-                                            <span class="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">Aguardando aprovação</span>
-                                        @elseif($post->status->value === 'rejected')
-                                            <span class="text-xs font-medium text-red-600 bg-red-50 px-2 py-0.5 rounded-full">Rejeitado</span>
-                                            <a href="{{ route('feed.edit', $post) }}"
-                                               class="text-xs font-medium text-red-700 bg-red-100 hover:bg-red-200 px-2 py-0.5 rounded-full transition-colors">
-                                                Editar e reenviar
-                                            </a>
-                                        @endif
                                     </div>
                                     <a href="{{ route('feed.show', $post) }}"
                                        class="font-medium text-stone-900 hover:text-amber-600 transition-colors line-clamp-1">
