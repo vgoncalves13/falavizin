@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\CompleteBusinessInitialAction;
 use App\Actions\CreateBusinessAction;
 use App\Actions\UpdateBusinessAction;
 use App\Enums\BusinessPlan;
@@ -16,11 +17,14 @@ use App\Models\Setting;
 use App\Models\User;
 use App\Notifications\PlanUpgradeApprovedNotification;
 use App\Notifications\PlanUpgradeRequestNotification;
+use App\Services\BusinessQrCodeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\Response;
 
 class BusinessController extends Controller
 {
@@ -133,7 +137,9 @@ class BusinessController extends Controller
 
         $business->load(['category', 'coverPhoto']);
 
-        return view('businesses.edit', compact('business'));
+        $neighborhood = request()->route('neighborhood') ?? $business->localNeighborhood;
+
+        return view('businesses.edit', compact('business', 'neighborhood'));
     }
 
     public function update(UpdateBusinessRequest $request): RedirectResponse
@@ -154,6 +160,72 @@ class BusinessController extends Controller
 
         return redirect()->route('businesses.show', $business)
             ->with('success', 'Negócio atualizado com sucesso!');
+    }
+
+    public function onboarding(): View
+    {
+        $neighborhood = request()->route('neighborhood');
+        $slug = request()->route('business');
+
+        $business = Business::query()
+            ->where('slug', $slug)
+            ->when($neighborhood, fn ($q) => $q->forNeighborhood($neighborhood))
+            ->firstOrFail();
+
+        Gate::authorize('update', $business);
+
+        $business->load(['category', 'coverPhoto', 'managers']);
+
+        $neighborhood = request()->route('neighborhood') ?? $business->localNeighborhood;
+
+        return view('businesses.onboarding', compact('business', 'neighborhood'));
+    }
+
+    public function qr(Business $business): View
+    {
+        Gate::authorize('update', $business);
+
+        return view('businesses.qr', compact('business'));
+    }
+
+    public function downloadQr(Business $business, BusinessQrCodeService $qr): Response
+    {
+        Gate::authorize('update', $business);
+
+        $filename = Str::slug($business->name).'-qr.png';
+
+        return response($qr->pngFor($business))
+            ->header('Content-Type', 'image/png')
+            ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
+    }
+
+    public function confirmQr(Business $business): RedirectResponse
+    {
+        Gate::authorize('update', $business);
+
+        (new CompleteBusinessInitialAction)->execute(
+            $business,
+            auth()->user(),
+            'qr',
+            $business->canonicalUrl(),
+        );
+
+        return redirect()->route('businesses.onboarding', $business)
+            ->with('success', 'QR Code confirmado! A etapa de ação inicial foi concluída.');
+    }
+
+    public function trackShare(Business $business): JsonResponse
+    {
+        if (auth()->user()?->can('update', $business)) {
+            (new CompleteBusinessInitialAction)->execute(
+                $business,
+                auth()->user(),
+                'share',
+                $business->canonicalUrl(),
+            );
+        }
+
+        return response()->json(['ok' => true]);
     }
 
     public function requestUpgrade(Business $business): RedirectResponse

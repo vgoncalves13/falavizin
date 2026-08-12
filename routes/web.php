@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ClaimController;
 use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\SponsoredPostsController;
 use App\Http\Controllers\Admin\StatsController;
@@ -60,6 +61,10 @@ Route::prefix('{state}/{city}/{neighborhood}')
             Route::post('/cadastrar-negocio', [BusinessController::class, 'store'])->name('businesses.store');
             Route::get('/meu-negocio/{business:slug}/editar', [BusinessController::class, 'edit'])->scopeBindings()->name('businesses.edit');
             Route::put('/meu-negocio/{business:slug}', [BusinessController::class, 'update'])->scopeBindings()->name('businesses.update');
+            Route::get('/meu-negocio/{business:slug}/configuracao', [BusinessController::class, 'onboarding'])->scopeBindings()->name('businesses.onboarding');
+            Route::get('/meu-negocio/{business:slug}/qr', [BusinessController::class, 'qr'])->scopeBindings()->name('businesses.qr');
+            Route::post('/meu-negocio/{business:slug}/qr/confirmar', [BusinessController::class, 'confirmQr'])->scopeBindings()->name('businesses.qr.confirm');
+            Route::get('/meu-negocio/{business:slug}/qr/download', [BusinessController::class, 'downloadQr'])->scopeBindings()->name('businesses.qr.download');
 
             Route::post('/meu-negocio/{business:slug}/promocoes', [PromotionController::class, 'store'])
                 ->scopeBindings()
@@ -134,6 +139,10 @@ Route::middleware(['auth', 'primary-neighborhood'])->group(function () {
     Route::post('/cadastrar-negocio', [BusinessController::class, 'store'])->name('businesses.store');
     Route::get('/meu-negocio/{business}/editar', [BusinessController::class, 'edit'])->name('businesses.edit');
     Route::put('/meu-negocio/{business}', [BusinessController::class, 'update'])->name('businesses.update');
+    Route::get('/meu-negocio/{business}/configuracao', [BusinessController::class, 'onboarding'])->name('businesses.onboarding');
+    Route::get('/meu-negocio/{business}/qr', [BusinessController::class, 'qr'])->name('businesses.qr');
+    Route::post('/meu-negocio/{business}/qr/confirmar', [BusinessController::class, 'confirmQr'])->name('businesses.qr.confirm');
+    Route::get('/meu-negocio/{business}/qr/download', [BusinessController::class, 'downloadQr'])->name('businesses.qr.download');
     Route::post('/meu-negocio/{business}/solicitar-upgrade', [BusinessController::class, 'requestUpgrade'])->name('businesses.upgrade.request');
 
     Route::delete('/promocoes/{promotion}', [PromotionController::class, 'destroy'])
@@ -154,6 +163,8 @@ Route::middleware('auth')->group(function () {
 
         return response()->json(['ok' => true]);
     })->name('business.track');
+
+    Route::post('/negocio/{business}/compartilhar', [BusinessController::class, 'trackShare'])->name('businesses.share.track');
 });
 
 // Moderation (admin + moderator)
@@ -169,8 +180,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/usuarios', [UserManagementController::class, 'index'])->name('users.index');
     Route::patch('/usuarios/{user}/role', [UserManagementController::class, 'updateRole'])->name('users.update-role');
 
-    Route::post('/reivindicacoes/{business}/aprovar', [ModerationController::class, 'approveClaim'])->name('claims.approve');
-    Route::post('/reivindicacoes/{business}/rejeitar', [ModerationController::class, 'rejectClaim'])->name('claims.reject');
+    Route::get('/reivindicacoes', [ClaimController::class, 'index'])->name('claims.index');
+    Route::post('/reivindicacoes/{claim}/aprovar', [ClaimController::class, 'approve'])->name('claims.approve');
+    Route::post('/reivindicacoes/{claim}/rejeitar', [ClaimController::class, 'reject'])->name('claims.reject');
     Route::get('/importar-google-places', GooglePlacesImport::class)->name('google-places-import');
     Route::get('/bairros', NeighborhoodManager::class)->name('neighborhoods');
     Route::get('/estatisticas', [StatsController::class, 'index'])->name('stats');

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Actions\UpdateProfileAction;
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\Business;
+use App\Models\BusinessManager;
 use App\Models\Neighborhood;
 use App\Models\Post;
 use Illuminate\Http\RedirectResponse;
@@ -24,9 +26,14 @@ class ProfileController extends Controller
             'savedPosts',
         ]);
 
+        $managedIds = $user->managedBusinesses()->pluck('businesses.id');
+
+        $businessesQuery = Business::query()
+            ->where(fn ($q) => $q->where('user_id', $user->id)->orWhereIn('id', $managedIds));
+
         $posts = $user->posts()->with(['category', 'serviceCategory'])->latest()
             ->paginate(10, ['*'], 'posts_page')->appends(['tab' => 'posts']);
-        $businesses = $user->businesses()->with(['category', 'categories'])->latest()
+        $businesses = (clone $businessesQuery)->with(['category', 'categories'])->latest()
             ->paginate(10, ['*'], 'businesses_page')->appends(['tab' => 'businesses']);
         $comments = $user->comments()->with('post')->latest()
             ->paginate(10, ['*'], 'comments_page')->appends(['tab' => 'comments']);
@@ -35,7 +42,7 @@ class ProfileController extends Controller
         $savedPosts = $user->savedPosts()->with(['category', 'user', 'serviceCategory'])
             ->paginate(10, ['*'], 'saved_page')->appends(['tab' => 'saved']);
 
-        $businessCategoryIds = $user->businesses()
+        $businessCategoryIds = (clone $businessesQuery)
             ->with('categories')
             ->get()
             ->flatMap(fn ($business) => $business->categories->pluck('id'))
@@ -43,7 +50,7 @@ class ProfileController extends Controller
             ->filter()
             ->values();
 
-        $businessNeighborhoodIds = $user->businesses()
+        $businessNeighborhoodIds = (clone $businessesQuery)
             ->pluck('neighborhood_id')
             ->unique()
             ->filter()
@@ -111,6 +118,11 @@ class ProfileController extends Controller
             'claimed' => false,
             'claimed_at' => null,
         ]);
+
+        BusinessManager::query()
+            ->where('user_id', $user->id)
+            ->whereNull('revoked_at')
+            ->update(['revoked_at' => now()]);
 
         Auth::logout();
 

@@ -177,6 +177,23 @@ class BusinessTest extends TestCase
         $this->assertSame('(21) 9 9999-9999', $business->whatsapp);
     }
 
+    public function test_business_form_normalizes_instagram_handle(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create(['type' => 'business']);
+        $neighborhood = Neighborhood::factory()->create();
+
+        Livewire::actingAs($user)
+            ->test(BusinessForm::class, ['neighborhood' => $neighborhood])
+            ->set('name', 'Padaria do João')
+            ->set('categoryIds', [$category->id])
+            ->set('instagram', 'https://www.instagram.com/padariadojoao/')
+            ->call('save');
+
+        $business = Business::where('name', 'Padaria do João')->firstOrFail();
+        $this->assertSame('padariadojoao', $business->instagram);
+    }
+
     public function test_business_is_open_after_midnight_when_previous_day_closes_later(): void
     {
         $business = Business::factory()->make(['opening_hours' => [
@@ -220,6 +237,35 @@ class BusinessTest extends TestCase
         $response = $this->actingAs($user)->get(route('businesses.edit', $business));
 
         $response->assertStatus(200);
+    }
+
+    public function test_edit_page_displays_instagram_field(): void
+    {
+        $user = User::factory()->create();
+        $business = Business::factory()->create(['user_id' => $user->id, 'instagram' => 'meunegocio']);
+
+        $response = $this->actingAs($user)->get(route('businesses.edit', $business));
+
+        $response->assertStatus(200);
+        $response->assertSee('instagram');
+        $response->assertSee('meunegocio');
+    }
+
+    public function test_owner_can_save_instagram_when_editing_through_livewire(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create(['type' => 'business']);
+        $business = Business::factory()->create(['user_id' => $user->id]);
+        $neighborhood = $business->localNeighborhood;
+        $business->categories()->sync([$category->id]);
+
+        Livewire::actingAs($user)
+            ->test(BusinessForm::class, ['business' => $business, 'neighborhood' => $neighborhood])
+            ->set('instagram', '@meunegocio')
+            ->call('save')
+            ->assertRedirect($business->canonicalUrl());
+
+        $this->assertSame('meunegocio', $business->fresh()->instagram);
     }
 
     public function test_non_owner_cannot_edit_business(): void

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\BusinessOnboardingStep as BusinessOnboardingStepEnum;
 use App\Enums\BusinessPlan;
 use App\Enums\BusinessStatus;
 use Database\Factories\BusinessFactory;
@@ -31,6 +32,7 @@ class Business extends Model
         'description',
         'phone',
         'whatsapp',
+        'instagram',
         'address',
         'neighborhood',
         'city',
@@ -48,6 +50,8 @@ class Business extends Model
         'plan_upgrade_requested_at',
         'reported_at',
         'reported_reason',
+        'is_founder',
+        'founder_granted_at',
     ];
 
     protected function casts(): array
@@ -61,6 +65,8 @@ class Business extends Model
             'claimed_at' => 'datetime',
             'plan_upgrade_requested_at' => 'datetime',
             'reported_at' => 'datetime',
+            'is_founder' => 'boolean',
+            'founder_granted_at' => 'datetime',
         ];
     }
 
@@ -98,6 +104,38 @@ class Business extends Model
     public function claimUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'claim_user_id');
+    }
+
+    public function claims(): HasMany
+    {
+        return $this->hasMany(BusinessClaim::class);
+    }
+
+    public function managers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'business_managers')
+            ->wherePivotNull('revoked_at')
+            ->withPivot('role', 'granted_at', 'revoked_at')
+            ->withTimestamps();
+    }
+
+    public function managerRecords(): HasMany
+    {
+        return $this->hasMany(BusinessManager::class);
+    }
+
+    public function onboardingSteps(): HasMany
+    {
+        return $this->hasMany(BusinessOnboardingStep::class);
+    }
+
+    public function isManagedBy(User $user): bool
+    {
+        if ($this->user_id === $user->id) {
+            return true;
+        }
+
+        return $this->managers()->whereKey($user->getKey())->exists();
     }
 
     public function category(): BelongsTo
@@ -232,5 +270,32 @@ class Business extends Model
             ...$this->localNeighborhood->routeParameters(),
             'business' => $this,
         ], $absolute);
+    }
+
+    public function isVerified(): bool
+    {
+        if (! $this->claimed) {
+            return false;
+        }
+
+        $steps = $this->onboardingSteps()->pluck('step');
+
+        return $steps->contains(BusinessOnboardingStepEnum::BasicDetails->value)
+            && $steps->contains(BusinessOnboardingStepEnum::OpeningHours->value);
+    }
+
+    /**
+     * Indicador de atividade recente, independente do status de reivindicação,
+     * verificação ou fundador.
+     */
+    public function isRecentlyActive(int $days = 90): bool
+    {
+        if ($this->updated_at && $this->updated_at->gte(now()->subDays($days))) {
+            return true;
+        }
+
+        return $this->promotions()
+            ->where('created_at', '>=', now()->subDays($days))
+            ->exists();
     }
 }

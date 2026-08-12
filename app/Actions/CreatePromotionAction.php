@@ -35,6 +35,15 @@ class CreatePromotionAction
 
         $this->notifyAdmins($promotion->title);
 
+        if ($user = auth()->user()) {
+            (new CompleteBusinessInitialAction)->execute(
+                $business,
+                $user,
+                'promotion',
+                $promotion->business->canonicalUrl(),
+            );
+        }
+
         return $promotion;
     }
 

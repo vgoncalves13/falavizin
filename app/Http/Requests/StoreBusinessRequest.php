@@ -30,6 +30,7 @@ class StoreBusinessRequest extends FormRequest
             $phones => ['nullable', 'array', 'max:5'],
             $phones.'.*' => ['nullable', 'string', 'max:20'],
             'whatsapp' => ['nullable', 'string', 'max:20'],
+            'instagram' => ['nullable', 'string', 'max:255'],
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
             'website' => ['nullable', 'url', 'max:255'],

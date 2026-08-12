@@ -17,6 +17,7 @@ class BusinessPhoto extends Model
         'path',
         'is_cover',
         'sort_order',
+        'uploaded_by',
     ];
 
     protected function casts(): array
@@ -29,5 +30,10 @@ class BusinessPhoto extends Model
     public function business(): BelongsTo
     {
         return $this->belongsTo(Business::class);
+    }
+
+    public function uploader(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'uploaded_by');
     }
 }

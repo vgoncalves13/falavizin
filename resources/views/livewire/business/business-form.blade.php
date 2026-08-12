@@ -43,7 +43,7 @@
         {{-- Bairro --}}
         <div class="rounded-xl border border-[#FD5C3E]/25 bg-[#FD5C3E]/5 px-4 py-3">
             <p class="text-sm font-semibold text-stone-900">
-                Cadastrando em {{ $neighborhood->name }}
+                {{ $business?->exists ? 'Editando' : 'Cadastrando' }} em {{ $neighborhood->name }}
             </p>
         </div>
 
@@ -61,6 +61,25 @@
             />
             <p class="mt-1 text-xs text-stone-400">Principal canal de contato com clientes</p>
             @error('whatsapp') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+        </div>
+
+        {{-- Instagram --}}
+        <div>
+            <label for="instagram" class="block text-sm font-medium text-stone-700 mb-1.5">
+                Instagram <span class="text-stone-400 font-normal">(opcional)</span>
+            </label>
+            <div class="relative">
+                <span class="absolute inset-y-0 left-3 flex items-center text-stone-400 text-sm">@</span>
+                <input
+                    type="text"
+                    id="instagram"
+                    wire:model="instagram"
+                    placeholder="seudonegocio"
+                    class="w-full pl-7 rounded-lg border-stone-300 text-stone-900 text-sm focus:ring-amber-500 focus:border-amber-500"
+                />
+            </div>
+            <p class="mt-1 text-xs text-stone-400">Usuário do Instagram do estabelecimento</p>
+            @error('instagram') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
         </div>
 
         {{-- Descrição --}}

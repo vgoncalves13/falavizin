@@ -26,7 +26,7 @@ class BusinessPolicy
             return false;
         }
 
-        return $user->id === $business->user_id || $user->is_admin;
+        return $business->isManagedBy($user) || $user->is_admin;
     }
 
     public function delete(User $user, Business $business): bool
@@ -35,6 +35,6 @@ class BusinessPolicy
             return false;
         }
 
-        return $user->id === $business->user_id || $user->is_admin;
+        return $business->isManagedBy($user) || $user->is_admin;
     }
 }

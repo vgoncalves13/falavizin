@@ -25,6 +25,7 @@ class BusinessFactory extends Factory
             'description' => fake()->paragraph(),
             'phone' => [fake()->phoneNumber()],
             'whatsapp' => fake()->optional()->phoneNumber(),
+            'instagram' => fake()->optional()->userName(),
             'address' => fake()->streetAddress(),
             'neighborhood' => 'Engenho da Rainha',
             'city' => fake()->city(),

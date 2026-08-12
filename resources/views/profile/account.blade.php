@@ -49,6 +49,9 @@
             </div>
         </div>
 
+        {{-- Onboarding de negócios --}}
+        <livewire:business.onboarding-cards />
+
         {{-- Tabs --}}
         <div x-data="{ tab: @js($activeTab) }">
             <div class="flex gap-1 bg-white rounded-xl border border-stone-200 p-1 mb-5 overflow-x-auto">

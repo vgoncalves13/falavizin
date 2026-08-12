@@ -32,6 +32,8 @@ class BusinessForm extends Component
 
     public string $whatsapp = '';
 
+    public string $instagram = '';
+
     public string $address = '';
 
     public string $city = '';
@@ -59,6 +61,7 @@ class BusinessForm extends Component
             $this->description = $business->description ?? '';
             $this->phones = $business->phone ?: [''];
             $this->whatsapp = $business->whatsapp ?? '';
+            $this->instagram = $business->instagram ?? '';
             $this->address = $business->address ?? '';
             $this->city = $business->city ?? '';
             $this->website = $business->website ?? '';
@@ -94,6 +97,7 @@ class BusinessForm extends Component
             'categoryIds.*' => ['integer', 'exists:categories,id'],
             'description' => ['nullable', 'string', 'max:2000'],
             'whatsapp' => ['nullable', 'string', 'max:20'],
+            'instagram' => ['nullable', 'string', 'max:255'],
             'coverPhoto' => ['nullable', 'image', 'max:5120'],
         ];
 
@@ -145,6 +149,21 @@ class BusinessForm extends Component
         }
     }
 
+    private function normalizeInstagram(string $value): string
+    {
+        $value = trim($value);
+
+        if ($value === '') {
+            return '';
+        }
+
+        if (str_contains($value, 'instagram.com/')) {
+            $value = substr($value, strrpos($value, 'instagram.com/') + strlen('instagram.com/'));
+        }
+
+        return rtrim(ltrim(trim($value), '@'), '/');
+    }
+
     public function removePhone(int $index): void
     {
         unset($this->phones[$index]);
@@ -168,6 +187,7 @@ class BusinessForm extends Component
             'category_ids' => $this->categoryIds,
             'description' => $this->description ?: null,
             'whatsapp' => $this->whatsapp ?: null,
+            'instagram' => $this->normalizeInstagram($this->instagram) ?: null,
         ];
 
         if ($this->business?->exists) {

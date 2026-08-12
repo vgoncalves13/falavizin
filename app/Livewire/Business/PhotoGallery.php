@@ -76,6 +76,7 @@ class PhotoGallery extends Component
                         'path' => $path,
                         'is_cover' => false,
                         'sort_order' => $nextOrder++,
+                        'uploaded_by' => auth()->id(),
                     ]);
                 }
             });

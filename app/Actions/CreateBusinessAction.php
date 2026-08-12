@@ -46,6 +46,7 @@ class CreateBusinessAction
                     'description' => $data['description'] ?? null,
                     'phone' => $data['phone'] ?? null,
                     'whatsapp' => $data['whatsapp'] ?? null,
+                    'instagram' => $data['instagram'] ?? null,
                     'address' => $data['address'] ?? null,
                     'neighborhood' => $neighborhood->name,
                     'city' => $data['city'] ?? $neighborhood->city,
@@ -69,6 +70,7 @@ class CreateBusinessAction
                         'path' => $storedPath,
                         'is_cover' => true,
                         'sort_order' => 0,
+                        'uploaded_by' => $user->id,
                     ]);
                 }
 

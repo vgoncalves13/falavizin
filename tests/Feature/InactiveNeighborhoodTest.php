@@ -170,7 +170,9 @@ class InactiveNeighborhoodTest extends TestCase
             ->post(route('neighborhood.businesses.claim.request', [
                 ...$business->localNeighborhood->routeParameters(),
                 'business' => $business,
-            ]))
+            ]), [
+                'confirm' => '1',
+            ])
             ->assertForbidden();
 
         $this->assertNull($business->fresh()->claim_user_id);

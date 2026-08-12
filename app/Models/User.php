@@ -116,6 +116,19 @@ class User extends Authenticatable
         return $this->hasMany(Business::class);
     }
 
+    /**
+     * Estabelecimentos que o usuário administra via reivindicação aprovada.
+     *
+     * @return BelongsToMany<Business>
+     */
+    public function managedBusinesses(): BelongsToMany
+    {
+        return $this->belongsToMany(Business::class, 'business_managers')
+            ->wherePivotNull('revoked_at')
+            ->withPivot('role', 'granted_at')
+            ->withTimestamps();
+    }
+
     public function primaryNeighborhood(): BelongsTo
     {
         return $this->belongsTo(Neighborhood::class, 'neighborhood_id');

@@ -3,6 +3,11 @@
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-bold text-stone-900" style="font-family: var(--font-display)">Moderação</h1>
             <div class="flex items-center gap-2">
+                <a href="{{ route('admin.claims.index') }}"
+                   class="inline-flex items-center gap-1.5 text-sm font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-3 py-1.5 rounded-lg transition-colors duration-150">
+                    <x-heroicon-o-flag class="w-4 h-4" />
+                    Reivindicações
+                </a>
                 <a href="{{ route('admin.users.index') }}"
                    class="inline-flex items-center gap-1.5 text-sm font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-3 py-1.5 rounded-lg transition-colors duration-150">
                     <x-heroicon-o-users class="w-4 h-4" />
@@ -62,36 +67,26 @@
                     Reivindicações de negócio ({{ $pendingClaims->count() }})
                 </h2>
                 <div class="space-y-2">
-                    @foreach($pendingClaims as $business)
+                    @foreach($pendingClaims as $claim)
                         <div class="bg-white rounded-xl border border-amber-200 p-4 flex items-start justify-between gap-4">
                             <div class="min-w-0">
-                                <p class="font-medium text-stone-900">{{ $business->name }}</p>
+                                <p class="font-medium text-stone-900">{{ $claim->business->name }}</p>
                                 <p class="text-xs text-stone-500 mt-0.5">
-                                    Solicitante: {{ $business->claimUser->name }} ({{ $business->claimUser->email }})
+                                    Solicitante: {{ $claim->user->name }} ({{ $claim->user->email }})
                                 </p>
                                 <p class="text-xs text-stone-400 mt-0.5">
-                                    {{ $business->neighborhood }} · Solicitado {{ $business->claim_requested_at->diffForHumans() }}
+                                    {{ $claim->business->localNeighborhood->name ?? $claim->business->neighborhood }} · Solicitado {{ $claim->created_at->diffForHumans() }}
                                 </p>
+                                @if($claim->message)
+                                    <p class="text-xs text-stone-500 mt-1 italic">“{{ $claim->message }}”</p>
+                                @endif
                             </div>
                             <div class="flex items-center gap-2 shrink-0">
-                                <a href="{{ $business->canonicalUrl() }}"
-                                   target="_blank"
-                                   class="px-3 py-1.5 text-stone-600 bg-stone-100 hover:bg-stone-200 text-xs font-medium rounded-lg transition-colors inline-flex items-center gap-1">
-                                    <x-heroicon-o-arrow-top-right-on-square class="w-3.5 h-3.5" />
-                                    Ver
+                                <a href="{{ route('admin.claims.index') }}"
+                                   class="px-3 py-1.5 text-amber-700 bg-amber-50 hover:bg-amber-100 text-xs font-medium rounded-lg transition-colors inline-flex items-center gap-1">
+                                    <x-heroicon-o-clipboard-document-list class="w-3.5 h-3.5" />
+                                    Analisar
                                 </a>
-                                <form action="{{ route('admin.claims.approve', $business) }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-xs font-medium rounded-lg transition-colors">
-                                        Aprovar
-                                    </button>
-                                </form>
-                                <form action="{{ route('admin.claims.reject', $business) }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-xs font-medium rounded-lg transition-colors">
-                                        Rejeitar
-                                    </button>
-                                </form>
                             </div>
                         </div>
                     @endforeach

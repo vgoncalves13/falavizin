@@ -8,7 +8,7 @@
         <h1 class="text-2xl font-bold text-stone-900 mb-6" style="font-family: var(--font-display)">Editar Negócio</h1>
 
         <div class="bg-white rounded-xl border border-stone-200 p-6">
-            <livewire:business.business-form :business="$business" />
+            <livewire:business.business-form :business="$business" :neighborhood="$neighborhood" />
         </div>
     </div>
 </x-app-layout>

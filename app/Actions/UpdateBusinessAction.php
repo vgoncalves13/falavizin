@@ -29,6 +29,7 @@ class UpdateBusinessAction
                     'description' => $data['description'] ?? null,
                     'phone' => $data['phone'] ?? null,
                     'whatsapp' => $data['whatsapp'] ?? null,
+                    'instagram' => $data['instagram'] ?? null,
                     'address' => $data['address'] ?? null,
                     'city' => $data['city'] ?? '',
                     'opening_hours' => $data['opening_hours'] ?? null,
@@ -57,6 +58,7 @@ class UpdateBusinessAction
                             'path' => $newPath,
                             'is_cover' => true,
                             'sort_order' => 0,
+                            'uploaded_by' => auth()->id(),
                         ]);
                     }
                 }

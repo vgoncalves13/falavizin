@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Actions\ClaimBusinessAction;
 use App\Enums\BusinessStatus;
 use App\Enums\PostStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Business;
+use App\Models\BusinessClaim;
 use App\Models\ModerationLog;
 use App\Models\Post;
 use App\Models\Promotion;
@@ -65,10 +65,10 @@ class ModerationController extends Controller
             ->oldest('plan_upgrade_requested_at')
             ->get();
 
-        $pendingClaims = Business::query()
-            ->whereNotNull('claim_user_id')
-            ->with(['claimUser', 'category'])
-            ->oldest('claim_requested_at')
+        $pendingClaims = BusinessClaim::query()
+            ->pending()
+            ->with(['business.localNeighborhood', 'user'])
+            ->oldest()
             ->get();
 
         $recentLogs = ModerationLog::query()
@@ -107,48 +107,6 @@ class ModerationController extends Controller
             'featuredRequestsThisMonth',
             'featuredApprovedThisMonth',
         ));
-    }
-
-    public function approveClaim(Business $business, ClaimBusinessAction $action): RedirectResponse
-    {
-        $previousStatus = $business->claimed ? 'approved' : 'pending';
-        $action->execute($business, approved: true);
-
-        ModerationLog::create([
-            'moderatable_type' => Business::class,
-            'moderatable_id' => $business->id,
-            'performed_by' => auth()->id(),
-            'action' => 'claim_approved',
-            'previous_status' => $previousStatus,
-            'new_status' => 'claimed',
-            'reason' => null,
-        ]);
-
-        $this->clearModerationCache();
-
-        return redirect()->route('admin.moderation.index')
-            ->with('success', 'Reivindicação aprovada.');
-    }
-
-    public function rejectClaim(Business $business, ClaimBusinessAction $action): RedirectResponse
-    {
-        $previousStatus = $business->claimed ? 'approved' : 'pending';
-        $action->execute($business, approved: false);
-
-        ModerationLog::create([
-            'moderatable_type' => Business::class,
-            'moderatable_id' => $business->id,
-            'performed_by' => auth()->id(),
-            'action' => 'claim_rejected',
-            'previous_status' => $previousStatus,
-            'new_status' => 'rejected',
-            'reason' => null,
-        ]);
-
-        $this->clearModerationCache();
-
-        return redirect()->route('admin.moderation.index')
-            ->with('success', 'Reivindicação rejeitada.');
     }
 
     public function bulk(Request $request): RedirectResponse
