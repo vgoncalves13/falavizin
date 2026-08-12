@@ -65,6 +65,7 @@ Route::prefix('{state}/{city}/{neighborhood}')
             Route::get('/meu-negocio/{business:slug}/qr', [BusinessController::class, 'qr'])->scopeBindings()->name('businesses.qr');
             Route::post('/meu-negocio/{business:slug}/qr/confirmar', [BusinessController::class, 'confirmQr'])->scopeBindings()->name('businesses.qr.confirm');
             Route::get('/meu-negocio/{business:slug}/qr/download', [BusinessController::class, 'downloadQr'])->scopeBindings()->name('businesses.qr.download');
+            Route::get('/meu-negocio/{business:slug}/qr/download-pdf', [BusinessController::class, 'downloadQrPdf'])->scopeBindings()->name('businesses.qr.download-pdf');
 
             Route::post('/meu-negocio/{business:slug}/promocoes', [PromotionController::class, 'store'])
                 ->scopeBindings()
@@ -143,6 +144,7 @@ Route::middleware(['auth', 'primary-neighborhood'])->group(function () {
     Route::get('/meu-negocio/{business}/qr', [BusinessController::class, 'qr'])->name('businesses.qr');
     Route::post('/meu-negocio/{business}/qr/confirmar', [BusinessController::class, 'confirmQr'])->name('businesses.qr.confirm');
     Route::get('/meu-negocio/{business}/qr/download', [BusinessController::class, 'downloadQr'])->name('businesses.qr.download');
+    Route::get('/meu-negocio/{business}/qr/download-pdf', [BusinessController::class, 'downloadQrPdf'])->name('businesses.qr.download-pdf');
     Route::post('/meu-negocio/{business}/solicitar-upgrade', [BusinessController::class, 'requestUpgrade'])->name('businesses.upgrade.request');
 
     Route::delete('/promocoes/{promotion}', [PromotionController::class, 'destroy'])

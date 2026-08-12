@@ -191,7 +191,7 @@ class BusinessOnboardingTest extends TestCase
         $this->assertSame('qr', $record->data['action']);
     }
 
-    public function test_qr_svg_contains_logo_and_brand_colors(): void
+    public function test_qr_png_is_valid_with_logo(): void
     {
         $user = User::factory()->create();
         $business = $this->managedBusinessFor($user);
@@ -204,7 +204,7 @@ class BusinessOnboardingTest extends TestCase
         $this->assertSame('image/png', (new \finfo(FILEINFO_MIME_TYPE))->buffer($png));
     }
 
-    public function test_qr_page_renders_svg_for_manager(): void
+    public function test_qr_page_renders_poster_preview(): void
     {
         $user = User::factory()->create();
         $business = $this->managedBusinessFor($user);
@@ -212,8 +212,37 @@ class BusinessOnboardingTest extends TestCase
         $response = $this->actingAs($user)->get(route('businesses.qr', $business));
 
         $response->assertOk();
-        $response->assertSee('QR Code de '.$business->name);
+        $response->assertSee('Placa FalaVizin');
+        $response->assertSee('Baixar imagem (PNG)');
+        $response->assertSee('Baixar PDF (A6)');
         $response->assertSee('data:image/png;base64,', escape: false);
+    }
+
+    public function test_qr_download_returns_png_poster(): void
+    {
+        $user = User::factory()->create();
+        $business = $this->managedBusinessFor($user);
+
+        $response = $this->actingAs($user)->get(route('businesses.qr.download', $business));
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'image/png');
+        $image = imagecreatefromstring($response->getContent());
+        $this->assertNotFalse($image);
+        $this->assertSame(1240, imagesx($image));
+        $this->assertSame(1748, imagesy($image));
+    }
+
+    public function test_qr_download_pdf_returns_pdf(): void
+    {
+        $user = User::factory()->create();
+        $business = $this->managedBusinessFor($user);
+
+        $response = $this->actingAs($user)->get(route('businesses.qr.download-pdf', $business));
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/pdf');
+        $this->assertStringStartsWith('%PDF-', $response->getContent());
     }
 
     public function test_onboarding_banner_is_shown_on_business_page_for_manager(): void
@@ -269,7 +298,54 @@ class BusinessOnboardingTest extends TestCase
         $response->assertSee('Compartilhe seu perfil para concluir a configuração');
     }
 
-    public function test_onboarding_banner_reappears_after_dismissal_cooldown(): void
+    public function test_qr_button_is_available_on_business_page_for_manager_after_onboarding(): void
+    {
+        $user = User::factory()->create();
+        $business = $this->managedBusinessFor($user);
+        $neighborhood = $business->localNeighborhood;
+
+        // completa o onboarding para simular quem já terminou as etapas
+        BusinessPhoto::create([
+            'business_id' => $business->id,
+            'path' => 'businesses/own-photo.jpg',
+            'is_cover' => false,
+            'sort_order' => 0,
+            'uploaded_by' => $user->id,
+        ]);
+        $progress = new BusinessOnboardingProgress;
+        foreach (BusinessOnboardingStep::ordered() as $step) {
+            if ($step !== BusinessOnboardingStep::OwnPhoto) {
+                $progress->completeStep($business, $step, $user);
+            }
+        }
+
+        $response = $this->actingAs($user)->get(route('neighborhood.businesses.show', [
+            ...$neighborhood->routeParameters(),
+            'business' => $business,
+        ]));
+
+        $response->assertOk();
+        $response->assertSee('Placa / QR Code');
+        $response->assertDontSee('Complete o perfil de');
+    }
+
+    public function test_qr_button_is_not_shown_for_strangers(): void
+    {
+        $owner = User::factory()->create();
+        $stranger = User::factory()->create();
+        $business = $this->managedBusinessFor($owner);
+        $neighborhood = $business->localNeighborhood;
+
+        $response = $this->actingAs($stranger)->get(route('neighborhood.businesses.show', [
+            ...$neighborhood->routeParameters(),
+            'business' => $business,
+        ]));
+
+        $response->assertOk();
+        $response->assertDontSee('Placa / QR Code');
+    }
+
+    public function test_qr_banner_reappears_after_dismissal_cooldown(): void
     {
         $user = User::factory()->create();
         $business = $this->managedBusinessFor($user);

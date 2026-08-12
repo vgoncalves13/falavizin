@@ -17,7 +17,7 @@ use App\Models\Setting;
 use App\Models\User;
 use App\Notifications\PlanUpgradeApprovedNotification;
 use App\Notifications\PlanUpgradeRequestNotification;
-use App\Services\BusinessQrCodeService;
+use App\Services\BusinessPosterService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
@@ -188,14 +188,25 @@ class BusinessController extends Controller
         return view('businesses.qr', compact('business'));
     }
 
-    public function downloadQr(Business $business, BusinessQrCodeService $qr): Response
+    public function downloadQr(Business $business, BusinessPosterService $poster): Response
     {
         Gate::authorize('update', $business);
 
         $filename = Str::slug($business->name).'-qr.png';
 
-        return response($qr->pngFor($business))
+        return response($poster->pngFor($business))
             ->header('Content-Type', 'image/png')
+            ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
+    }
+
+    public function downloadQrPdf(Business $business, BusinessPosterService $poster): Response
+    {
+        Gate::authorize('update', $business);
+
+        $filename = Str::slug($business->name).'-qr-a6.pdf';
+
+        return response($poster->pdfFor($business))
+            ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
     }
 

@@ -104,6 +104,12 @@
                         @endauth
 
                         @can('update', $business)
+                            <a href="{{ route('businesses.qr', $business) }}"
+                               class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg transition-colors"
+                               title="Baixar a placa FalaVizin com o QR Code do seu estabelecimento">
+                                <x-heroicon-o-qr-code class="w-4 h-4" />
+                                Placa / QR Code
+                            </a>
                             <a href="{{ route('neighborhood.businesses.edit', [...$business->localNeighborhood->routeParameters(), 'business' => $business]) }}"
                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-stone-600 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors">
                                 <x-heroicon-o-pencil-square class="w-4 h-4" />
