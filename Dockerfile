@@ -11,7 +11,8 @@ RUN composer install \
     --no-progress \
     --optimize-autoloader \
     --no-scripts \
-    --ignore-platform-req=ext-pcntl
+    --ignore-platform-req=ext-pcntl \
+    --ignore-platform-req=ext-gd
 
 
 FROM node:22-bookworm-slim AS frontend
