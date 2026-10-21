@@ -94,6 +94,26 @@ class SmokeTest extends TestCase
         $response->assertStatus(200)->assertSee('Elétrica');
     }
 
+    public function test_home_category_link_resolves(): void
+    {
+        $neighborhood = Neighborhood::factory()->create();
+        $category = Category::factory()->create();
+
+        $response = $this->get(route('neighborhood.home', $neighborhood->routeParameters()));
+        $expectedHref = route('neighborhood.categories.show', [
+            ...$neighborhood->routeParameters(),
+            'category' => $category->slug,
+        ]);
+
+        $hrefs = [];
+        preg_match_all('/<a\s+href="([^"]+)"/', $response->getContent(), $matches);
+        $hrefs = $matches[1];
+        $categoryHref = collect($hrefs)->first(fn (string $href): bool => $href === $expectedHref);
+
+        $this->assertSame($expectedHref, $categoryHref);
+        $this->get($categoryHref)->assertStatus(200);
+    }
+
     public function test_home_page_shows_featured_businesses(): void
     {
         $neighborhood = Neighborhood::factory()->create();

@@ -179,7 +179,7 @@
             <div class="flex-1 min-w-0" style="padding-top:4px;margin-top:-4px;" :class="open ? '' : 'overflow-hidden'">
                 <div class="flex gap-2" :class="open ? 'flex-wrap' : 'flex-nowrap'">
                     @foreach($categories as $category)
-                        <a href="{{ route('neighborhood.categories.show', [...$neighborhood->routeParameters(), 'category' => $category]) }}"
+                        <a href="{{ route('neighborhood.categories.show', [...$neighborhood->routeParameters(), 'category' => $category->slug]) }}"
                            class="cat-pill flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-stone-50 border border-stone-200 rounded-full text-sm font-medium text-stone-700 hover:text-amber-700 hover:bg-amber-50 hover:border-amber-300 whitespace-nowrap transition-colors">
                             <x-dynamic-component :component="'heroicon-o-' . $category->icon" class="w-4 h-4 text-amber-600" />
                             {{ $category->name }}
@@ -245,7 +245,7 @@
                     <a href="{{ $featuredPost->canonicalUrl() }}"
                        class="lift group block bg-white rounded-2xl border border-stone-200 overflow-hidden mb-4">
                         @if($featuredPost->image)
-                            <div class="h-52 overflow-hidden">
+                            <div class="aspect-[4/3] overflow-hidden">
                                 <img src="{{ Storage::url($featuredPost->image) }}"
                                      alt="{{ $featuredPost->title }}"
                                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/>
