@@ -7,7 +7,6 @@ use App\Livewire\Business\PromotionForm;
 use App\Models\Business;
 use App\Models\Promotion;
 use App\Models\User;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -34,11 +33,10 @@ class WeeklyLimitTest extends TestCase
         $business = Business::factory()->create(['user_id' => $owner->id]);
         $otherPromotion = Promotion::factory()->create();
 
-        $this->expectException(ModelNotFoundException::class);
-
         Livewire::actingAs($owner)
             ->test(PromotionForm::class, ['business' => $business])
-            ->call('startEdit', $otherPromotion->id);
+            ->call('startEdit', $otherPromotion->id)
+            ->assertStatus(404);
     }
 
     public function test_business_can_create_first_promotion(): void

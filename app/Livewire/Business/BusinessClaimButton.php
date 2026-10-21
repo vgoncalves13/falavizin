@@ -9,7 +9,6 @@ use App\Models\BusinessClaim;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
-use Livewire\Features\SupportRedirects\Redirector;
 
 class BusinessClaimButton extends Component
 {
@@ -35,10 +34,12 @@ class BusinessClaimButton extends Component
         }
     }
 
-    public function start(): Redirector|bool
+    public function start(): bool
     {
         if (auth()->guest()) {
-            return redirect()->guest(route('login'));
+            $this->redirect(route('login'));
+
+            return true;
         }
 
         Gate::authorize('interact', $this->business);

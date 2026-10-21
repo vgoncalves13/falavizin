@@ -8,7 +8,6 @@ use App\Models\Business;
 use App\Services\BusinessOnboardingProgress;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
-use Livewire\Features\SupportRedirects\Redirector;
 use Livewire\WithFileUploads;
 
 class BusinessOnboardingWizard extends Component
@@ -152,21 +151,31 @@ class BusinessOnboardingWizard extends Component
         $this->advanceAfter('Produtos e serviços informados.');
     }
 
-    public function completeAction(string $key): Redirector|bool
+    public function completeAction(string $key): bool
     {
         Gate::authorize('update', $this->business);
 
         if ($key === 'share') {
             session()->flash('highlight_share', $this->business->id);
 
-            return redirect()->to($this->business->canonicalUrl());
+            $this->redirect($this->business->canonicalUrl());
+
+            return true;
         }
 
-        return match ($key) {
-            'qr' => redirect()->to(route('businesses.qr', $this->business)),
-            'news', 'promotion', 'event' => redirect()->to($this->redirectForAction($key)),
-            default => false,
+        $url = match ($key) {
+            'qr' => route('businesses.qr', $this->business),
+            'news', 'promotion', 'event' => $this->redirectForAction($key),
+            default => null,
         };
+
+        if ($url === null) {
+            return false;
+        }
+
+        $this->redirect($url);
+
+        return true;
     }
 
     private function redirectForAction(string $key): string

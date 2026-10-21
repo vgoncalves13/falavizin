@@ -7,7 +7,6 @@ use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
 use App\Notifications\CommentNotification;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
@@ -114,13 +113,12 @@ class CommentTest extends TestCase
         $post = Post::factory()->create();
         $otherComment = Comment::factory()->create();
 
-        $this->expectException(ModelNotFoundException::class);
-
         Livewire::actingAs($user)
             ->test(CommentSection::class, ['post' => $post])
             ->set('replyingTo', $otherComment->id)
             ->set('replyBody', 'Resposta fora do post.')
-            ->call('addReply');
+            ->call('addReply')
+            ->assertStatus(404);
     }
 
     public function test_owner_can_edit_their_comment(): void

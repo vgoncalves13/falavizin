@@ -6,7 +6,6 @@ use App\Livewire\Business\ReviewSection;
 use App\Models\Business;
 use App\Models\Review;
 use App\Models\User;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -52,11 +51,10 @@ class OwnerReplyTest extends TestCase
             'rating' => 5,
         ]);
 
-        $this->expectException(ModelNotFoundException::class);
-
         Livewire::actingAs($owner)
             ->test(ReviewSection::class, ['business' => $business])
-            ->call('startReply', $otherReview->id);
+            ->call('startReply', $otherReview->id)
+            ->assertStatus(404);
     }
 
     public function test_owner_can_edit_an_existing_reply(): void

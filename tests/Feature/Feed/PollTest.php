@@ -11,7 +11,6 @@ use App\Models\PollOption;
 use App\Models\PollVote;
 use App\Models\Post;
 use App\Models\User;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -77,11 +76,10 @@ class PollTest extends TestCase
         $poll = Poll::factory()->create();
         $otherOption = PollOption::factory()->create();
 
-        $this->expectException(ModelNotFoundException::class);
-
         Livewire::actingAs($voter)
             ->test(\App\Livewire\Feed\PollVote::class, ['poll' => $poll])
-            ->call('vote', $otherOption->id);
+            ->call('vote', $otherOption->id)
+            ->assertStatus(404);
     }
 
     public function test_user_cannot_vote_twice_on_same_poll(): void
